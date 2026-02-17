@@ -23,7 +23,7 @@ html, body {
 #app-loader {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: 100000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,7 +48,7 @@ html, body {
   position: absolute;
   left: -9999px;
   top: 0;
-  z-index: 10001;
+  z-index: 100001;
   background: var(--primary);
   color: var(--bg);
   padding: 8px 16px;
@@ -59,27 +59,27 @@ html, body {
   left: 0;
 }
 
-/* Canvas Container */
+/* Canvas Container - covers everything including cross-promo */
 #game-container {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg);
+  background: #050510;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
-  z-index: 1;
+  z-index: 99999;
 }
 
 #gameCanvas {
   display: block;
-  border-radius: 4px;
-  box-shadow: 0 0 40px rgba(0,229,255,0.15);
+  border-radius: 0;
+  box-shadow: 0 0 60px rgba(0,229,255,0.08);
 }
 
-/* Light mode */
+/* Light mode - game stays dark */
 @media (prefers-color-scheme: light) {
   :root {
     --bg: #f0f4f8;
@@ -87,11 +87,10 @@ html, body {
     --text: #1e293b;
     --text-muted: #64748b;
   }
-  html, body { background: #0a0a1f; }
-  #app-loader { background: #0a0a1f; }
+  html, body { background: #050510; }
+  #app-loader { background: #050510; }
   #app-loader .spinner { border-top-color: #0284c7; }
-  #gameCanvas { box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-  #game-container { background: #0a0a1f; }
+  #game-container { background: #050510; }
 }
 
 /* Reduced motion */

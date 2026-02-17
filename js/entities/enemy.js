@@ -1,4 +1,4 @@
-// Road Shooter - Enemy Types
+// Road Shooter - Enemy Types (Enhanced Visuals)
 class Enemy {
   constructor(x, y, type = 'rusher', stageMul = 1) {
     this.x = x;
@@ -21,15 +21,19 @@ class Enemy {
     this.deathTimer = 0;
     this.targetX = x;
     this.angle = 0;
+    this.animTimer = Math.random() * Math.PI * 2;
 
     // Type-specific state
-    this.fuseTimer = 3; // detonator countdown
+    this.fuseTimer = 3;
     this.fuseStarted = false;
-    this.stealTarget = null; // thief target item
-    this.flankerSide = Math.random() < 0.5 ? -1 : 1; // flanker entry side
+    this.stealTarget = null;
+    this.flankerSide = Math.random() < 0.5 ? -1 : 1;
     this.mortarChargeTimer = 0;
     this.mortarTarget = { x: 0, y: 0 };
     this.mortarWarning = false;
+    // Trail for flanker
+    this.trailX = [];
+    this.trailY = [];
   }
 
   update(dt, squadX, squadY) {
@@ -40,6 +44,14 @@ class Enemy {
     }
 
     if (this.flashTimer > 0) this.flashTimer -= dt;
+    this.animTimer += dt * 3;
+
+    // Store trail for flanker
+    if (this.type === 'flanker') {
+      this.trailX.push(this.x);
+      this.trailY.push(this.y);
+      if (this.trailX.length > 5) { this.trailX.shift(); this.trailY.shift(); }
+    }
 
     switch (this.type) {
       case 'rusher': {
@@ -60,7 +72,6 @@ class Enemy {
         else if (squadX < this.x - 5) this.x -= 0.5;
         break;
       case 'mortar':
-        // Stays near top, charges and fires at predicted position
         if (this.y < 80) this.y += this.speed;
         else {
           if (squadX > this.x + 10) this.x += 0.3;
@@ -73,7 +84,6 @@ class Enemy {
         }
         break;
       case 'detonator': {
-        // Rush toward squad, explode on proximity or after fuse
         const ddx = squadX - this.x;
         const ddy = squadY - this.y;
         const ddist = Math.sqrt(ddx * ddx + ddy * ddy);
@@ -86,7 +96,7 @@ class Enemy {
         if (this.fuseStarted) {
           this.fuseTimer -= dt;
           if (this.fuseTimer <= 0) {
-            this.explode = true; // Flag checked by combat system
+            this.explode = true;
             this.dying = true;
             this.deathTimer = 0.3;
           }
@@ -94,7 +104,6 @@ class Enemy {
         break;
       }
       case 'thief':
-        // Runs toward nearest item, steals it. If no item, flee downward
         if (this.stealTarget && this.stealTarget.active && !this.stealTarget.collected) {
           const tdx = this.stealTarget.x - this.x;
           const tdy = this.stealTarget.y - this.y;
@@ -103,20 +112,18 @@ class Enemy {
             this.x += (tdx / tdist) * this.speed;
             this.y += (tdy / tdist) * this.speed;
           } else {
-            this.stealTarget.active = false; // Steal the item!
+            this.stealTarget.active = false;
             this.stealTarget = null;
           }
           this.angle = Math.atan2(tdy, tdx);
         } else {
-          this.y += this.speed; // Flee down
+          this.y += this.speed;
           this.stealTarget = null;
         }
         break;
       case 'flanker':
-        // Enter from side, move horizontally across
         if (this.y < 100) this.y += this.speed * 0.8;
         this.x += this.flankerSide * this.speed * 0.7;
-        // Bounce off road edges
         const roadL = (CONFIG.CANVAS_WIDTH - CONFIG.CANVAS_WIDTH * CONFIG.ROAD_WIDTH_RATIO) / 2;
         const roadR = roadL + CONFIG.CANVAS_WIDTH * CONFIG.ROAD_WIDTH_RATIO;
         if (this.x < roadL + 10 || this.x > roadR - 10) this.flankerSide *= -1;
@@ -124,7 +131,6 @@ class Enemy {
         break;
     }
 
-    // Off screen removal
     if (this.y > CONFIG.CANVAS_HEIGHT + 50) this.active = false;
   }
 
@@ -153,66 +159,340 @@ class Enemy {
     if (!this.active) return;
     const alpha = this.dying ? this.deathTimer / 0.2 : 1;
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = this.flashTimer > 0 ? '#fff' : this.color;
+    const isFlash = this.flashTimer > 0;
+    const s = this.size;
 
-    switch (this.shape) {
-      case 'triangle':
-        ctx.beginPath();
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.angle + Math.PI / 2);
-        ctx.moveTo(0, -this.size);
-        ctx.lineTo(-this.size * 0.7, this.size * 0.7);
-        ctx.lineTo(this.size * 0.7, this.size * 0.7);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
+    switch (this.type) {
+      case 'rusher':
+        this.drawRusher(ctx, s, isFlash);
         break;
-      case 'rect':
-        ctx.fillRect(this.x - this.size * 0.7, this.y - this.size * 0.7,
-                     this.size * 1.4, this.size * 1.4);
-        // Gun barrel
-        if (!this.dying) {
-          ctx.fillStyle = '#666';
-          ctx.fillRect(this.x - 1.5, this.y + this.size * 0.7, 3, this.size * 0.5);
-        }
+      case 'shooter':
+        this.drawShooter(ctx, s, isFlash);
         break;
-      case 'diamond':
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y - this.size);
-        ctx.lineTo(this.x + this.size * 0.7, this.y);
-        ctx.lineTo(this.x, this.y + this.size);
-        ctx.lineTo(this.x - this.size * 0.7, this.y);
-        ctx.closePath();
-        ctx.fill();
+      case 'mortar':
+        this.drawMortar(ctx, s, isFlash);
+        break;
+      case 'detonator':
+        this.drawDetonator(ctx, s, isFlash);
+        break;
+      case 'thief':
+        this.drawThief(ctx, s, isFlash);
+        break;
+      case 'flanker':
+        this.drawFlanker(ctx, s, isFlash);
         break;
       default:
+        ctx.fillStyle = isFlash ? '#fff' : this.color;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
         ctx.fill();
     }
 
-    // Detonator fuse indicator
-    if (this.type === 'detonator' && this.fuseStarted && !this.dying) {
-      const flash = Math.sin(Date.now() / 80) > 0;
-      ctx.fillStyle = flash ? '#ff0' : '#f00';
-      ctx.beginPath();
-      ctx.arc(this.x, this.y - this.size - 4, 3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // HP bar for enemies with more than 1 HP
+    // HP bar for multi-HP enemies
     if (this.maxHp > 1 && !this.dying) {
-      const barW = this.size * 2;
-      const barH = 3;
+      const barW = s * 2.2;
+      const barH = 2.5;
       const bx = this.x - barW / 2;
-      const by = this.y - this.size - 6;
-      ctx.fillStyle = '#333';
+      const by = this.y - s - 7;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(bx - 0.5, by - 0.5, barW + 1, barH + 1);
+      ctx.fillStyle = '#1e293b';
       ctx.fillRect(bx, by, barW, barH);
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(bx, by, barW * (this.hp / this.maxHp), barH);
+      const pct = this.hp / this.maxHp;
+      const hpColor = pct > 0.5 ? '#ef4444' : pct > 0.25 ? '#f97316' : '#fbbf24';
+      ctx.fillStyle = hpColor;
+      ctx.fillRect(bx, by, barW * pct, barH);
     }
 
     ctx.globalAlpha = 1;
+  }
+
+  drawRusher(ctx, s, isFlash) {
+    // Armored rushing figure with motion lines
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle + Math.PI / 2);
+
+    // Motion lines behind
+    if (!this.dying) {
+      ctx.globalAlpha *= 0.3;
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.3 * i, s * (0.5 + i * 0.3));
+        ctx.lineTo(s * 0.3 * i, s * (0.5 + i * 0.3));
+        ctx.stroke();
+      }
+      ctx.globalAlpha /= 0.3;
+    }
+
+    // Body (armored triangle)
+    ctx.fillStyle = isFlash ? '#fff' : '#b91c1c';
+    ctx.beginPath();
+    ctx.moveTo(0, -s * 1.1);
+    ctx.lineTo(-s * 0.7, s * 0.6);
+    ctx.lineTo(s * 0.7, s * 0.6);
+    ctx.closePath();
+    ctx.fill();
+
+    // Inner armor plate
+    ctx.fillStyle = isFlash ? '#eee' : '#ef4444';
+    ctx.beginPath();
+    ctx.moveTo(0, -s * 0.6);
+    ctx.lineTo(-s * 0.35, s * 0.3);
+    ctx.lineTo(s * 0.35, s * 0.3);
+    ctx.closePath();
+    ctx.fill();
+
+    // Eye (angry slit)
+    if (!this.dying) {
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(-s * 0.25, -s * 0.15, s * 0.5, 1.5);
+    }
+
+    ctx.restore();
+  }
+
+  drawShooter(ctx, s, isFlash) {
+    // Turret with rotating barrel
+    const baseColor = isFlash ? '#fff' : '#92400e';
+    const topColor = isFlash ? '#eee' : '#f97316';
+
+    // Base platform
+    ctx.fillStyle = baseColor;
+    ctx.fillRect(this.x - s * 0.8, this.y - s * 0.3, s * 1.6, s * 1.0);
+
+    // Turret body
+    ctx.fillStyle = topColor;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y - s * 0.2, s * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (!this.dying) {
+      // Barrel (pointing down toward player)
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(this.x - 1.5, this.y + s * 0.3, 3, s * 0.8);
+      // Muzzle
+      ctx.fillStyle = '#f97316';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y + s * 1.1, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Viewport slit
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(this.x - s * 0.3, this.y - s * 0.3, s * 0.6, 1.5);
+
+      // Side armor plates
+      ctx.fillStyle = '#7c2d12';
+      ctx.fillRect(this.x - s * 0.9, this.y - s * 0.1, 2, s * 0.6);
+      ctx.fillRect(this.x + s * 0.9 - 2, this.y - s * 0.1, 2, s * 0.6);
+    }
+  }
+
+  drawMortar(ctx, s, isFlash) {
+    // Heavy artillery piece
+    const baseColor = isFlash ? '#fff' : '#7c2d12';
+    const tubeColor = isFlash ? '#eee' : '#ea580c';
+
+    // Treads/base
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(this.x - s * 0.9, this.y + s * 0.2, s * 1.8, s * 0.4);
+    ctx.fillRect(this.x - s * 0.8, this.y + s * 0.6, s * 1.6, 2);
+
+    // Body
+    ctx.fillStyle = baseColor;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, s * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (!this.dying) {
+      // Mortar tube (angled)
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(0.2 * Math.sin(this.animTimer));
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(-2, -s * 1.5, 4, s * 1.2);
+      ctx.fillStyle = tubeColor;
+      ctx.beginPath();
+      ctx.arc(0, -s * 1.5, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Charge indicator (pulsing ring when charging)
+      if (this.mortarChargeTimer > 0) {
+        const chargePct = 1 - this.mortarChargeTimer / 2;
+        ctx.strokeStyle = `rgba(249,115,22,${0.5 + chargePct * 0.5})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, s + 4 + chargePct * 6, 0, Math.PI * 2 * chargePct);
+        ctx.stroke();
+      }
+
+      // Center marker
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  drawDetonator(ctx, s, isFlash) {
+    // Bomb with countdown ring
+    const baseColor = isFlash ? '#fff' : '#7f1d1d';
+    const bodyColor = isFlash ? '#eee' : '#dc2626';
+
+    // Body (round bomb)
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Dark inner
+    ctx.fillStyle = baseColor;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, s * 0.65, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (!this.dying) {
+      // Skull/danger symbol
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = `bold ${s}px Outfit`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('!', this.x, this.y + 1);
+      ctx.textBaseline = 'alphabetic';
+
+      // Fuse spark on top
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y - s - 2, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#666';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y - s);
+      ctx.quadraticCurveTo(this.x + 3, this.y - s - 4, this.x, this.y - s - 2);
+      ctx.stroke();
+
+      // Countdown ring (if fuse started)
+      if (this.fuseStarted) {
+        const fusePct = this.fuseTimer / 3;
+        const flash = Math.sin(Date.now() / 80) > 0;
+        ctx.strokeStyle = flash ? '#fbbf24' : '#ef4444';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, s + 3, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * fusePct);
+        ctx.stroke();
+      }
+    }
+  }
+
+  drawThief(ctx, s, isFlash) {
+    // Sneaky cloaked figure
+    const cloakColor = isFlash ? '#fff' : '#1f2937';
+    const innerColor = isFlash ? '#eee' : '#374151';
+
+    // Cloak (wider triangle pointing down)
+    ctx.fillStyle = cloakColor;
+    ctx.beginPath();
+    ctx.moveTo(this.x - s * 0.9, this.y - s * 0.6);
+    ctx.lineTo(this.x + s * 0.9, this.y - s * 0.6);
+    ctx.lineTo(this.x + s * 0.4, this.y + s);
+    ctx.lineTo(this.x - s * 0.4, this.y + s);
+    ctx.closePath();
+    ctx.fill();
+
+    // Hood
+    ctx.fillStyle = innerColor;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y - s * 0.4, s * 0.55, Math.PI, 0);
+    ctx.fill();
+
+    if (!this.dying) {
+      // Glowing eyes (two dots)
+      ctx.fillStyle = '#a78bfa';
+      ctx.beginPath();
+      ctx.arc(this.x - s * 0.18, this.y - s * 0.35, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(this.x + s * 0.18, this.y - s * 0.35, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Steal indicator (hand reaching)
+      if (this.stealTarget) {
+        ctx.strokeStyle = 'rgba(167,139,250,0.4)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.stealTarget.x, this.stealTarget.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  }
+
+  drawFlanker(ctx, s, isFlash) {
+    // Fast diagonal unit with motion trail
+    const bodyColor = isFlash ? '#fff' : '#991b1b';
+    const accentColor = isFlash ? '#eee' : '#dc2626';
+
+    // Motion trail (afterimages)
+    if (!this.dying && this.trailX.length > 1) {
+      for (let i = 0; i < this.trailX.length - 1; i++) {
+        const a = (i + 1) / this.trailX.length * 0.2;
+        ctx.globalAlpha *= a;
+        ctx.fillStyle = bodyColor;
+        ctx.beginPath();
+        ctx.moveTo(this.trailX[i], this.trailY[i] - s * 0.6);
+        ctx.lineTo(this.trailX[i] - s * 0.5, this.trailY[i] + s * 0.4);
+        ctx.lineTo(this.trailX[i] + s * 0.5, this.trailY[i] + s * 0.4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha /= a;
+      }
+    }
+
+    // Diamond body
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y - s);
+    ctx.lineTo(this.x + s * 0.7, this.y);
+    ctx.lineTo(this.x, this.y + s);
+    ctx.lineTo(this.x - s * 0.7, this.y);
+    ctx.closePath();
+    ctx.fill();
+
+    // Inner diamond
+    ctx.fillStyle = accentColor;
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y - s * 0.55);
+    ctx.lineTo(this.x + s * 0.35, this.y);
+    ctx.lineTo(this.x, this.y + s * 0.55);
+    ctx.lineTo(this.x - s * 0.35, this.y);
+    ctx.closePath();
+    ctx.fill();
+
+    if (!this.dying) {
+      // Wing blades (sides)
+      ctx.fillStyle = '#64748b';
+      ctx.beginPath();
+      ctx.moveTo(this.x - s * 0.7, this.y);
+      ctx.lineTo(this.x - s * 1.2, this.y - s * 0.2);
+      ctx.lineTo(this.x - s * 0.5, this.y + s * 0.15);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(this.x + s * 0.7, this.y);
+      ctx.lineTo(this.x + s * 1.2, this.y - s * 0.2);
+      ctx.lineTo(this.x + s * 0.5, this.y + s * 0.15);
+      ctx.closePath();
+      ctx.fill();
+
+      // Direction indicator (barrel)
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(this.x - 1, this.y + s * 0.6, 2, s * 0.4);
+    }
   }
 }

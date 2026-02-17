@@ -170,6 +170,23 @@ class RunScene {
       this.spawnTrap();
     }
 
+    // Spawn light road enemies (always have something to shoot at)
+    this.enemySpawnTimer -= dt;
+    if (this.enemySpawnTimer <= 0) {
+      this.spawnRoadEnemy();
+      this.enemySpawnTimer = 1.8 + Math.random() * 2.5; // Every 1.8-4.3s
+    }
+
+    // Always run combat - squad should always be shooting
+    this.combat.squadFire(this.squad, this.enemies, null, this.dmgMul);
+    this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
+    const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
+    this.kills += hitResult.kills;
+    this.gold += hitResult.gold;
+    this.combat.checkEnemyBulletHits(this.squad, this.particles);
+    this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
+    this.checkDetonatorExplosions();
+
     // Check item collection
     this.checkItemCollision();
     this.checkGateCollision();
@@ -399,6 +416,18 @@ class RunScene {
       if (!cfg.minStage || this.stage >= cfg.minStage) types.push(type);
     }
     return types;
+  }
+
+  spawnRoadEnemy() {
+    // Light enemy presence during road segments - 1-3 enemies at a time
+    const count = 1 + Math.floor(Math.random() * 2) + Math.floor(this.segment / 2);
+    for (let i = 0; i < count; i++) {
+      // Mostly rushers, some shooters
+      const type = Math.random() < 0.7 ? 'rusher' : 'shooter';
+      const x = this.road.getRandomX(40);
+      const y = -20 - Math.random() * 60;
+      this.enemies.push(new Enemy(x, y, type, this.stageMul));
+    }
   }
 
   // Collision checking

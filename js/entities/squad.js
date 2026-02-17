@@ -1,4 +1,4 @@
-// Road Shooter - Squad Management
+// Road Shooter - Squad Management (Enhanced Visuals)
 class Squad {
   constructor(startSize = 1) {
     this.members = [];
@@ -6,8 +6,8 @@ class Squad {
     this.y = CONFIG.CANVAS_HEIGHT * 0.75;
     this.targetX = this.x;
     this.maxSize = 0;
+    this.shieldPulse = 0;
 
-    // Add initial members
     for (let i = 0; i < startSize; i++) {
       this.addMember('rifleman');
     }
@@ -73,13 +73,10 @@ class Squad {
   }
 
   update(dt) {
-    // Move squad center
     this.x += (this.targetX - this.x) * 0.12;
-
-    // Update formation positions
+    this.shieldPulse += dt * 2;
     this.updateFormation();
 
-    // Update all members
     for (let i = this.members.length - 1; i >= 0; i--) {
       this.members[i].update(dt);
       if (!this.members[i].active) {
@@ -93,13 +90,11 @@ class Squad {
     const count = alive.length;
     if (count === 0) return;
 
-    // Sort: tankers front, snipers back
     alive.sort((a, b) => {
       const order = { tanker: 0, bomber: 1, rifleman: 2, sniper: 3 };
       return (order[a.type] || 2) - (order[b.type] || 2);
     });
 
-    // Calculate formation based on squad size
     const spacing = count > 50 ? 6 : count > 20 ? 8 : 10;
     const cols = Math.min(count, Math.ceil(Math.sqrt(count * 1.5)));
     const rows = Math.ceil(count / cols);
@@ -115,7 +110,6 @@ class Squad {
     }
   }
 
-  // Get frontline characters for enemy collision
   getFrontline() {
     const alive = this.alive;
     if (alive.length === 0) return [];
@@ -123,27 +117,74 @@ class Squad {
     return alive.filter(a => a.y < minY + 15);
   }
 
-  // Get characters that can fire
   getFirers() {
     return this.alive.filter(c => c.canFire());
   }
 
   draw(ctx) {
-    // Draw count above squad
     const alive = this.alive;
     if (alive.length === 0) return;
 
-    // Draw characters
-    const scale = alive.length > 100 ? 0.6 : alive.length > 50 ? 0.8 : 1;
+    const count = alive.length;
+    const scale = count > 100 ? 0.6 : count > 50 ? 0.8 : 1;
+
+    // Formation boundary glow (subtle ring around squad)
+    const topY = Math.min(...alive.map(a => a.y));
+    const botY = Math.max(...alive.map(a => a.y));
+    const leftX = Math.min(...alive.map(a => a.x));
+    const rightX = Math.max(...alive.map(a => a.x));
+    const centerY = (topY + botY) / 2;
+    const radiusX = (rightX - leftX) / 2 + 12;
+    const radiusY = (botY - topY) / 2 + 12;
+
+    // Shield ring (pulses gently)
+    const shieldAlpha = 0.08 + Math.sin(this.shieldPulse) * 0.04;
+    ctx.strokeStyle = `rgba(0,229,255,${shieldAlpha})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(this.x, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Ground shadow under formation
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath();
+    ctx.ellipse(this.x, botY + 4, radiusX * 0.8, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw all characters
     for (const char of alive) {
       char.draw(ctx, scale);
     }
 
-    // Squad size indicator
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 16px Outfit';
+    // Squad count with background pill
+    const countStr = count.toString();
+    ctx.font = 'bold 14px Outfit';
+    const tw = ctx.measureText(countStr).width;
+    const pillW = tw + 12;
+    const pillH = 18;
+    const pillX = this.x - pillW / 2;
+    const pillY = topY - 22;
+
+    // Pill background
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath();
+    ctx.arc(pillX + pillH / 2, pillY + pillH / 2, pillH / 2, Math.PI * 0.5, Math.PI * 1.5);
+    ctx.arc(pillX + pillW - pillH / 2, pillY + pillH / 2, pillH / 2, -Math.PI * 0.5, Math.PI * 0.5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Pill border
+    ctx.strokeStyle = 'rgba(0,229,255,0.3)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.arc(pillX + pillH / 2, pillY + pillH / 2, pillH / 2, Math.PI * 0.5, Math.PI * 1.5);
+    ctx.arc(pillX + pillW - pillH / 2, pillY + pillH / 2, pillH / 2, -Math.PI * 0.5, Math.PI * 0.5);
+    ctx.closePath();
+    ctx.stroke();
+
+    // Count text
+    ctx.fillStyle = count > 50 ? '#10b981' : count > 20 ? '#00e5ff' : '#fff';
     ctx.textAlign = 'center';
-    const topY = Math.min(...alive.map(a => a.y));
-    ctx.fillText(alive.length.toString(), this.x, topY - 15);
+    ctx.fillText(countStr, this.x, pillY + 14);
   }
 }
