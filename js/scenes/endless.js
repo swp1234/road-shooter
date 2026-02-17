@@ -93,6 +93,12 @@ class EndlessScene {
     // Item collection
     this.checkItemCollision();
 
+    // Always run combat (squad should always shoot if targets exist)
+    if (!this.bossWave) {
+      this.combat.squadFire(this.squad, this.enemies, null, this.dmgMul);
+    }
+    this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
+
     // Wave logic
     if (this.bossWave) {
       this.updateBossWave(dt);
