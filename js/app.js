@@ -7,6 +7,7 @@ class Game {
     this.scene = null;
     this.lastTime = 0;
     this.running = false;
+    this.renderScale = 1;
 
     // i18n
     this.translations = {};
@@ -26,22 +27,33 @@ class Game {
 
   setupCanvas() {
     const resize = () => {
-      const intW = CONFIG.CANVAS_WIDTH;
-      const intH = CONFIG.CANVAS_HEIGHT;
-      const aspect = intW / intH;
-      // Fill screen height, maintain aspect ratio
-      let h = window.innerHeight;
-      let w = h * aspect;
-      if (w > window.innerWidth) {
-        w = window.innerWidth;
-        h = w / aspect;
+      const gameW = CONFIG.CANVAS_WIDTH;  // 400 - game logic coordinates
+      const gameH = CONFIG.CANVAS_HEIGHT; // 700
+      const aspect = gameW / gameH;
+      const dpr = window.devicePixelRatio || 1;
+
+      // CSS display size: fill screen height
+      let cssH = window.innerHeight;
+      let cssW = cssH * aspect;
+      if (cssW > window.innerWidth) {
+        cssW = window.innerWidth;
+        cssH = cssW / aspect;
       }
-      this.canvas.style.width = Math.floor(w) + 'px';
-      this.canvas.style.height = Math.floor(h) + 'px';
-      this.canvas.width = intW;
-      this.canvas.height = intH;
-      this.scaleX = intW / w;
-      this.scaleY = intH / h;
+
+      // Set CSS display size
+      this.canvas.style.width = Math.floor(cssW) + 'px';
+      this.canvas.style.height = Math.floor(cssH) + 'px';
+
+      // Set high-res pixel buffer
+      this.canvas.width = Math.floor(cssW * dpr);
+      this.canvas.height = Math.floor(cssH * dpr);
+
+      // Scale factor: game coords (400x700) → pixel buffer
+      this.renderScale = (cssW * dpr) / gameW;
+
+      // Input: screen coords → game coords
+      this.scaleX = gameW / cssW;
+      this.scaleY = gameH / cssH;
     };
     resize();
     window.addEventListener('resize', resize);
@@ -58,18 +70,14 @@ class Game {
       };
     };
 
-    // Touch/Mouse down
     const onDown = (e) => {
       e.preventDefault();
       const pos = getPos(e);
       this.isDragging = true;
       this.dragStartX = pos.x;
-
-      // Click handling for menus
       if (this.scene && this.scene.handleClick) {
         this.scene.handleClick(pos.x, pos.y);
       }
-      // Drag handling for run
       if (this.scene && this.scene.handleDrag) {
         this.scene.handleDrag(pos.x);
       }
@@ -78,7 +86,6 @@ class Game {
     const onMove = (e) => {
       e.preventDefault();
       const pos = getPos(e);
-      // Always track mouse for squad movement (no drag required)
       if (this.scene && this.scene.handleDrag) {
         if (this.isDragging || this.scene instanceof RunScene) {
           this.scene.handleDrag(pos.x);
@@ -98,7 +105,6 @@ class Game {
     this.canvas.addEventListener('touchmove', onMove, { passive: false });
     this.canvas.addEventListener('touchend', onUp);
 
-    // Keyboard (A/D or ArrowLeft/ArrowRight)
     this.keys = {};
     window.addEventListener('keydown', (e) => {
       this.keys[e.key] = true;
@@ -115,9 +121,7 @@ class Game {
     try {
       const resp = await fetch(`js/locales/${this.lang}.json`);
       if (resp.ok) this.translations = await resp.json();
-    } catch (e) {
-      // Fallback to empty (will use defaults in code)
-    }
+    } catch (e) {}
   }
 
   i18n(key) {
@@ -132,17 +136,18 @@ class Game {
 
   loop(timestamp) {
     if (!this.running) return;
-    const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05); // Cap at 50ms
+    const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05);
     this.lastTime = timestamp;
 
-    // Keyboard input
     this.processKeyboard(dt);
-
-    // Update
     if (this.scene) this.scene.update(dt);
 
-    // Draw
-    this.ctx.clearRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+    // Clear at native resolution
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Apply scale: game coordinates (400x700) → high-res pixel buffer
+    this.ctx.setTransform(this.renderScale, 0, 0, this.renderScale, 0, 0);
     if (this.scene) this.scene.draw(this.ctx);
 
     requestAnimationFrame((t) => this.loop(t));
@@ -181,9 +186,7 @@ class Game {
 
 // Boot
 window.addEventListener('DOMContentLoaded', () => {
-  // Hide loader
   const loader = document.getElementById('app-loader');
   if (loader) loader.style.display = 'none';
-
   window.game = new Game();
 });

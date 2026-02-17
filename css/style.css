@@ -75,8 +75,6 @@ html, body {
 
 #gameCanvas {
   display: block;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
   border-radius: 4px;
   box-shadow: 0 0 40px rgba(0,229,255,0.15);
 }
