@@ -89,11 +89,22 @@ const CONFIG = {
         { threshold: 0.33, attack: 'missiles', interval: 3500 },
         { threshold: 0, attack: 'shield_rush', interval: 3000 }
       ]
+    },
+    stormColossus: {
+      hp: 150,
+      size: 38,
+      color: '#7c3aed',
+      name: 'STORM COLOSSUS',
+      phases: [
+        { threshold: 0.66, attack: 'lightning', interval: 2000 },
+        { threshold: 0.33, attack: 'tornado', interval: 3000 },
+        { threshold: 0, attack: 'thunderstorm', interval: 2500 }
+      ]
     }
   },
 
   // Boss rotation by stage
-  BOSS_ROTATION: ['zombieTitan', 'warMachine'],
+  BOSS_ROTATION: ['zombieTitan', 'warMachine', 'stormColossus'],
 
   // Bullet
   BULLET_SPEED: 6,

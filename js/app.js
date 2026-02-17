@@ -9,6 +9,12 @@ class Game {
     this.running = false;
     this.renderScale = 1;
 
+    // Screen shake
+    this.shakeX = 0;
+    this.shakeY = 0;
+    this.shakeDuration = 0;
+    this.shakeIntensity = 0;
+
     // i18n
     this.translations = {};
     this.lang = this.saveData.settings.language || 'ko';
@@ -72,6 +78,9 @@ class Game {
 
     const onDown = (e) => {
       e.preventDefault();
+      // Init sound on first interaction
+      Sound.init();
+      Sound.resume();
       const pos = getPos(e);
       this.isDragging = true;
       this.dragStartX = pos.x;
@@ -142,12 +151,25 @@ class Game {
     this.processKeyboard(dt);
     if (this.scene) this.scene.update(dt);
 
+    // Update screen shake
+    if (this.shakeDuration > 0) {
+      this.shakeDuration -= dt;
+      this.shakeX = (Math.random() - 0.5) * this.shakeIntensity * 2;
+      this.shakeY = (Math.random() - 0.5) * this.shakeIntensity * 2;
+      this.shakeIntensity *= 0.92;
+    } else {
+      this.shakeX = 0;
+      this.shakeY = 0;
+    }
+
     // Clear at native resolution
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Apply scale: game coordinates (400x700) → high-res pixel buffer
-    this.ctx.setTransform(this.renderScale, 0, 0, this.renderScale, 0, 0);
+    // Apply scale + shake: game coordinates (400x700) → high-res pixel buffer
+    const sx = this.shakeX * this.renderScale;
+    const sy = this.shakeY * this.renderScale;
+    this.ctx.setTransform(this.renderScale, 0, 0, this.renderScale, sx, sy);
     if (this.scene) this.scene.draw(this.ctx);
 
     requestAnimationFrame((t) => this.loop(t));
@@ -164,6 +186,11 @@ class Game {
         this.scene.squad.moveTo(this.scene.squad.targetX + speed);
       }
     }
+  }
+
+  shake(intensity = 4, duration = 0.2) {
+    this.shakeIntensity = Math.max(this.shakeIntensity, intensity);
+    this.shakeDuration = Math.max(this.shakeDuration, duration);
   }
 
   showMenu() {

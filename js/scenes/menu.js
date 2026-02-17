@@ -188,6 +188,7 @@ class MenuScene {
       const b = this.leftArrow;
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
         this.selectedStage = Math.max(1, this.selectedStage - 1);
+        Sound.uiClick();
         return true;
       }
     }
@@ -196,6 +197,7 @@ class MenuScene {
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
         const maxStage = (this.game.saveData.progress.maxStage || 0) + 1;
         this.selectedStage = Math.min(maxStage, this.selectedStage + 1);
+        Sound.uiClick();
         return true;
       }
     }
@@ -204,6 +206,7 @@ class MenuScene {
     if (this.startBtn) {
       const b = this.startBtn;
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        Sound.uiClick();
         this.game.startRun(this.selectedStage);
         return true;
       }
@@ -213,6 +216,7 @@ class MenuScene {
     if (this.upgradeBtn) {
       const b = this.upgradeBtn;
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        Sound.uiClick();
         this.game.showUpgrade();
         return true;
       }

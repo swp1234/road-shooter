@@ -138,6 +138,7 @@ class UpgradeScene {
         const b = btn.buyBtn;
         if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
           this.buyUpgrade(btn.key, btn.cost);
+          Sound.itemCollect();
           return true;
         }
       }
@@ -147,6 +148,7 @@ class UpgradeScene {
     if (this.backBtn) {
       const b = this.backBtn;
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        Sound.uiClick();
         this.game.showMenu();
         return true;
       }

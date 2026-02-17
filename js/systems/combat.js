@@ -44,6 +44,7 @@ class CombatSystem {
         const vx = (dx / dist) * speed;
         const vy = (dy / dist) * speed;
         this.bulletPool.spawn(char.x, char.y - 3, vx, vy, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
+        if (Math.random() < 0.15) Sound.shoot(); // Sparse to avoid noise
       }
     }
   }
@@ -86,9 +87,11 @@ class CombatSystem {
           const killed = boss.takeDamage(b.dmg);
           b.active = false;
           particles.emit(b.x, b.y, '#fbbf24', 2, 2, 0.2, 2);
+          Sound.bossHit();
           if (killed) {
             particles.emitBossDeath(boss.x, boss.y);
             gold += CONFIG.BOSS_GOLD;
+            Sound.bossDeath();
           }
           continue;
         }
@@ -106,6 +109,9 @@ class CombatSystem {
             kills++;
             gold += e.reward;
             particles.emitDeath(e.x, e.y);
+            Sound.enemyDeath();
+          } else {
+            Sound.enemyHit();
           }
           break;
         }
@@ -134,6 +140,7 @@ class CombatSystem {
           if (died) {
             losses++;
             particles.emitDeath(char.x, char.y);
+            Sound.damageTaken();
           }
           break;
         }
@@ -183,6 +190,7 @@ class CombatSystem {
         if (died) {
           losses++;
           particles.emitDeath(char.x, char.y);
+          Sound.damageTaken();
         }
       }
     }

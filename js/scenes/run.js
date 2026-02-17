@@ -61,6 +61,7 @@ class RunScene {
   showSegmentIntro(text) {
     this.transitionText = text;
     this.transitionTimer = 1.5;
+    Sound.stageIntro();
   }
 
   nextSegment() {
@@ -254,6 +255,8 @@ class RunScene {
             }
           }
           this.particles.emit(m.x, m.y, '#f97316', 15, 6, 0.4, 4);
+          Sound.explosion();
+          this.game.shake(5, 0.25);
         }
       }
 
@@ -270,8 +273,47 @@ class RunScene {
       this.checkDetonatorExplosions();
       this.combat.checkBossShockwave(this.boss, this.squad, this.particles);
 
+      // Lightning strikes (Storm Colossus)
+      for (const l of this.boss.lightningStrikes) {
+        if (l.timer <= 0.5 && !l.hit) {
+          l.hit = true;
+          const alive = this.squad.alive;
+          for (const char of alive) {
+            if (char.dying) continue;
+            if (Math.abs(char.x - l.x) < l.width) {
+              const died = char.takeDamage(l.dmg);
+              if (died) this.particles.emitDeath(char.x, char.y);
+            }
+          }
+          this.particles.emit(l.x, 400, '#a78bfa', 10, 5, 0.3, 3);
+          Sound.explosion();
+          this.game.shake(6, 0.2);
+        }
+      }
+
+      // Tornado damage (Storm Colossus)
+      if (this.boss.tornadoActive) {
+        const alive = this.squad.alive;
+        for (const char of alive) {
+          if (char.dying) continue;
+          const dx = char.x - this.boss.tornadoX;
+          if (Math.abs(dx) < 30) {
+            // Push away + small damage
+            char.targetX += dx > 0 ? 8 : -8;
+            if (Math.random() < 0.02) {
+              const died = char.takeDamage(1);
+              if (died) this.particles.emitDeath(char.x, char.y);
+            }
+          }
+        }
+      }
+
       // Boss defeated?
       if (this.boss.dying || !this.boss.active) {
+        if (!this.bossDefeated) {
+          this.game.shake(12, 0.8);
+          Sound.bossDeath();
+        }
         this.bossDefeated = true;
         // Wait for death animation then end
         if (!this.boss.active) {
@@ -387,6 +429,7 @@ class RunScene {
             }
             this.gold += CONFIG.GOLD_PER_ITEM;
             this.particles.emitCollect(item.x, item.y);
+            Sound.itemCollect();
             this.showCombo(cfg.label);
           }
           break;
@@ -407,6 +450,7 @@ class RunScene {
           if (option) {
             this.squad.applyGateEffect(option);
             this.particles.emitGatePass(this.squad.x, this.squad.y, option.color);
+            Sound.gatePass();
             this.showCombo(option.label);
           }
         }
@@ -424,6 +468,8 @@ class RunScene {
         if (type === 'mine') {
           this.squad.removeMember(Math.min(5, Math.ceil(this.squad.size * 0.15)));
           this.particles.emit(trap.x, trap.y, '#ef4444', 15, 6, 0.5, 4);
+          Sound.explosion();
+          this.game.shake(5, 0.25);
         } else if (type === 'quicksand') {
           this.road.speed = CONFIG.SCROLL_SPEED * 0.3;
           setTimeout(() => { this.road.speed = CONFIG.SCROLL_SPEED; }, 2000);
@@ -447,6 +493,8 @@ class RunScene {
         }
       }
       this.particles.emit(e.x, e.y, '#ef4444', 20, 8, 0.5, 5);
+      Sound.explosion();
+      this.game.shake(6, 0.3);
     }
   }
 
@@ -497,6 +545,15 @@ class RunScene {
 
     // Save
     this.game.saveData = SaveManager.updateAfterRun(this.game.saveData, result);
+
+    // Sound + shake
+    if (cleared) {
+      Sound.victory();
+      this.game.shake(8, 0.5);
+    } else {
+      Sound.gameOver();
+      this.game.shake(10, 0.4);
+    }
 
     // Show result after delay
     setTimeout(() => {
