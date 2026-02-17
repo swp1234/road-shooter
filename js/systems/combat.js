@@ -4,7 +4,7 @@ class CombatSystem {
     this.bulletPool = new BulletPool(200);
   }
 
-  // Squad auto-fire at nearest enemy
+  // Squad auto-fire: at enemies if available, else straight forward
   squadFire(squad, enemies, boss, dmgMul = 1) {
     const firers = squad.getFirers();
     const targets = [];
@@ -19,32 +19,45 @@ class CombatSystem {
       }
     }
 
-    if (targets.length === 0) return;
+    const speed = CONFIG.BULLET_SPEED;
 
     for (const char of firers) {
-      // Find nearest target in range
-      let nearest = null;
-      let minDist = char.config.range;
-      for (const t of targets) {
-        const dx = t.x - char.x;
-        const dy = t.y - char.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < minDist) {
-          minDist = dist;
-          nearest = t;
+      if (targets.length > 0) {
+        // Find nearest target in range
+        let nearest = null;
+        let minDist = char.config.range;
+        for (const t of targets) {
+          const dx = t.x - char.x;
+          const dy = t.y - char.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < minDist) {
+            minDist = dist;
+            nearest = t;
+          }
         }
-      }
 
-      if (nearest) {
+        if (nearest) {
+          char.fire();
+          const dx = nearest.x - char.x;
+          const dy = nearest.y - char.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const vx = (dx / dist) * speed;
+          const vy = (dy / dist) * speed;
+          this.bulletPool.spawn(char.x, char.y - 3, vx, vy, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
+          if (Math.random() < 0.15) Sound.shoot();
+        } else {
+          // No target in range — fire straight forward
+          char.fire();
+          const spread = (Math.random() - 0.5) * 0.6;
+          this.bulletPool.spawn(char.x, char.y - 3, spread, -speed, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
+          if (Math.random() < 0.05) Sound.shoot();
+        }
+      } else {
+        // No enemies at all — always fire forward
         char.fire();
-        const dx = nearest.x - char.x;
-        const dy = nearest.y - char.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const speed = CONFIG.BULLET_SPEED;
-        const vx = (dx / dist) * speed;
-        const vy = (dy / dist) * speed;
-        this.bulletPool.spawn(char.x, char.y - 3, vx, vy, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
-        if (Math.random() < 0.15) Sound.shoot(); // Sparse to avoid noise
+        const spread = (Math.random() - 0.5) * 0.8;
+        this.bulletPool.spawn(char.x, char.y - 3, spread, -speed, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
+        if (Math.random() < 0.05) Sound.shoot();
       }
     }
   }
@@ -59,11 +72,24 @@ class CombatSystem {
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist > 0) {
           const speed = 3;
-          this.bulletPool.spawn(
-            e.x, e.y + e.size,
-            (dx / dist) * speed, (dy / dist) * speed,
-            e.dmg, true
-          );
+          if (e.type === 'elite') {
+            // Elite fires 3-bullet spread
+            const baseAngle = Math.atan2(dy, dx);
+            for (let i = -1; i <= 1; i++) {
+              const a = baseAngle + i * 0.25;
+              this.bulletPool.spawn(
+                e.x, e.y + e.size,
+                Math.cos(a) * speed, Math.sin(a) * speed,
+                e.dmg, true
+              );
+            }
+          } else {
+            this.bulletPool.spawn(
+              e.x, e.y + e.size,
+              (dx / dist) * speed, (dy / dist) * speed,
+              e.dmg, true
+            );
+          }
         }
       }
     }

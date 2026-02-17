@@ -34,6 +34,12 @@ class Enemy {
     // Trail for flanker
     this.trailX = [];
     this.trailY = [];
+    // Elite state
+    this.shieldActive = type === 'elite';
+    this.shieldHp = type === 'elite' ? Math.ceil(8 * stageMul) : 0;
+    this.shieldMaxHp = this.shieldHp;
+    this.elitePhase = 0; // 0=advance, 1=hold, 2=attack
+    this.eliteAttackTimer = 0;
   }
 
   update(dt, squadX, squadY) {
@@ -129,6 +135,24 @@ class Enemy {
         if (this.x < roadL + 10 || this.x > roadR - 10) this.flankerSide *= -1;
         if (this.fireTimer > 0) this.fireTimer -= dt;
         break;
+      case 'elite': {
+        // Advance slowly until y=120, then hold position and attack
+        if (this.elitePhase === 0) {
+          this.y += this.speed;
+          if (this.y >= 120) this.elitePhase = 1;
+        } else {
+          // Slowly track squad X
+          if (squadX > this.x + 15) this.x += 0.2;
+          else if (squadX < this.x - 15) this.x -= 0.2;
+        }
+        if (this.fireTimer > 0) this.fireTimer -= dt;
+        this.eliteAttackTimer += dt;
+        // Shield breaks reveal core
+        if (this.shieldActive && this.shieldHp <= 0) {
+          this.shieldActive = false;
+        }
+        break;
+      }
     }
 
     if (this.y > CONFIG.CANVAS_HEIGHT + 50) this.active = false;
@@ -136,7 +160,7 @@ class Enemy {
 
   canFire() {
     if (this.dying || this.fireTimer > 0) return false;
-    return this.type === 'shooter' || this.type === 'mortar' || this.type === 'flanker';
+    return this.type === 'shooter' || this.type === 'mortar' || this.type === 'flanker' || this.type === 'elite';
   }
 
   fire() {
@@ -145,11 +169,23 @@ class Enemy {
 
   takeDamage(dmg) {
     if (this.dying) return false;
-    this.hp -= dmg;
+    // Elite shield absorbs damage first
+    if (this.shieldActive && this.shieldHp > 0) {
+      this.shieldHp -= dmg;
+      this.flashTimer = 0.05;
+      if (this.shieldHp <= 0) {
+        this.shieldActive = false;
+        // Overflow damage goes to HP
+        const overflow = -this.shieldHp;
+        if (overflow > 0) this.hp -= overflow;
+      }
+    } else {
+      this.hp -= dmg;
+    }
     this.flashTimer = 0.1;
     if (this.hp <= 0) {
       this.dying = true;
-      this.deathTimer = 0.2;
+      this.deathTimer = this.type === 'elite' ? 0.5 : 0.2;
       return true;
     }
     return false;
@@ -181,6 +217,9 @@ class Enemy {
       case 'flanker':
         this.drawFlanker(ctx, s, isFlash);
         break;
+      case 'elite':
+        this.drawElite(ctx, s, isFlash);
+        break;
       default:
         ctx.fillStyle = isFlash ? '#fff' : this.color;
         ctx.beginPath();
@@ -188,8 +227,8 @@ class Enemy {
         ctx.fill();
     }
 
-    // HP bar for multi-HP enemies
-    if (this.maxHp > 1 && !this.dying) {
+    // HP bar for multi-HP enemies (elite draws its own)
+    if (this.maxHp > 1 && !this.dying && this.type !== 'elite') {
       const barW = s * 2.2;
       const barH = 2.5;
       const bx = this.x - barW / 2;
@@ -493,6 +532,126 @@ class Enemy {
       // Direction indicator (barrel)
       ctx.fillStyle = '#94a3b8';
       ctx.fillRect(this.x - 1, this.y + s * 0.6, 2, s * 0.4);
+    }
+  }
+
+  drawElite(ctx, s, isFlash) {
+    // Large elite enemy that blocks a section of the road
+    const pulse = 1 + Math.sin(this.animTimer * 2) * 0.03;
+    const bodyColor = isFlash ? '#fff' : '#4c1d95';
+    const armorColor = isFlash ? '#eee' : '#7c3aed';
+
+    // Shield aura (if shield active)
+    if (this.shieldActive) {
+      const shieldPulse = 0.3 + Math.sin(this.animTimer * 4) * 0.1;
+      ctx.strokeStyle = `rgba(167,139,250,${shieldPulse})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(this.x, this.y, s * 1.3 * pulse, s * 1.1 * pulse, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      // Shield fill
+      ctx.fillStyle = `rgba(124,58,237,${shieldPulse * 0.3})`;
+      ctx.fill();
+    }
+
+    // Body - hexagonal armored shape
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+      const px = this.x + Math.cos(a) * s * pulse;
+      const py = this.y + Math.sin(a) * s * 0.85 * pulse;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Armor plates (inner hexagon)
+    ctx.fillStyle = armorColor;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+      const px = this.x + Math.cos(a) * s * 0.7;
+      const py = this.y + Math.sin(a) * s * 0.6;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    if (!this.dying) {
+      // Cannon barrels (3 spread)
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(this.x - 1.5, this.y + s * 0.5, 3, s * 0.6);
+      ctx.fillRect(this.x - s * 0.4, this.y + s * 0.4, 2.5, s * 0.5);
+      ctx.fillRect(this.x + s * 0.4 - 1.5, this.y + s * 0.4, 2.5, s * 0.5);
+
+      // Muzzle tips
+      ctx.fillStyle = '#a78bfa';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y + s * 1.1, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(this.x - s * 0.4, this.y + s * 0.9, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(this.x + s * 0.4, this.y + s * 0.9, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eye core (pulsing)
+      const eyePulse = 0.8 + Math.sin(this.animTimer * 3) * 0.2;
+      ctx.fillStyle = '#c4b5fd';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y - s * 0.1, s * 0.25 * eyePulse, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y - s * 0.1, s * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Side spikes
+      ctx.fillStyle = '#4c1d95';
+      const spikeW = s * 0.3;
+      ctx.beginPath();
+      ctx.moveTo(this.x - s, this.y - s * 0.2);
+      ctx.lineTo(this.x - s - spikeW, this.y);
+      ctx.lineTo(this.x - s, this.y + s * 0.2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(this.x + s, this.y - s * 0.2);
+      ctx.lineTo(this.x + s + spikeW, this.y);
+      ctx.lineTo(this.x + s, this.y + s * 0.2);
+      ctx.closePath();
+      ctx.fill();
+
+      // Shield HP bar (separate from main HP)
+      if (this.shieldMaxHp > 0) {
+        const sBarW = s * 2.4;
+        const sPct = Math.max(0, this.shieldHp / this.shieldMaxHp);
+        const sbx = this.x - sBarW / 2;
+        const sby = this.y - s - 14;
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        ctx.fillRect(sbx, sby, sBarW, 2.5);
+        ctx.fillStyle = this.shieldActive ? '#a78bfa' : '#334155';
+        ctx.fillRect(sbx, sby, sBarW * sPct, 2.5);
+      }
+    }
+
+    // Bigger HP bar for elite
+    if (!this.dying) {
+      const barW = s * 2.4;
+      const barH = 3.5;
+      const bx = this.x - barW / 2;
+      const by = this.y - s - 9;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(bx - 0.5, by - 0.5, barW + 1, barH + 1);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(bx, by, barW, barH);
+      const pct = this.hp / this.maxHp;
+      ctx.fillStyle = pct > 0.5 ? '#ef4444' : pct > 0.25 ? '#f97316' : '#fbbf24';
+      ctx.fillRect(bx, by, barW * pct, barH);
     }
   }
 }

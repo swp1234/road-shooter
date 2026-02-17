@@ -407,6 +407,10 @@ class RunScene {
       const y = -20 - Math.random() * 100;
       this.enemies.push(new Enemy(x, y, type, this.stageMul));
     }
+    // Spawn elite in combat waves (stage 2+, 15% chance per wave)
+    if (this.stage >= 2 && Math.random() < 0.15) {
+      this.spawnElite();
+    }
   }
 
   getAvailableEnemyTypes() {
@@ -419,15 +423,24 @@ class RunScene {
   }
 
   spawnRoadEnemy() {
-    // Light enemy presence during road segments - 1-3 enemies at a time
+    // Light enemy presence during road segments
     const count = 1 + Math.floor(Math.random() * 2) + Math.floor(this.segment / 2);
     for (let i = 0; i < count; i++) {
-      // Mostly rushers, some shooters
       const type = Math.random() < 0.7 ? 'rusher' : 'shooter';
       const x = this.road.getRandomX(40);
       const y = -20 - Math.random() * 60;
       this.enemies.push(new Enemy(x, y, type, this.stageMul));
     }
+    // Occasionally spawn elite during road (stage 3+, low chance)
+    if (this.stage >= 3 && Math.random() < 0.08) {
+      this.spawnElite();
+    }
+  }
+
+  spawnElite() {
+    // Elite spawns at random road X position
+    const x = this.road.getRandomX(50);
+    this.enemies.push(new Enemy(x, -30, 'elite', this.stageMul));
   }
 
   // Collision checking

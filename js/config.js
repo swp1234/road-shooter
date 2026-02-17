@@ -53,7 +53,8 @@ const CONFIG = {
     mortar:    { hp: 4,  speed: 0.5, dmg: 2, color: '#ea580c', size: 10, shape: 'circle',   reward: 8,  fireRate: 0.5, minStage: 5 },
     detonator: { hp: 2,  speed: 2.5, dmg: 5, color: '#dc2626', size: 7,  shape: 'circle',   reward: 6,  minStage: 10 },
     thief:     { hp: 2,  speed: 4,   dmg: 0, color: '#1f2937', size: 7,  shape: 'triangle', reward: 10, minStage: 7 },
-    flanker:   { hp: 3,  speed: 2.5, dmg: 1, color: '#991b1b', size: 8,  shape: 'diamond',  reward: 7,  fireRate: 1.5, minStage: 12 }
+    flanker:   { hp: 3,  speed: 2.5, dmg: 1, color: '#991b1b', size: 8,  shape: 'diamond',  reward: 7,  fireRate: 1.5, minStage: 12 },
+    elite:     { hp: 20, speed: 0.3, dmg: 3, color: '#7c3aed', size: 22, shape: 'elite',    reward: 25, fireRate: 1.0, minStage: 2 }
   },
 
   // Upgrades

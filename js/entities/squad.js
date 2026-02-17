@@ -121,6 +121,15 @@ class Squad {
     return this.alive.filter(c => c.canFire());
   }
 
+  getRank(count) {
+    if (count >= 100) return { name: 'REGIMENT', color: '#fbbf24' };
+    if (count >= 60)  return { name: 'BATTALION', color: '#f97316' };
+    if (count >= 30)  return { name: 'COMPANY', color: '#a78bfa' };
+    if (count >= 12)  return { name: 'PLATOON', color: '#3b82f6' };
+    if (count >= 5)   return { name: 'SQUAD', color: '#10b981' };
+    return { name: '', color: '#94a3b8' };
+  }
+
   draw(ctx) {
     const alive = this.alive;
     if (alive.length === 0) return;
@@ -156,35 +165,38 @@ class Squad {
       char.draw(ctx, scale);
     }
 
-    // Squad count with background pill
+    // Squad count + rank with background pill
+    const rank = this.getRank(count);
     const countStr = count.toString();
-    ctx.font = 'bold 14px Outfit';
-    const tw = ctx.measureText(countStr).width;
-    const pillW = tw + 12;
+    const rankStr = rank.name;
+    const label = rankStr ? `${rankStr} ${countStr}` : countStr;
+    ctx.font = 'bold 12px Outfit';
+    const tw = ctx.measureText(label).width;
+    const pillW = tw + 14;
     const pillH = 18;
     const pillX = this.x - pillW / 2;
-    const pillY = topY - 22;
+    const pillY = topY - 24;
 
     // Pill background
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
     ctx.beginPath();
     ctx.arc(pillX + pillH / 2, pillY + pillH / 2, pillH / 2, Math.PI * 0.5, Math.PI * 1.5);
     ctx.arc(pillX + pillW - pillH / 2, pillY + pillH / 2, pillH / 2, -Math.PI * 0.5, Math.PI * 0.5);
     ctx.closePath();
     ctx.fill();
 
-    // Pill border
-    ctx.strokeStyle = 'rgba(0,229,255,0.3)';
-    ctx.lineWidth = 0.5;
+    // Pill border (rank color)
+    ctx.strokeStyle = rank.name ? rank.color : 'rgba(0,229,255,0.3)';
+    ctx.lineWidth = rank.name ? 1 : 0.5;
     ctx.beginPath();
     ctx.arc(pillX + pillH / 2, pillY + pillH / 2, pillH / 2, Math.PI * 0.5, Math.PI * 1.5);
     ctx.arc(pillX + pillW - pillH / 2, pillY + pillH / 2, pillH / 2, -Math.PI * 0.5, Math.PI * 0.5);
     ctx.closePath();
     ctx.stroke();
 
-    // Count text
-    ctx.fillStyle = count > 50 ? '#10b981' : count > 20 ? '#00e5ff' : '#fff';
+    // Label text
+    ctx.fillStyle = rank.name ? rank.color : '#fff';
     ctx.textAlign = 'center';
-    ctx.fillText(countStr, this.x, pillY + 14);
+    ctx.fillText(label, this.x, pillY + 13);
   }
 }
