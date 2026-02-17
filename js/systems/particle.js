@@ -23,17 +23,29 @@ class Particle {
   draw(ctx) {
     if (!this.active) return;
     const alpha = this.life / this.maxLife;
+    const r = this.size * alpha;
     ctx.globalAlpha = alpha;
+    // Glow
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = r * 2;
     ctx.fillStyle = this.color;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size * alpha, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
     ctx.fill();
+    // Bright center
+    if (r > 1.5) {
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, r * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
     ctx.globalAlpha = 1;
   }
 }
 
 class ParticleSystem {
-  constructor(maxParticles = 150) {
+  constructor(maxParticles = 250) {
     this.particles = [];
     this.max = maxParticles;
   }
