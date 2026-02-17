@@ -79,7 +79,9 @@ class RunScene {
         // Boss time!
         this.segmentType = 'boss';
         this.segmentTimer = CONFIG.BOSS_DURATION;
-        this.boss = new Boss('zombieTitan', this.stageMul);
+        const rot = CONFIG.BOSS_ROTATION;
+        const bossType = rot[(this.stage - 1) % rot.length];
+        this.boss = new Boss(bossType, this.stageMul);
         this.showSegmentIntro(`${this.game.i18n('run_boss') || 'BOSS'}`);
         this.enemies = [];
       } else {
@@ -225,6 +227,34 @@ class RunScene {
         const ex = this.boss.x + (Math.random() - 0.5) * 60;
         const ey = this.boss.y + 30;
         this.enemies.push(new Enemy(ex, ey, 'rusher', this.stageMul));
+      }
+
+      // Process boss bullets (War Machine gatling)
+      for (let i = this.boss.bulletQueue.length - 1; i >= 0; i--) {
+        const bq = this.boss.bulletQueue[i];
+        bq.delay -= dt * 1000;
+        if (bq.delay <= 0) {
+          this.combat.bulletPool.spawn(bq.x, bq.y, bq.vx, bq.vy, bq.dmg, true);
+          this.boss.bulletQueue.splice(i, 1);
+        }
+      }
+
+      // Check missile warnings (War Machine)
+      for (const m of this.boss.missileWarnings) {
+        if (m.timer <= 0.05 && !m.hit) {
+          m.hit = true;
+          const alive = this.squad.alive;
+          for (const char of alive) {
+            if (char.dying) continue;
+            const dx = char.x - m.x;
+            const dy = char.y - m.y;
+            if (dx * dx + dy * dy < m.radius * m.radius) {
+              const died = char.takeDamage(m.dmg);
+              if (died) this.particles.emitDeath(char.x, char.y);
+            }
+          }
+          this.particles.emit(m.x, m.y, '#f97316', 15, 6, 0.4, 4);
+        }
       }
 
       // Combat
@@ -567,6 +597,15 @@ class RunScene {
     ctx.fillStyle = '#ef4444';
     ctx.font = '11px Outfit';
     ctx.fillText(`${this.kills} kills`, cw - 10, 38);
+
+    // Squad count (bottom-right above bar)
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 13px Outfit';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${this.squad.size}`, cw - 8, CONFIG.CANVAS_HEIGHT - 14);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '9px Outfit';
+    ctx.fillText('SQUAD', cw - 8, CONFIG.CANVAS_HEIGHT - 26);
 
     // Squad size bar (bottom)
     const barY = CONFIG.CANVAS_HEIGHT - 6;

@@ -66,19 +66,34 @@ const CONFIG = {
     goldBonus:   { max: 10, baseCost: 300,  costMul: 1.6, effect: '+10% gold', perLevel: 0.10 }
   },
 
-  // Boss (Zombie Titan - Stage 1-5)
+  // Bosses
   BOSS: {
     zombieTitan: {
       hp: 80,
       size: 40,
       color: '#dc2626',
+      name: 'ZOMBIE TITAN',
       phases: [
         { threshold: 0.66, attack: 'shockwave', interval: 3000 },
         { threshold: 0.33, attack: 'summon', interval: 4000 },
         { threshold: 0, attack: 'charge', interval: 2000 }
       ]
+    },
+    warMachine: {
+      hp: 120,
+      size: 35,
+      color: '#475569',
+      name: 'WAR MACHINE',
+      phases: [
+        { threshold: 0.66, attack: 'gatling', interval: 2500 },
+        { threshold: 0.33, attack: 'missiles', interval: 3500 },
+        { threshold: 0, attack: 'shield_rush', interval: 3000 }
+      ]
     }
   },
+
+  // Boss rotation by stage
+  BOSS_ROTATION: ['zombieTitan', 'warMachine'],
 
   // Bullet
   BULLET_SPEED: 6,
