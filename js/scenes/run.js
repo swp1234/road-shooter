@@ -52,15 +52,18 @@ class RunScene {
     this.comboTimer = 0;
     this.dangerAlpha = 0;
 
-    // Transition
+    // Buffs (power-up timers)
+    this.buffs = { dmg: 0, shield: 0, fireRate: 0, magnet: 0 };
+
+    // Transition (minimal — no gameplay pause)
     this.transitionText = '';
     this.transitionTimer = 0;
-    this.showSegmentIntro(`${this.game.i18n('run_road') || 'Road'} 1`);
+    this.showSegmentIntro(`Stage ${this.stage}`);
   }
 
   showSegmentIntro(text) {
     this.transitionText = text;
-    this.transitionTimer = 1.5;
+    this.transitionTimer = 0.8;
     Sound.stageIntro();
   }
 
@@ -70,7 +73,7 @@ class RunScene {
       this.segmentTimer = CONFIG.COMBAT_DURATION;
       this.waveCount = 0;
       this.enemySpawnTimer = 0.5;
-      this.showSegmentIntro(`${this.game.i18n('run_combat') || 'Combat'} ${this.segment + 1}`);
+      // No intro text for combat — seamless transition
       // Clear items and gates
       this.items = this.items.filter(i => !i.collected);
       this.gates = [];
@@ -88,7 +91,7 @@ class RunScene {
       } else {
         this.segmentType = 'road';
         this.segmentTimer = CONFIG.ROAD_DURATION;
-        this.showSegmentIntro(`${this.game.i18n('run_road') || 'Road'} ${this.segment + 1}`);
+        // No intro text for road — seamless flow
       }
     }
   }
@@ -98,11 +101,15 @@ class RunScene {
 
     this.totalTimer += dt;
 
-    // Transition
+    // Transition (no gameplay pause)
     if (this.transitionTimer > 0) {
       this.transitionTimer -= dt;
-      if (this.transitionTimer > 1) return; // Pause gameplay during intro
     }
+
+    // Update buffs
+    if (this.buffs.dmg > 0) this.buffs.dmg -= dt;
+    if (this.buffs.fireRate > 0) this.buffs.fireRate -= dt;
+    if (this.buffs.magnet > 0) this.buffs.magnet -= dt;
 
     // Road always scrolls
     this.road.update();
@@ -178,14 +185,31 @@ class RunScene {
     }
 
     // Always run combat - squad should always be shooting
-    this.combat.squadFire(this.squad, this.enemies, null, this.dmgMul);
+    const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
+    const rapid = this.buffs.fireRate > 0;
+    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid);
     this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
     const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
     this.kills += hitResult.kills;
     this.gold += hitResult.gold;
-    this.combat.checkEnemyBulletHits(this.squad, this.particles);
+    const losses = this.combat.checkEnemyBulletHits(this.squad, this.particles);
+    if (losses > 0 && this.buffs.shield > 0) this.buffs.shield = Math.max(0, this.buffs.shield - losses);
     this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
     this.checkDetonatorExplosions();
+
+    // Magnet effect: attract items toward squad
+    if (this.buffs.magnet > 0) {
+      for (const item of this.items) {
+        if (item.collected) continue;
+        const dx = this.squad.x - item.x;
+        const dy = this.squad.y - item.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120 && dist > 5) {
+          item.x += (dx / dist) * 3;
+          item.y += (dy / dist) * 2;
+        }
+      }
+    }
 
     // Check item collection
     this.checkItemCollision();
@@ -207,8 +231,10 @@ class RunScene {
       this.enemySpawnTimer = 5; // Next wave in 5s
     }
 
-    // Auto combat
-    this.combat.squadFire(this.squad, this.enemies, null, this.dmgMul);
+    // Auto combat with buffs
+    const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
+    const rapid = this.buffs.fireRate > 0;
+    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid);
     this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
 
     // Check hits
@@ -277,8 +303,10 @@ class RunScene {
         }
       }
 
-      // Combat
-      this.combat.squadFire(this.squad, this.enemies, this.boss, this.dmgMul);
+      // Combat with buffs
+      const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
+      const rapid = this.buffs.fireRate > 0;
+      this.combat.squadFire(this.squad, this.enemies, this.boss, dmg, rapid);
       this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
 
       const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles);
@@ -368,16 +396,23 @@ class RunScene {
     }
   }
 
-  // Spawning
+  // Spawning (weighted random)
   spawnItem() {
-    const types = Object.keys(CONFIG.ITEMS);
-    const type = types[Math.floor(Math.random() * types.length)];
+    const items = CONFIG.ITEMS;
+    const types = Object.keys(items);
+    const totalWeight = types.reduce((sum, t) => sum + (items[t].weight || 10), 0);
+    let roll = Math.random() * totalWeight;
+    let type = types[0];
+    for (const t of types) {
+      roll -= items[t].weight || 10;
+      if (roll <= 0) { type = t; break; }
+    }
     const x = this.road.getRandomX();
     this.items.push(new Item(x, -20, type));
   }
 
   spawnGate() {
-    const types = ['classic', 'gambler', 'addLarge'];
+    const types = ['classic', 'gambler', 'addLarge', 'weapons', 'power'];
     const type = types[Math.floor(Math.random() * types.length)];
     this.gates.push(new Gate(-CONFIG.GATE_HEIGHT, type));
   }
@@ -454,7 +489,9 @@ class RunScene {
         if (dx * dx + dy * dy < (item.size + 8) * (item.size + 8)) {
           const cfg = item.collect();
           if (cfg) {
-            if (cfg.isPercent) {
+            if (cfg.isBuff) {
+              this.applyBuff(cfg);
+            } else if (cfg.isPercent) {
               this.squad.addByPercent(cfg.value);
             } else if (cfg.charType === 'random') {
               const types = Object.keys(CONFIG.CHAR_TYPES);
@@ -490,7 +527,13 @@ class RunScene {
         if (side) {
           const option = gate.choose(side);
           if (option) {
-            this.squad.applyGateEffect(option);
+            if (option.isBuff) {
+              this.applyBuff(option);
+            } else if (option.op === 'addType') {
+              this.squad.addMember(option.charType, option.value);
+            } else {
+              this.squad.applyGateEffect(option);
+            }
             this.particles.emitGatePass(this.squad.x, this.squad.y, option.color);
             Sound.gatePass();
             this.showCombo(option.label);
@@ -556,6 +599,36 @@ class RunScene {
     }
   }
 
+  applyBuff(cfg) {
+    switch (cfg.buffType) {
+      case 'dmg':
+        this.buffs.dmg = cfg.duration || 8;
+        break;
+      case 'shield':
+        this.buffs.shield += cfg.value || 5;
+        break;
+      case 'fireRate':
+        this.buffs.fireRate = cfg.duration || 8;
+        break;
+      case 'magnet':
+        this.buffs.magnet = cfg.duration || 6;
+        break;
+      case 'nuke':
+        for (const e of this.enemies) {
+          if (e.active && !e.dying) {
+            e.takeDamage(999);
+            this.kills++;
+            this.gold += e.reward;
+            this.particles.emitDeath(e.x, e.y);
+          }
+        }
+        Sound.explosion();
+        this.game.shake(10, 0.5);
+        this.particles.emit(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2, '#ff6b35', 25, 8, 0.5, 6);
+        break;
+    }
+  }
+
   showCombo(text) {
     this.comboText = text;
     this.comboTimer = 1;
@@ -603,53 +676,116 @@ class RunScene {
     }, cleared ? 1500 : 500);
   }
 
+  // Depth-scaled draw helper
+  drawScaled(ctx, obj) {
+    const scale = this.road.getScale(obj.y);
+    if (scale < 0.15) return;
+    ctx.save();
+    ctx.translate(obj.x, obj.y);
+    ctx.scale(scale, scale);
+    ctx.translate(-obj.x, -obj.y);
+    obj.draw(ctx);
+    ctx.restore();
+  }
+
   draw(ctx) {
-    // Road
+    const cw = CONFIG.CANVAS_WIDTH;
+    const ch = CONFIG.CANVAS_HEIGHT;
+
+    // Road (3D perspective background)
     this.road.draw(ctx);
 
-    // Traps (below items)
-    for (const trap of this.traps) trap.draw(ctx);
+    // Traps (depth-scaled)
+    for (const trap of this.traps) this.drawScaled(ctx, trap);
 
-    // Items
-    for (const item of this.items) item.draw(ctx);
+    // Items (depth-scaled)
+    for (const item of this.items) this.drawScaled(ctx, item);
 
-    // Gates
-    for (const gate of this.gates) gate.draw(ctx);
+    // Gates (depth-scaled)
+    for (const gate of this.gates) {
+      const scale = this.road.getScale(gate.y + gate.height / 2);
+      if (scale < 0.15) continue;
+      ctx.save();
+      const cy = gate.y + gate.height / 2;
+      ctx.translate(cw / 2, cy);
+      ctx.scale(scale, scale);
+      ctx.translate(-cw / 2, -cy);
+      gate.draw(ctx);
+      ctx.restore();
+    }
 
-    // Enemies
-    for (const e of this.enemies) e.draw(ctx);
+    // Enemies (depth-scaled)
+    for (const e of this.enemies) this.drawScaled(ctx, e);
 
-    // Boss
-    if (this.boss) this.boss.draw(ctx);
+    // Boss (depth-scaled)
+    if (this.boss) this.drawScaled(ctx, this.boss);
 
-    // Bullets
-    this.combat.draw(ctx);
+    // Bullets (depth-scaled per bullet)
+    const bullets = this.combat.bulletPool.active;
+    for (const b of bullets) {
+      if (!b.active) continue;
+      const scale = this.road.getScale(b.y);
+      if (scale < 0.15) continue;
+      const sz = CONFIG.BULLET_SIZE * scale;
+      if (b.isEnemy) {
+        ctx.fillStyle = '#ef4444';
+        ctx.shadowColor = '#ef4444';
+      } else {
+        ctx.fillStyle = '#00e5ff';
+        ctx.shadowColor = '#00e5ff';
+      }
+      ctx.shadowBlur = 4 * scale;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, Math.max(1, sz), 0, Math.PI * 2);
+      ctx.fill();
+      // Trail
+      if (b.prevX !== undefined) {
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath();
+        ctx.moveTo(b.prevX, b.prevY);
+        ctx.lineTo(b.x, b.y);
+        ctx.strokeStyle = b.isEnemy ? '#ef4444' : '#00e5ff';
+        ctx.lineWidth = Math.max(0.5, sz * 0.6);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      ctx.shadowBlur = 0;
+    }
 
-    // Squad
+    // Squad (depth-scaled as group)
+    const sqScale = this.road.getScale(this.squad.y);
+    ctx.save();
+    ctx.translate(this.squad.x, this.squad.y);
+    ctx.scale(sqScale, sqScale);
+    ctx.translate(-this.squad.x, -this.squad.y);
     this.squad.draw(ctx);
+    ctx.restore();
 
-    // Particles (on top)
+    // Particles (on top, no scaling — they're effects)
     this.particles.draw(ctx);
 
     // HUD
     this.drawHUD(ctx);
 
+    // Buff indicators (below HUD)
+    this.drawBuffBar(ctx);
+
     // Danger overlay
     if (this.dangerAlpha > 0) {
       ctx.fillStyle = `rgba(239,68,68,${this.dangerAlpha})`;
-      ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+      ctx.fillRect(0, 0, cw, ch);
     }
 
-    // Transition text
+    // Transition text (subtle top banner)
     if (this.transitionTimer > 0) {
-      const alpha = this.transitionTimer > 1 ? 1 : this.transitionTimer;
+      const alpha = Math.min(1, this.transitionTimer * 2);
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fillRect(0, 48, cw, 28);
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 28px Syne';
+      ctx.font = 'bold 13px Syne';
       ctx.textAlign = 'center';
-      ctx.fillText(this.transitionText, CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2);
+      ctx.fillText(this.transitionText, cw / 2, 66);
       ctx.globalAlpha = 1;
     }
 
@@ -657,11 +793,37 @@ class RunScene {
     if (this.comboTimer > 0) {
       ctx.globalAlpha = this.comboTimer;
       ctx.fillStyle = CONFIG.COLORS.primary;
-      ctx.font = 'bold 24px Outfit';
+      ctx.font = 'bold 22px Outfit';
       ctx.textAlign = 'center';
-      ctx.fillText(this.comboText, CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.4 - (1 - this.comboTimer) * 30);
+      ctx.fillText(this.comboText, cw / 2, ch * 0.45 - (1 - this.comboTimer) * 30);
       ctx.globalAlpha = 1;
     }
+  }
+
+  drawBuffBar(ctx) {
+    const cw = CONFIG.CANVAS_WIDTH;
+    let x = 8;
+    const y = 54;
+    const draw = (label, color, val) => {
+      if (val <= 0) return;
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.8;
+      ctx.font = 'bold 9px Outfit';
+      ctx.textAlign = 'left';
+      const text = typeof val === 'number' && val > 1 ? `${label} ${Math.ceil(val)}s` : label;
+      const tw = ctx.measureText(text).width + 8;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(x, y, tw, 14);
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, 2, 14);
+      ctx.fillText(text, x + 5, y + 10);
+      x += tw + 4;
+      ctx.globalAlpha = 1;
+    };
+    draw('DMG+', '#f43f5e', this.buffs.dmg);
+    draw('SHIELD ' + Math.ceil(this.buffs.shield), '#60a5fa', this.buffs.shield);
+    draw('RAPID', '#eab308', this.buffs.fireRate);
+    draw('MAGNET', '#a855f7', this.buffs.magnet);
   }
 
   drawHUD(ctx) {

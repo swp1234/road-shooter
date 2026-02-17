@@ -32,6 +32,14 @@ class Gate {
         this.left = { label: '+15', op: 'add', value: 15, color: CONFIG.COLORS.gate_left };
         this.right = { label: 'x1.5', op: 'multiply', value: 1.5, color: CONFIG.COLORS.gate_right };
         break;
+      case 'weapons':
+        this.left = { label: 'SNIPER +3', op: 'addType', charType: 'sniper', value: 3, color: '#8b5cf6' };
+        this.right = { label: 'BOMBER +2', op: 'addType', charType: 'bomber', value: 2, color: '#f97316' };
+        break;
+      case 'power':
+        this.left = { label: 'DMG +30%', op: 'buff', isBuff: true, buffType: 'dmg', value: 0.3, duration: 10, color: '#f43f5e' };
+        this.right = { label: 'SHIELD +5', op: 'buff', isBuff: true, buffType: 'shield', value: 5, color: '#60a5fa' };
+        break;
       default:
         this.left = { label: 'x2', op: 'multiply', value: 2, color: CONFIG.COLORS.gate_left };
         this.right = { label: '+5', op: 'add', value: 5, color: CONFIG.COLORS.gate_right };

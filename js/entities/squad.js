@@ -3,7 +3,7 @@ class Squad {
   constructor(startSize = 1) {
     this.members = [];
     this.x = CONFIG.CANVAS_WIDTH / 2;
-    this.y = CONFIG.CANVAS_HEIGHT * 0.75;
+    this.y = CONFIG.CANVAS_HEIGHT * 0.85;
     this.targetX = this.x;
     this.maxSize = 0;
     this.shieldPulse = 0;

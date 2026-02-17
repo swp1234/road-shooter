@@ -31,15 +31,26 @@ const CONFIG = {
     bomber:   { dmg: 20, range: 120, hp: 1, fireRate: 0.3, color: '#f97316', size: 4, aoe: 40 }
   },
 
+  // Perspective
+  HORIZON_RATIO: 0.2,
+  ROAD_TOP_RATIO: 0.22, // road narrows to this fraction at horizon
+
   // Items
   ITEM_SIZE: 16,
   ITEM_SPAWN_INTERVAL: 40, // frames between spawns
   ITEMS: {
-    scoutToken:  { value: 1,  color: '#10b981', label: '+1',   charType: 'rifleman' },
-    rallyFlag:   { value: 0.2, color: '#fbbf24', label: '+20%', isPercent: true },
-    mercenary:   { value: 5,  color: '#d4a44c', label: '+5',   charType: 'random' },
-    clonePod:    { value: 3,  color: '#06b6d4', label: '+3',   charType: 'tanker' },
-    conscription:{ value: 8,  color: '#ef4444', label: '+8',   charType: 'mixed' }
+    // Squad growth
+    scoutToken:  { value: 1,  color: '#10b981', label: '+1',   charType: 'rifleman', weight: 20 },
+    rallyFlag:   { value: 0.2, color: '#fbbf24', label: '+20%', isPercent: true, weight: 12 },
+    mercenary:   { value: 5,  color: '#d4a44c', label: '+5',   charType: 'random', weight: 10 },
+    clonePod:    { value: 3,  color: '#06b6d4', label: '+3',   charType: 'tanker', weight: 10 },
+    conscription:{ value: 8,  color: '#ef4444', label: '+8',   charType: 'mixed', weight: 5 },
+    // Power-ups
+    dmgBoost:    { value: 0.3, color: '#f43f5e', label: 'DMG+',   isBuff: true, buffType: 'dmg', duration: 8, weight: 8 },
+    shieldBuff:  { value: 5,   color: '#60a5fa', label: 'SHIELD', isBuff: true, buffType: 'shield', weight: 6 },
+    rapidFire:   { value: 2,   color: '#eab308', label: 'RAPID',  isBuff: true, buffType: 'fireRate', duration: 8, weight: 7 },
+    magnetPulse: { value: 80,  color: '#a855f7', label: 'MAGNET', isBuff: true, buffType: 'magnet', duration: 6, weight: 5 },
+    nuke:        { value: 999, color: '#ff6b35', label: 'NUKE!',  isBuff: true, buffType: 'nuke', weight: 2 }
   },
 
   // Gates
@@ -54,7 +65,7 @@ const CONFIG = {
     detonator: { hp: 2,  speed: 2.5, dmg: 5, color: '#dc2626', size: 7,  shape: 'circle',   reward: 6,  minStage: 10 },
     thief:     { hp: 2,  speed: 4,   dmg: 0, color: '#1f2937', size: 7,  shape: 'triangle', reward: 10, minStage: 7 },
     flanker:   { hp: 3,  speed: 2.5, dmg: 1, color: '#991b1b', size: 8,  shape: 'diamond',  reward: 7,  fireRate: 1.5, minStage: 12 },
-    elite:     { hp: 20, speed: 0.3, dmg: 3, color: '#7c3aed', size: 22, shape: 'elite',    reward: 25, fireRate: 1.0, minStage: 2 }
+    elite:     { hp: 25, speed: 0.3, dmg: 3, color: '#7c3aed', size: 35, shape: 'elite',    reward: 30, fireRate: 1.0, minStage: 2 }
   },
 
   // Upgrades

@@ -13,10 +13,24 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: var(--bg);
+  background: #050510;
   color: var(--text);
   font-family: 'Outfit', 'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Hide cross-promo for fullscreen canvas game */
+[id*="cross-promo"],
+[class*="cross-promo"],
+.cross-promo-sidebar {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
 }
 
 /* App Loader */
@@ -27,7 +41,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg);
+  background: #050510;
 }
 
 #app-loader .spinner {
@@ -59,7 +73,7 @@ html, body {
   left: 0;
 }
 
-/* Canvas Container - covers entire viewport including cross-promo */
+/* Canvas Container - fullscreen, centered */
 #game-container {
   position: fixed;
   top: 0;
@@ -74,12 +88,11 @@ html, body {
   user-select: none;
   -webkit-user-select: none;
   z-index: 99999;
+  overflow: hidden;
 }
 
 #gameCanvas {
   display: block;
-  margin: 0 auto;
-  border-radius: 0;
   box-shadow: 0 0 60px rgba(0,229,255,0.08);
 }
 
@@ -93,7 +106,6 @@ html, body {
   }
   html, body { background: #050510; }
   #app-loader { background: #050510; }
-  #app-loader .spinner { border-top-color: #0284c7; }
   #game-container { background: #050510; }
 }
 

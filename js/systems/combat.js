@@ -5,7 +5,7 @@ class CombatSystem {
   }
 
   // Squad auto-fire: at enemies if available, else straight forward
-  squadFire(squad, enemies, boss, dmgMul = 1) {
+  squadFire(squad, enemies, boss, dmgMul = 1, rapidFire = false) {
     const firers = squad.getFirers();
     const targets = [];
 
@@ -38,12 +38,17 @@ class CombatSystem {
 
         if (nearest) {
           char.fire();
+          if (rapidFire) char.fireTimer *= 0.5; // Half cooldown
           const dx = nearest.x - char.x;
           const dy = nearest.y - char.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           const vx = (dx / dist) * speed;
           const vy = (dy / dist) * speed;
           this.bulletPool.spawn(char.x, char.y - 3, vx, vy, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
+          if (rapidFire) {
+            // Second bullet with slight offset
+            this.bulletPool.spawn(char.x + 2, char.y - 3, vx, vy, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
+          }
           if (Math.random() < 0.15) Sound.shoot();
         } else {
           // No target in range — fire straight forward

@@ -1,4 +1,4 @@
-// Road Shooter - Road Items (Enhanced Visuals)
+// Road Shooter - Items & Power-ups
 class Item {
   constructor(x, y, type) {
     this.x = x;
@@ -44,15 +44,12 @@ class Item {
     const pulse = 1 + Math.sin(this.pulseTimer) * 0.12;
 
     if (this.collected) {
-      // Collection animation - scale up and fade
       const t = this.collectTimer / 0.3;
       ctx.globalAlpha = t;
       ctx.fillStyle = cfg.color;
       ctx.font = 'bold 16px Outfit';
       ctx.textAlign = 'center';
-      const floatY = y - 15 + (1 - t) * 40;
-      ctx.fillText(cfg.label, this.x, floatY);
-      // Burst ring
+      ctx.fillText(cfg.label, this.x, y - 15 + (1 - t) * 40);
       ctx.strokeStyle = cfg.color;
       ctx.lineWidth = 2 * t;
       ctx.beginPath();
@@ -62,148 +59,253 @@ class Item {
       return;
     }
 
-    // Outer glow ring (pulsing)
+    // Glow ring
     ctx.shadowColor = cfg.color;
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = cfg.isBuff ? 14 : 8;
     ctx.strokeStyle = cfg.color;
-    ctx.globalAlpha = 0.2 + Math.sin(this.pulseTimer) * 0.1;
-    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.25 + Math.sin(this.pulseTimer) * 0.1;
+    ctx.lineWidth = cfg.isBuff ? 1.5 : 1;
     ctx.beginPath();
-    ctx.arc(this.x, y, s * 1.3 * pulse, 0, Math.PI * 2);
+    ctx.arc(this.x, y, s * 1.2 * pulse, 0, Math.PI * 2);
     ctx.stroke();
     ctx.globalAlpha = 1;
 
-    // Orbiting particles (2 small dots)
-    const orbitR = s * 1.1;
+    // Orbiting dots
+    const oR = s * 1.1;
     for (let i = 0; i < 2; i++) {
       const a = this.orbitAngle + i * Math.PI;
-      const ox = this.x + Math.cos(a) * orbitR;
-      const oy = y + Math.sin(a) * orbitR * 0.6;
       ctx.fillStyle = cfg.color;
       ctx.globalAlpha = 0.5;
       ctx.beginPath();
-      ctx.arc(ox, oy, 1.5, 0, Math.PI * 2);
+      ctx.arc(this.x + Math.cos(a) * oR, y + Math.sin(a) * oR * 0.6, 1.5, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
 
-    // Draw item based on type
-    ctx.fillStyle = cfg.color;
     const ps = s * pulse;
-
-    if (this.type === 'scoutToken') {
-      // Green soldier silhouette
-      ctx.fillStyle = '#065f46';
-      ctx.beginPath();
-      ctx.arc(this.x, y, ps * 0.65, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = cfg.color;
-      // Helmet
-      ctx.beginPath();
-      ctx.arc(this.x, y - ps * 0.15, ps * 0.45, -Math.PI, 0);
-      ctx.fill();
-      // Person icon
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(this.x, y - ps * 0.1, ps * 0.15, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillRect(this.x - ps * 0.08, y + ps * 0.1, ps * 0.16, ps * 0.25);
-    } else if (this.type === 'rallyFlag') {
-      // Waving flag on pole
-      ctx.fillStyle = '#92400e';
-      ctx.fillRect(this.x - 0.8, y - ps * 0.7, 1.6, ps * 1.4);
-      // Flag cloth (waving)
-      const wave = Math.sin(this.bobTimer * 2) * 2;
-      ctx.fillStyle = cfg.color;
-      ctx.beginPath();
-      ctx.moveTo(this.x + 1, y - ps * 0.65);
-      ctx.quadraticCurveTo(this.x + ps * 0.5 + wave, y - ps * 0.45, this.x + ps * 0.6, y - ps * 0.3);
-      ctx.lineTo(this.x + 1, y - ps * 0.15);
-      ctx.closePath();
-      ctx.fill();
-      // Star on flag
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(this.x + ps * 0.25, y - ps * 0.4, 2, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (this.type === 'mercenary') {
-      // Gold-bordered scroll/contract
-      ctx.fillStyle = '#1a1207';
-      ctx.beginPath();
-      ctx.arc(this.x, y, ps * 0.6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = cfg.color;
-      ctx.beginPath();
-      ctx.arc(this.x, y, ps * 0.5, 0, Math.PI * 2);
-      ctx.fill();
-      // Sword cross icon
-      ctx.strokeStyle = '#1a1207';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(this.x, y - ps * 0.3);
-      ctx.lineTo(this.x, y + ps * 0.3);
-      ctx.moveTo(this.x - ps * 0.2, y - ps * 0.1);
-      ctx.lineTo(this.x + ps * 0.2, y - ps * 0.1);
-      ctx.stroke();
-    } else if (this.type === 'clonePod') {
-      // Cyan capsule with DNA helix
-      ctx.fillStyle = '#0e4059';
-      ctx.beginPath();
-      ctx.ellipse(this.x, y, ps * 0.4, ps * 0.65, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = cfg.color;
-      ctx.beginPath();
-      ctx.ellipse(this.x, y, ps * 0.3, ps * 0.55, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Inner glow
-      ctx.fillStyle = '#fff';
-      ctx.globalAlpha = 0.3 + Math.sin(this.pulseTimer * 2) * 0.2;
-      ctx.beginPath();
-      ctx.ellipse(this.x, y, ps * 0.15, ps * 0.35, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
-      // Glass highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.beginPath();
-      ctx.ellipse(this.x - ps * 0.1, y - ps * 0.2, ps * 0.08, ps * 0.15, -0.3, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (this.type === 'conscription') {
-      // Red military envelope with seal
-      const ew = ps * 0.7;
-      const eh = ps * 0.55;
-      ctx.fillStyle = '#991b1c';
-      ctx.fillRect(this.x - ew, y - eh, ew * 2, eh * 2);
-      // Envelope flap
-      ctx.fillStyle = cfg.color;
-      ctx.beginPath();
-      ctx.moveTo(this.x - ew, y - eh);
-      ctx.lineTo(this.x, y + eh * 0.2);
-      ctx.lineTo(this.x + ew, y - eh);
-      ctx.closePath();
-      ctx.fill();
-      // Wax seal
-      ctx.fillStyle = '#fbbf24';
-      ctx.beginPath();
-      ctx.arc(this.x, y + eh * 0.3, ps * 0.15, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#92400e';
-      ctx.beginPath();
-      ctx.arc(this.x, y + eh * 0.3, ps * 0.08, 0, Math.PI * 2);
-      ctx.fill();
+    if (cfg.isBuff) {
+      this.drawPowerUp(ctx, y, ps, cfg);
+    } else {
+      this.drawSquadItem(ctx, y, ps, cfg);
     }
 
-    // Label below
-    ctx.shadowBlur = 0;
+    // Label
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 10px Outfit';
     ctx.textAlign = 'center';
-    ctx.globalAlpha = 0.8;
+    ctx.globalAlpha = 0.85;
     ctx.fillText(cfg.label, this.x, y + s + 12);
     ctx.globalAlpha = 1;
   }
+
+  drawSquadItem(ctx, y, ps, cfg) {
+    switch (this.type) {
+      case 'scoutToken':
+        // Soldier silhouette
+        ctx.fillStyle = '#065f46';
+        ctx.beginPath();
+        ctx.arc(this.x, y, ps * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = cfg.color;
+        ctx.beginPath();
+        ctx.arc(this.x, y - ps * 0.15, ps * 0.4, -Math.PI, 0);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(this.x, y - ps * 0.1, ps * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(this.x - ps * 0.08, y + ps * 0.1, ps * 0.16, ps * 0.25);
+        break;
+
+      case 'rallyFlag':
+        ctx.fillStyle = '#92400e';
+        ctx.fillRect(this.x - 0.8, y - ps * 0.7, 1.6, ps * 1.4);
+        const wave = Math.sin(this.bobTimer * 2) * 2;
+        ctx.fillStyle = cfg.color;
+        ctx.beginPath();
+        ctx.moveTo(this.x + 1, y - ps * 0.65);
+        ctx.quadraticCurveTo(this.x + ps * 0.5 + wave, y - ps * 0.45, this.x + ps * 0.6, y - ps * 0.3);
+        ctx.lineTo(this.x + 1, y - ps * 0.15);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(this.x + ps * 0.25, y - ps * 0.4, 2, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+
+      case 'mercenary':
+        ctx.fillStyle = '#1a1207';
+        ctx.beginPath();
+        ctx.arc(this.x, y, ps * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = cfg.color;
+        ctx.beginPath();
+        ctx.arc(this.x, y, ps * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#1a1207';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(this.x, y - ps * 0.3);
+        ctx.lineTo(this.x, y + ps * 0.3);
+        ctx.moveTo(this.x - ps * 0.2, y - ps * 0.1);
+        ctx.lineTo(this.x + ps * 0.2, y - ps * 0.1);
+        ctx.stroke();
+        break;
+
+      case 'clonePod':
+        ctx.fillStyle = '#0e4059';
+        ctx.beginPath();
+        ctx.ellipse(this.x, y, ps * 0.4, ps * 0.65, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = cfg.color;
+        ctx.beginPath();
+        ctx.ellipse(this.x, y, ps * 0.3, ps * 0.55, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.globalAlpha = 0.3 + Math.sin(this.pulseTimer * 2) * 0.2;
+        ctx.beginPath();
+        ctx.ellipse(this.x, y, ps * 0.15, ps * 0.35, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        break;
+
+      case 'conscription':
+        const ew = ps * 0.7;
+        const eh = ps * 0.55;
+        ctx.fillStyle = '#991b1c';
+        ctx.fillRect(this.x - ew, y - eh, ew * 2, eh * 2);
+        ctx.fillStyle = cfg.color;
+        ctx.beginPath();
+        ctx.moveTo(this.x - ew, y - eh);
+        ctx.lineTo(this.x, y + eh * 0.2);
+        ctx.lineTo(this.x + ew, y - eh);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(this.x, y + eh * 0.3, ps * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+    }
+  }
+
+  drawPowerUp(ctx, y, ps, cfg) {
+    // Hexagonal background for all power-ups
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+      const hx = this.x + Math.cos(a) * ps * 0.7;
+      const hy = y + Math.sin(a) * ps * 0.7;
+      if (i === 0) ctx.moveTo(hx, hy);
+      else ctx.lineTo(hx, hy);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Colored border
+    ctx.strokeStyle = cfg.color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Icon fill
+    ctx.fillStyle = cfg.color;
+
+    switch (cfg.buffType) {
+      case 'dmg':
+        // Sword icon
+        ctx.fillRect(this.x - 1, y - ps * 0.45, 2, ps * 0.7);
+        ctx.beginPath();
+        ctx.moveTo(this.x, y - ps * 0.45);
+        ctx.lineTo(this.x - ps * 0.15, y - ps * 0.3);
+        ctx.lineTo(this.x + ps * 0.15, y - ps * 0.3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillRect(this.x - ps * 0.2, y + ps * 0.05, ps * 0.4, 3);
+        break;
+
+      case 'shield':
+        // Shield icon
+        ctx.beginPath();
+        ctx.moveTo(this.x, y - ps * 0.4);
+        ctx.quadraticCurveTo(this.x + ps * 0.35, y - ps * 0.3, this.x + ps * 0.35, y);
+        ctx.quadraticCurveTo(this.x + ps * 0.2, y + ps * 0.35, this.x, y + ps * 0.45);
+        ctx.quadraticCurveTo(this.x - ps * 0.2, y + ps * 0.35, this.x - ps * 0.35, y);
+        ctx.quadraticCurveTo(this.x - ps * 0.35, y - ps * 0.3, this.x, y - ps * 0.4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(this.x - 1, y - ps * 0.15, 2, ps * 0.25);
+        ctx.fillRect(this.x - ps * 0.1, y - ps * 0.05, ps * 0.2, 2);
+        break;
+
+      case 'fireRate':
+        // Lightning bolt icon
+        ctx.beginPath();
+        ctx.moveTo(this.x + ps * 0.1, y - ps * 0.45);
+        ctx.lineTo(this.x - ps * 0.15, y + ps * 0.05);
+        ctx.lineTo(this.x + ps * 0.02, y + ps * 0.05);
+        ctx.lineTo(this.x - ps * 0.1, y + ps * 0.45);
+        ctx.lineTo(this.x + ps * 0.15, y - ps * 0.05);
+        ctx.lineTo(this.x - ps * 0.02, y - ps * 0.05);
+        ctx.closePath();
+        ctx.fill();
+        break;
+
+      case 'magnet':
+        // U-magnet icon
+        ctx.fillStyle = '#a855f7';
+        ctx.beginPath();
+        ctx.arc(this.x, y + ps * 0.05, ps * 0.25, 0, Math.PI);
+        ctx.fill();
+        ctx.fillRect(this.x - ps * 0.25, y - ps * 0.3, ps * 0.15, ps * 0.35);
+        ctx.fillRect(this.x + ps * 0.1, y - ps * 0.3, ps * 0.15, ps * 0.35);
+        // Attraction lines
+        ctx.strokeStyle = 'rgba(168,85,247,0.4)';
+        ctx.lineWidth = 1;
+        for (let i = 1; i <= 3; i++) {
+          ctx.beginPath();
+          ctx.arc(this.x, y + ps * 0.05, ps * 0.25 + i * 4, Math.PI * 1.2, Math.PI * 1.8);
+          ctx.stroke();
+        }
+        break;
+
+      case 'nuke':
+        // Explosion/bomb icon
+        ctx.fillStyle = '#ff6b35';
+        ctx.beginPath();
+        ctx.arc(this.x, y + ps * 0.05, ps * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        // Fuse
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(this.x + ps * 0.15, y - ps * 0.2);
+        ctx.quadraticCurveTo(this.x + ps * 0.3, y - ps * 0.4, this.x + ps * 0.1, y - ps * 0.45);
+        ctx.stroke();
+        // Spark
+        const spark = Math.sin(this.pulseTimer * 4) > 0;
+        if (spark) {
+          ctx.fillStyle = '#fbbf24';
+          ctx.beginPath();
+          ctx.arc(this.x + ps * 0.1, y - ps * 0.45, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Skull
+        ctx.fillStyle = '#1a0a00';
+        ctx.font = `bold ${ps * 0.35}px Outfit`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('!', this.x, y + ps * 0.08);
+        ctx.textBaseline = 'alphabetic';
+        break;
+    }
+  }
 }
 
-// Trap items (Enhanced Visuals)
+// Trap items
 class Trap {
   constructor(x, y, type) {
     this.x = x;
@@ -231,7 +333,6 @@ class Trap {
     if (!this.active || this.triggered) return;
 
     if (this.type === 'quicksand') {
-      // Swirling sand pit
       const pulse = 1 + Math.sin(this.animTimer * 2) * 0.1;
       ctx.fillStyle = '#92400e';
       ctx.globalAlpha = 0.6;
@@ -243,50 +344,33 @@ class Trap {
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size * 0.8, 0, Math.PI * 2);
       ctx.fill();
-      // Spiral pattern
       ctx.strokeStyle = 'rgba(120,53,15,0.5)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size * 0.5, this.animTimer, this.animTimer + Math.PI * 1.5);
       ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size * 0.3, this.animTimer + Math.PI, this.animTimer + Math.PI * 2.2);
-      ctx.stroke();
     } else if (this.type === 'mine') {
-      // Blinking mine with danger ring
       const flash = Math.sin(Date.now() / 80) > 0;
-      // Danger ring
       ctx.strokeStyle = `rgba(239,68,68,${flash ? 0.3 : 0.1})`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size * 1.3, 0, Math.PI * 2);
       ctx.stroke();
-      // Mine body
       ctx.fillStyle = '#3f0d0d';
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size * 0.7, 0, Math.PI * 2);
       ctx.fill();
-      // Spikes
       for (let i = 0; i < 6; i++) {
         const a = (i / 6) * Math.PI * 2;
-        const sx = this.x + Math.cos(a) * this.size * 0.7;
-        const sy = this.y + Math.sin(a) * this.size * 0.7;
         ctx.fillStyle = '#666';
         ctx.beginPath();
-        ctx.arc(sx, sy, 2, 0, Math.PI * 2);
+        ctx.arc(this.x + Math.cos(a) * this.size * 0.7, this.y + Math.sin(a) * this.size * 0.7, 2, 0, Math.PI * 2);
         ctx.fill();
       }
-      // Blink light
       ctx.fillStyle = flash ? '#ef4444' : '#7f1d1d';
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size * 0.25, 0, Math.PI * 2);
       ctx.fill();
-      if (flash) {
-        ctx.fillStyle = '#fca5a5';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 0.1, 0, Math.PI * 2);
-        ctx.fill();
-      }
     }
   }
 }
