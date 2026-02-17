@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "从1人到军队 - 小队跑酷射击",
+  "menu_start": "开始",
+  "run_road": "道路",
+  "run_combat": "战斗",
+  "run_boss": "首领",
+  "result_clear": "关卡通过！",
+  "result_fail": "游戏结束",
+  "result_kills": "击杀数",
+  "result_max_squad": "最大小队",
+  "result_gold": "金币",
+  "result_boss": "首领已击败！",
+  "result_retry": "重试",
+  "result_menu": "菜单",
+  "hud_stage": "关卡"
+}

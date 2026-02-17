@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "1 Jadi Tentara - Squad Runner Shooter",
+  "menu_start": "MULAI",
+  "run_road": "Jalan",
+  "run_combat": "Tempur",
+  "run_boss": "BOS",
+  "result_clear": "TAHAP SELESAI!",
+  "result_fail": "PERMAINAN BERAKHIR",
+  "result_kills": "Eliminasi",
+  "result_max_squad": "Squad Maks.",
+  "result_gold": "Emas",
+  "result_boss": "Bos Dikalahkan!",
+  "result_retry": "ULANGI",
+  "result_menu": "MENU",
+  "hud_stage": "Tahap"
+}

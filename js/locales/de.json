@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "Von 1 zur Armee - Trupp-Runner-Shooter",
+  "menu_start": "START",
+  "run_road": "Straße",
+  "run_combat": "Kampf",
+  "run_boss": "BOSS",
+  "result_clear": "STUFE GESCHAFFT!",
+  "result_fail": "SPIEL VORBEI",
+  "result_kills": "Abschüsse",
+  "result_max_squad": "Max. Trupp",
+  "result_gold": "Gold",
+  "result_boss": "Boss besiegt!",
+  "result_retry": "ERNEUT VERSUCHEN",
+  "result_menu": "MENÜ",
+  "hud_stage": "Stufe"
+}

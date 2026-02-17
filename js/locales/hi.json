@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "1 से सेना तक - स्क्वाड रनर शूटर",
+  "menu_start": "शुरू",
+  "run_road": "सड़क",
+  "run_combat": "युद्ध",
+  "run_boss": "बॉस",
+  "result_clear": "स्टेज क्लियर!",
+  "result_fail": "गेम ओवर",
+  "result_kills": "किल्स",
+  "result_max_squad": "अधिकतम स्क्वाड",
+  "result_gold": "गोल्ड",
+  "result_boss": "बॉस पराजित!",
+  "result_retry": "पुनः प्रयास",
+  "result_menu": "मेनू",
+  "hud_stage": "स्टेज"
+}

@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "De 1 à une armée - Escouade Runner Shooter",
+  "menu_start": "DÉMARRER",
+  "run_road": "Route",
+  "run_combat": "Combat",
+  "run_boss": "BOSS",
+  "result_clear": "ÉTAPE RÉUSSIE !",
+  "result_fail": "FIN DE PARTIE",
+  "result_kills": "Éliminations",
+  "result_max_squad": "Escouade max.",
+  "result_gold": "Or",
+  "result_boss": "Boss vaincu !",
+  "result_retry": "RÉESSAYER",
+  "result_menu": "MENU",
+  "hud_stage": "Étape"
+}

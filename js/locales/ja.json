@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "1人から軍隊へ - スクワッドランナーシューター",
+  "menu_start": "スタート",
+  "run_road": "ロード",
+  "run_combat": "戦闘",
+  "run_boss": "ボス",
+  "result_clear": "ステージクリア！",
+  "result_fail": "ゲームオーバー",
+  "result_kills": "キル数",
+  "result_max_squad": "最大スクワッド",
+  "result_gold": "ゴールド",
+  "result_boss": "ボス撃破！",
+  "result_retry": "リトライ",
+  "result_menu": "メニュー",
+  "hud_stage": "ステージ"
+}

@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "От 1 до армии - Отрядный раннер-шутер",
+  "menu_start": "СТАРТ",
+  "run_road": "Дорога",
+  "run_combat": "Бой",
+  "run_boss": "БОСС",
+  "result_clear": "ЭТАП ПРОЙДЕН!",
+  "result_fail": "ИГРА ОКОНЧЕНА",
+  "result_kills": "Убийства",
+  "result_max_squad": "Макс. отряд",
+  "result_gold": "Золото",
+  "result_boss": "Босс повержен!",
+  "result_retry": "ПОВТОРИТЬ",
+  "result_menu": "МЕНЮ",
+  "hud_stage": "Этап"
+}

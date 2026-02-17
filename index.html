@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="robots" content="max-image-preview:large">
+
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
+
+    <title>Road Shooter - Squad Runner Shooter Game | DopaBrain</title>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3600813755953882" crossorigin="anonymous"></script>
+    <meta name="description" content="Start alone, build an army! Collect soldiers, choose gates, and defeat bosses in this addictive squad runner shooter game. Free to play!">
+    <meta name="keywords" content="road shooter, squad runner, army game, runner game, shooter game, free game, browser game, casual game, mobile game">
+    <meta name="author" content="DopaBrain">
+    <link rel="canonical" href="https://dopabrain.com/road-shooter/">
+
+    <meta property="og:title" content="Road Shooter - Squad Runner Shooter">
+    <meta property="og:description" content="Start with 1 soldier, grow to 200! Pick up items, choose x2 gates, fight enemies and bosses. Addictive squad runner shooter!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dopabrain.com/road-shooter/">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:locale:alternate" content="ja_JP">
+    <meta property="og:locale:alternate" content="zh_CN">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Road Shooter - Squad Runner Shooter">
+    <meta name="twitter:description" content="Start alone, build an army of 200! Addictive squad runner shooter.">
+
+    <link rel="alternate" hreflang="ko" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="en" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="zh" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="hi" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="ru" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="ja" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="es" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="pt" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="id" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="tr" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="de" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="fr" href="https://dopabrain.com/road-shooter/">
+    <link rel="alternate" hreflang="x-default" href="https://dopabrain.com/road-shooter/">
+
+    <meta name="theme-color" content="#00e5ff">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Road Shooter",
+        "description": "Squad runner shooter game. Start with 1 soldier, collect items, choose gates, build an army of 200, and defeat epic bosses!",
+        "url": "https://dopabrain.com/road-shooter/",
+        "genre": ["Action", "Runner", "Shooter"],
+        "gamePlatform": "Web Browser",
+        "operatingSystem": "Any",
+        "applicationCategory": "Game",
+        "author": { "@type": "Organization", "name": "DopaBrain", "url": "https://dopabrain.com" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "inLanguage": ["ko","en","zh","hi","ru","ja","es","pt","id","tr","de","fr"]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- GA4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LMQM99V70N"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LMQM99V70N');
+    </script>
+</head>
+<body>
+    <a href="#game-container" class="skip-link">Skip to game</a>
+
+    <!-- App Loader -->
+    <div id="app-loader" aria-hidden="true">
+        <div class="spinner"></div>
+    </div>
+
+    <main id="game-container">
+        <canvas id="gameCanvas" width="400" height="700" role="img" aria-label="Road Shooter game canvas"></canvas>
+    </main>
+
+    <!-- Scripts: config first, then entities, systems, scenes, then app -->
+    <script src="js/config.js"></script>
+    <script src="js/save.js"></script>
+    <script src="js/entities/character.js"></script>
+    <script src="js/entities/bullet.js"></script>
+    <script src="js/entities/item.js"></script>
+    <script src="js/entities/gate.js"></script>
+    <script src="js/entities/enemy.js"></script>
+    <script src="js/entities/boss.js"></script>
+    <script src="js/entities/squad.js"></script>
+    <script src="js/systems/road.js"></script>
+    <script src="js/systems/particle.js"></script>
+    <script src="js/systems/combat.js"></script>
+    <script src="js/scenes/menu.js"></script>
+    <script src="js/scenes/run.js"></script>
+    <script src="js/scenes/result.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- i18n -->
+    <script src="js/i18n.js"></script>
+
+    <!-- Cross Promo -->
+    <script src="/portal/js/cross-promo.js" defer></script>
+</body>
+</html>

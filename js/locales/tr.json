@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "1'den Orduya - Manga Koşucu Nişancı",
+  "menu_start": "BAŞLA",
+  "run_road": "Yol",
+  "run_combat": "Savaş",
+  "run_boss": "PATRON",
+  "result_clear": "AŞAMA TAMAMLANDI!",
+  "result_fail": "OYUN BİTTİ",
+  "result_kills": "Öldürmeler",
+  "result_max_squad": "Maks. Manga",
+  "result_gold": "Altın",
+  "result_boss": "Patron Yenildi!",
+  "result_retry": "TEKRAR DENE",
+  "result_menu": "MENÜ",
+  "hud_stage": "Aşama"
+}

@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "De 1 a ejército - Escuadrón Runner Shooter",
+  "menu_start": "INICIAR",
+  "run_road": "Camino",
+  "run_combat": "Combate",
+  "run_boss": "JEFE",
+  "result_clear": "¡ETAPA SUPERADA!",
+  "result_fail": "FIN DEL JUEGO",
+  "result_kills": "Eliminaciones",
+  "result_max_squad": "Escuadrón máx.",
+  "result_gold": "Oro",
+  "result_boss": "¡Jefe derrotado!",
+  "result_retry": "REINTENTAR",
+  "result_menu": "MENÚ",
+  "hud_stage": "Etapa"
+}

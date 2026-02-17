@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "De 1 ao exército - Esquadrão Runner Shooter",
+  "menu_start": "INICIAR",
+  "run_road": "Estrada",
+  "run_combat": "Combate",
+  "run_boss": "CHEFE",
+  "result_clear": "FASE CONCLUÍDA!",
+  "result_fail": "FIM DE JOGO",
+  "result_kills": "Abates",
+  "result_max_squad": "Esquadrão máx.",
+  "result_gold": "Ouro",
+  "result_boss": "Chefe derrotado!",
+  "result_retry": "TENTAR NOVAMENTE",
+  "result_menu": "MENU",
+  "hud_stage": "Fase"
+}

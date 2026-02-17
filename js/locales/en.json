@@ -1,0 +1,16 @@
+{
+  "menu_subtitle": "1 to Army - Squad Runner Shooter",
+  "menu_start": "START",
+  "run_road": "Road",
+  "run_combat": "Combat",
+  "run_boss": "BOSS",
+  "result_clear": "STAGE CLEAR!",
+  "result_fail": "GAME OVER",
+  "result_kills": "Kills",
+  "result_max_squad": "Max Squad",
+  "result_gold": "Gold",
+  "result_boss": "Boss Defeated!",
+  "result_retry": "RETRY",
+  "result_menu": "MENU",
+  "hud_stage": "Stage"
+}
