@@ -5,7 +5,7 @@ class CombatSystem {
   }
 
   // Squad auto-fire at nearest enemy
-  squadFire(squad, enemies, boss) {
+  squadFire(squad, enemies, boss, dmgMul = 1) {
     const firers = squad.getFirers();
     const targets = [];
 
@@ -43,7 +43,7 @@ class CombatSystem {
         const speed = CONFIG.BULLET_SPEED;
         const vx = (dx / dist) * speed;
         const vy = (dy / dist) * speed;
-        this.bulletPool.spawn(char.x, char.y - 3, vx, vy, char.config.dmg, false, char.config.aoe || 0);
+        this.bulletPool.spawn(char.x, char.y - 3, vx, vy, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
       }
     }
   }

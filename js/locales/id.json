@@ -12,5 +12,14 @@
   "result_boss": "Bos Dikalahkan!",
   "result_retry": "ULANGI",
   "result_menu": "MENU",
-  "hud_stage": "Tahap"
+  "hud_stage": "Tahap",
+  "menu_upgrade": "UPGRADE",
+  "upgrade_title": "UPGRADE",
+  "upgrade_back": "KEMBALI",
+  "upgrade_startSquad": "Skuad Awal",
+  "upgrade_baseDamage": "Damage Dasar",
+  "upgrade_baseHP": "HP Dasar",
+  "upgrade_moveSpeed": "Kecepatan",
+  "upgrade_magnetRange": "Jangkauan Magnet",
+  "upgrade_goldBonus": "Bonus Emas"
 }

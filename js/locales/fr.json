@@ -12,5 +12,14 @@
   "result_boss": "Boss vaincu !",
   "result_retry": "RÉESSAYER",
   "result_menu": "MENU",
-  "hud_stage": "Étape"
+  "hud_stage": "Étape",
+  "menu_upgrade": "AMÉLIORATIONS",
+  "upgrade_title": "AMÉLIORATIONS",
+  "upgrade_back": "RETOUR",
+  "upgrade_startSquad": "Escouade Initiale",
+  "upgrade_baseDamage": "Dégâts de Base",
+  "upgrade_baseHP": "HP de Base",
+  "upgrade_moveSpeed": "Vitesse",
+  "upgrade_magnetRange": "Portée Aimant",
+  "upgrade_goldBonus": "Bonus d'Or"
 }

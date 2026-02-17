@@ -12,5 +12,14 @@
   "result_boss": "보스 격파!",
   "result_retry": "재도전",
   "result_menu": "메뉴",
-  "hud_stage": "스테이지"
+  "hud_stage": "스테이지",
+  "menu_upgrade": "업그레이드",
+  "upgrade_title": "업그레이드",
+  "upgrade_back": "돌아가기",
+  "upgrade_startSquad": "시작 분대원",
+  "upgrade_baseDamage": "기본 공격력",
+  "upgrade_baseHP": "기본 체력",
+  "upgrade_moveSpeed": "이동 속도",
+  "upgrade_magnetRange": "자석 범위",
+  "upgrade_goldBonus": "골드 보너스"
 }

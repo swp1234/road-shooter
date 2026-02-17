@@ -12,5 +12,14 @@
   "result_boss": "首领已击败！",
   "result_retry": "重试",
   "result_menu": "菜单",
-  "hud_stage": "关卡"
+  "hud_stage": "关卡",
+  "menu_upgrade": "升级",
+  "upgrade_title": "升级商店",
+  "upgrade_back": "返回",
+  "upgrade_startSquad": "初始队员",
+  "upgrade_baseDamage": "基础伤害",
+  "upgrade_baseHP": "基础生命",
+  "upgrade_moveSpeed": "移动速度",
+  "upgrade_magnetRange": "磁铁范围",
+  "upgrade_goldBonus": "金币加成"
 }

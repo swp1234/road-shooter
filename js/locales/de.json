@@ -12,5 +12,14 @@
   "result_boss": "Boss besiegt!",
   "result_retry": "ERNEUT VERSUCHEN",
   "result_menu": "MENÜ",
-  "hud_stage": "Stufe"
+  "hud_stage": "Stufe",
+  "menu_upgrade": "UPGRADES",
+  "upgrade_title": "UPGRADES",
+  "upgrade_back": "ZURÜCK",
+  "upgrade_startSquad": "Start-Trupp",
+  "upgrade_baseDamage": "Grundschaden",
+  "upgrade_baseHP": "Grund-HP",
+  "upgrade_moveSpeed": "Geschwindigkeit",
+  "upgrade_magnetRange": "Magnetreichweite",
+  "upgrade_goldBonus": "Goldbonus"
 }

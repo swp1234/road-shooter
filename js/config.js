@@ -48,8 +48,22 @@ const CONFIG = {
 
   // Enemies
   ENEMIES: {
-    rusher:  { hp: 1, speed: 3, dmg: 1, color: '#ef4444', size: 8, shape: 'triangle', reward: 2 },
-    shooter: { hp: 3, speed: 1, dmg: 1, color: '#f97316', size: 8, shape: 'rect', reward: 5, fireRate: 2.0 }
+    rusher:    { hp: 1,  speed: 3,   dmg: 1, color: '#ef4444', size: 8,  shape: 'triangle', reward: 2 },
+    shooter:   { hp: 3,  speed: 1,   dmg: 1, color: '#f97316', size: 8,  shape: 'rect',     reward: 5,  fireRate: 2.0 },
+    mortar:    { hp: 4,  speed: 0.5, dmg: 2, color: '#ea580c', size: 10, shape: 'circle',   reward: 8,  fireRate: 0.5, minStage: 5 },
+    detonator: { hp: 2,  speed: 2.5, dmg: 5, color: '#dc2626', size: 7,  shape: 'circle',   reward: 6,  minStage: 10 },
+    thief:     { hp: 2,  speed: 4,   dmg: 0, color: '#1f2937', size: 7,  shape: 'triangle', reward: 10, minStage: 7 },
+    flanker:   { hp: 3,  speed: 2.5, dmg: 1, color: '#991b1b', size: 8,  shape: 'diamond',  reward: 7,  fireRate: 1.5, minStage: 12 }
+  },
+
+  // Upgrades
+  UPGRADES: {
+    startSquad:  { max: 4, baseCost: 500,  costMul: 3,   effect: '+1 starting soldier', perLevel: 1 },
+    baseDamage:  { max: 10, baseCost: 200,  costMul: 1.8, effect: '+10% damage', perLevel: 0.10 },
+    baseHP:      { max: 5,  baseCost: 300,  costMul: 2.2, effect: '+1 squad HP', perLevel: 1 },
+    moveSpeed:   { max: 5,  baseCost: 200,  costMul: 1.5, effect: '+5% move speed', perLevel: 0.05 },
+    magnetRange: { max: 5,  baseCost: 150,  costMul: 1.5, effect: '+10% pickup range', perLevel: 0.10 },
+    goldBonus:   { max: 10, baseCost: 300,  costMul: 1.6, effect: '+10% gold', perLevel: 0.10 }
   },
 
   // Boss (Zombie Titan - Stage 1-5)

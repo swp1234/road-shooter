@@ -12,5 +12,14 @@
   "result_boss": "बॉस पराजित!",
   "result_retry": "पुनः प्रयास",
   "result_menu": "मेनू",
-  "hud_stage": "स्टेज"
+  "hud_stage": "स्टेज",
+  "menu_upgrade": "अपग्रेड",
+  "upgrade_title": "अपग्रेड",
+  "upgrade_back": "वापस",
+  "upgrade_startSquad": "शुरुआती दस्ता",
+  "upgrade_baseDamage": "आधार क्षति",
+  "upgrade_baseHP": "आधार HP",
+  "upgrade_moveSpeed": "गति",
+  "upgrade_magnetRange": "चुंबक सीमा",
+  "upgrade_goldBonus": "सोना बोनस"
 }

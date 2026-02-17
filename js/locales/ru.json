@@ -12,5 +12,14 @@
   "result_boss": "Босс повержен!",
   "result_retry": "ПОВТОРИТЬ",
   "result_menu": "МЕНЮ",
-  "hud_stage": "Этап"
+  "hud_stage": "Этап",
+  "menu_upgrade": "УЛУЧШЕНИЯ",
+  "upgrade_title": "УЛУЧШЕНИЯ",
+  "upgrade_back": "НАЗАД",
+  "upgrade_startSquad": "Стартовый Отряд",
+  "upgrade_baseDamage": "Базовый Урон",
+  "upgrade_baseHP": "Базовое HP",
+  "upgrade_moveSpeed": "Скорость",
+  "upgrade_magnetRange": "Радиус Магнита",
+  "upgrade_goldBonus": "Бонус Золота"
 }

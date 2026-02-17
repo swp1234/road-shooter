@@ -170,6 +170,10 @@ class Game {
   showResult(result) {
     this.scene = new ResultScene(this, result);
   }
+
+  showUpgrade() {
+    this.scene = new UpgradeScene(this);
+  }
 }
 
 // Boot

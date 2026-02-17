@@ -12,5 +12,14 @@
   "result_boss": "ボス撃破！",
   "result_retry": "リトライ",
   "result_menu": "メニュー",
-  "hud_stage": "ステージ"
+  "hud_stage": "ステージ",
+  "menu_upgrade": "アップグレード",
+  "upgrade_title": "アップグレード",
+  "upgrade_back": "戻る",
+  "upgrade_startSquad": "初期隊員",
+  "upgrade_baseDamage": "基本攻撃力",
+  "upgrade_baseHP": "基本HP",
+  "upgrade_moveSpeed": "移動速度",
+  "upgrade_magnetRange": "マグネット範囲",
+  "upgrade_goldBonus": "ゴールドボーナス"
 }

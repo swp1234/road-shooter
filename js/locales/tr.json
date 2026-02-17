@@ -12,5 +12,14 @@
   "result_boss": "Patron Yenildi!",
   "result_retry": "TEKRAR DENE",
   "result_menu": "MENÜ",
-  "hud_stage": "Aşama"
+  "hud_stage": "Aşama",
+  "menu_upgrade": "GELİŞTİRME",
+  "upgrade_title": "GELİŞTİRMELER",
+  "upgrade_back": "GERİ",
+  "upgrade_startSquad": "Başlangıç Mangası",
+  "upgrade_baseDamage": "Temel Hasar",
+  "upgrade_baseHP": "Temel HP",
+  "upgrade_moveSpeed": "Hareket Hızı",
+  "upgrade_magnetRange": "Mıknatıs Menzili",
+  "upgrade_goldBonus": "Altın Bonusu"
 }

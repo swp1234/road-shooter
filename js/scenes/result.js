@@ -122,6 +122,24 @@ class ResultScene {
 
       this.retryBtn = { x: retryX, y: retryY, w: btnW, h: btnH };
       this.menuBtn = { x: menuX, y: retryY, w: btnW, h: btnH };
+
+      // Upgrade button
+      const upgW = 140;
+      const upgH = 36;
+      const upgX = (cw - upgW) / 2;
+      const upgY = retryY + btnH + 16;
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      ctx.roundRect(upgX, upgY, upgW, upgH, 8);
+      ctx.fill();
+      ctx.strokeStyle = CONFIG.COLORS.primary;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = CONFIG.COLORS.primary;
+      ctx.font = 'bold 13px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText(this.game.i18n('menu_upgrade') || 'UPGRADE', cw / 2, upgY + upgH / 2 + 1);
+      this.upgradeBtn = { x: upgX, y: upgY, w: upgW, h: upgH };
     }
   }
 
@@ -138,6 +156,13 @@ class ResultScene {
       const b = this.menuBtn;
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
         this.game.showMenu();
+        return true;
+      }
+    }
+    if (this.upgradeBtn) {
+      const b = this.upgradeBtn;
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        this.game.showUpgrade();
         return true;
       }
     }

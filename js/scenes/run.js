@@ -11,8 +11,13 @@ class RunScene {
     this.particles = new ParticleSystem();
 
     // Squad
-    const startSize = CONFIG.START_SQUAD + (game.saveData.upgrades.startSquad || 0);
+    const ups = game.saveData.upgrades;
+    const startSize = CONFIG.START_SQUAD + (ups.startSquad || 0);
     this.squad = new Squad(startSize);
+
+    // Upgrade multipliers
+    this.dmgMul = 1 + (ups.baseDamage || 0) * CONFIG.UPGRADES.baseDamage.perLevel;
+    this.goldMul = 1 + (ups.goldBonus || 0) * CONFIG.UPGRADES.goldBonus.perLevel;
 
     // Entities
     this.items = [];
@@ -183,7 +188,7 @@ class RunScene {
     }
 
     // Auto combat
-    this.combat.squadFire(this.squad, this.enemies, null);
+    this.combat.squadFire(this.squad, this.enemies, null, this.dmgMul);
     this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
 
     // Check hits
@@ -196,6 +201,12 @@ class RunScene {
 
     // Rusher collisions
     this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
+
+    // Detonator explosions
+    this.checkDetonatorExplosions();
+
+    // Assign thief targets
+    this.assignThiefTargets();
 
     // Advance when timer expires and enemies clear
     const aliveEnemies = this.enemies.filter(e => e.active && !e.dying).length;
@@ -217,7 +228,7 @@ class RunScene {
       }
 
       // Combat
-      this.combat.squadFire(this.squad, this.enemies, this.boss);
+      this.combat.squadFire(this.squad, this.enemies, this.boss, this.dmgMul);
       this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
 
       const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles);
@@ -226,6 +237,7 @@ class RunScene {
 
       this.combat.checkEnemyBulletHits(this.squad, this.particles);
       this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
+      this.checkDetonatorExplosions();
       this.combat.checkBossShockwave(this.boss, this.squad, this.particles);
 
       // Boss defeated?
@@ -291,12 +303,30 @@ class RunScene {
   spawnWave() {
     const baseCount = 3 + this.segment * 2 + Math.floor(this.stage / 3);
     const count = baseCount + Math.floor(Math.random() * 3);
+    const available = this.getAvailableEnemyTypes();
     for (let i = 0; i < count; i++) {
-      const type = Math.random() < 0.7 ? 'rusher' : 'shooter';
+      let type;
+      const roll = Math.random();
+      if (roll < 0.5) {
+        type = 'rusher';
+      } else if (available.length > 0) {
+        type = available[Math.floor(Math.random() * available.length)];
+      } else {
+        type = 'shooter';
+      }
       const x = this.road.getRandomX(40);
       const y = -20 - Math.random() * 100;
       this.enemies.push(new Enemy(x, y, type, this.stageMul));
     }
+  }
+
+  getAvailableEnemyTypes() {
+    const types = [];
+    for (const [type, cfg] of Object.entries(CONFIG.ENEMIES)) {
+      if (type === 'rusher') continue;
+      if (!cfg.minStage || this.stage >= cfg.minStage) types.push(type);
+    }
+    return types;
   }
 
   // Collision checking
@@ -362,6 +392,40 @@ class RunScene {
     }
   }
 
+  checkDetonatorExplosions() {
+    for (const e of this.enemies) {
+      if (!e.explode) continue;
+      e.explode = false;
+      const alive = this.squad.alive;
+      for (const char of alive) {
+        if (char.dying) continue;
+        const dx = char.x - e.x;
+        const dy = char.y - e.y;
+        if (dx * dx + dy * dy < 3600) {
+          const died = char.takeDamage(e.dmg);
+          if (died) this.particles.emitDeath(char.x, char.y);
+        }
+      }
+      this.particles.emit(e.x, e.y, '#ef4444', 20, 8, 0.5, 5);
+    }
+  }
+
+  assignThiefTargets() {
+    for (const e of this.enemies) {
+      if (e.type !== 'thief' || e.dying || e.stealTarget) continue;
+      let nearest = null;
+      let minDist = Infinity;
+      for (const item of this.items) {
+        if (item.collected) continue;
+        const dx = item.x - e.x;
+        const dy = item.y - e.y;
+        const dist = dx * dx + dy * dy;
+        if (dist < minDist) { minDist = dist; nearest = item; }
+      }
+      e.stealTarget = nearest;
+    }
+  }
+
   showCombo(text) {
     this.comboText = text;
     this.comboTimer = 1;
@@ -369,6 +433,7 @@ class RunScene {
 
   endRun(cleared) {
     this.finished = true;
+    this.gold = Math.floor(this.gold * this.goldMul);
     const survivalRate = this.squad.size / Math.max(this.maxSquad, 1);
     let stars = 0;
     if (cleared) {

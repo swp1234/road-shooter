@@ -12,5 +12,14 @@
   "result_boss": "Boss Defeated!",
   "result_retry": "RETRY",
   "result_menu": "MENU",
-  "hud_stage": "Stage"
+  "hud_stage": "Stage",
+  "menu_upgrade": "UPGRADE",
+  "upgrade_title": "UPGRADES",
+  "upgrade_back": "BACK",
+  "upgrade_startSquad": "Start Squad",
+  "upgrade_baseDamage": "Base Damage",
+  "upgrade_baseHP": "Base HP",
+  "upgrade_moveSpeed": "Move Speed",
+  "upgrade_magnetRange": "Magnet Range",
+  "upgrade_goldBonus": "Gold Bonus"
 }

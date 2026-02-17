@@ -12,5 +12,14 @@
   "result_boss": "Chefe derrotado!",
   "result_retry": "TENTAR NOVAMENTE",
   "result_menu": "MENU",
-  "hud_stage": "Fase"
+  "hud_stage": "Fase",
+  "menu_upgrade": "MELHORIAS",
+  "upgrade_title": "MELHORIAS",
+  "upgrade_back": "VOLTAR",
+  "upgrade_startSquad": "Esquadrão Inicial",
+  "upgrade_baseDamage": "Dano Base",
+  "upgrade_baseHP": "HP Base",
+  "upgrade_moveSpeed": "Vel. Movimento",
+  "upgrade_magnetRange": "Alcance Ímã",
+  "upgrade_goldBonus": "Bônus de Ouro"
 }

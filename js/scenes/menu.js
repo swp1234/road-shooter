@@ -107,6 +107,29 @@ class MenuScene {
     ctx.fillText(this.game.i18n('menu_start') || 'START', cw / 2, btnY + btnH / 2);
     ctx.restore();
 
+    // Upgrade button
+    const upgBtnW = 160;
+    const upgBtnH = 40;
+    const upgBtnX = (cw - upgBtnW) / 2;
+    const upgBtnY = ch * 0.90;
+
+    ctx.fillStyle = '#334155';
+    ctx.beginPath();
+    ctx.roundRect(upgBtnX, upgBtnY, upgBtnW, upgBtnH, 10);
+    ctx.fill();
+    ctx.strokeStyle = CONFIG.COLORS.primary;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = CONFIG.COLORS.primary;
+    ctx.font = 'bold 15px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(this.game.i18n('menu_upgrade') || 'UPGRADE', cw / 2, upgBtnY + upgBtnH / 2);
+    ctx.textBaseline = 'alphabetic';
+
+    this.upgradeBtn = { x: upgBtnX, y: upgBtnY, w: upgBtnW, h: upgBtnH };
+
     // Stage info
     const save = this.game.saveData;
     if (save.progress.maxStage > 0) {
@@ -134,6 +157,13 @@ class MenuScene {
       const b = this.startBtn;
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
         this.game.startRun();
+        return true;
+      }
+    }
+    if (this.upgradeBtn) {
+      const b = this.upgradeBtn;
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        this.game.showUpgrade();
         return true;
       }
     }

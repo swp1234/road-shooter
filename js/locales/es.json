@@ -12,5 +12,14 @@
   "result_boss": "¡Jefe derrotado!",
   "result_retry": "REINTENTAR",
   "result_menu": "MENÚ",
-  "hud_stage": "Etapa"
+  "hud_stage": "Etapa",
+  "menu_upgrade": "MEJORAS",
+  "upgrade_title": "MEJORAS",
+  "upgrade_back": "VOLVER",
+  "upgrade_startSquad": "Escuadrón Inicial",
+  "upgrade_baseDamage": "Daño Base",
+  "upgrade_baseHP": "HP Base",
+  "upgrade_moveSpeed": "Vel. Movimiento",
+  "upgrade_magnetRange": "Rango Imán",
+  "upgrade_goldBonus": "Bonus de Oro"
 }
