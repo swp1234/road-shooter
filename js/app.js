@@ -162,8 +162,8 @@ class Game {
     this.scene = new MenuScene(this);
   }
 
-  startRun() {
-    const stage = (this.saveData.progress.maxStage || 0) + 1;
+  startRun(stage) {
+    if (!stage) stage = (this.saveData.progress.maxStage || 0) + 1;
     this.scene = new RunScene(this, stage);
   }
 

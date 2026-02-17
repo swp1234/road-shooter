@@ -35,11 +35,11 @@ const CONFIG = {
   ITEM_SIZE: 16,
   ITEM_SPAWN_INTERVAL: 40, // frames between spawns
   ITEMS: {
-    scoutToken:  { value: 1,  color: '#10b981', label: '+1' },
+    scoutToken:  { value: 1,  color: '#10b981', label: '+1',   charType: 'rifleman' },
     rallyFlag:   { value: 0.2, color: '#fbbf24', label: '+20%', isPercent: true },
-    mercenary:   { value: 5,  color: '#d4a44c', label: '+5' },
-    clonePod:    { value: 3,  color: '#06b6d4', label: '+3' },
-    conscription:{ value: 8,  color: '#ef4444', label: '+8' }
+    mercenary:   { value: 5,  color: '#d4a44c', label: '+5',   charType: 'random' },
+    clonePod:    { value: 3,  color: '#06b6d4', label: '+3',   charType: 'tanker' },
+    conscription:{ value: 8,  color: '#ef4444', label: '+8',   charType: 'mixed' }
   },
 
   // Gates
