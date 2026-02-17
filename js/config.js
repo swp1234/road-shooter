@@ -8,8 +8,8 @@ const CONFIG = {
   // Run Structure
   ROAD_SEGMENTS: 5,
   COMBAT_SEGMENTS: 5,
-  ROAD_DURATION: 20, // seconds
-  COMBAT_DURATION: 12,
+  ROAD_DURATION: 12, // seconds
+  COMBAT_DURATION: 10,
   BOSS_DURATION: 25,
 
   // Road

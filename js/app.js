@@ -26,21 +26,22 @@ class Game {
 
   setupCanvas() {
     const resize = () => {
-      const maxW = CONFIG.CANVAS_WIDTH;
-      const maxH = CONFIG.CANVAS_HEIGHT;
-      const aspect = maxW / maxH;
-      let w = Math.min(window.innerWidth, maxW);
-      let h = w / aspect;
-      if (h > window.innerHeight) {
-        h = window.innerHeight;
-        w = h * aspect;
+      const intW = CONFIG.CANVAS_WIDTH;
+      const intH = CONFIG.CANVAS_HEIGHT;
+      const aspect = intW / intH;
+      // Fill screen height, maintain aspect ratio
+      let h = window.innerHeight;
+      let w = h * aspect;
+      if (w > window.innerWidth) {
+        w = window.innerWidth;
+        h = w / aspect;
       }
-      this.canvas.style.width = w + 'px';
-      this.canvas.style.height = h + 'px';
-      this.canvas.width = maxW;
-      this.canvas.height = maxH;
-      this.scaleX = maxW / w;
-      this.scaleY = maxH / h;
+      this.canvas.style.width = Math.floor(w) + 'px';
+      this.canvas.style.height = Math.floor(h) + 'px';
+      this.canvas.width = intW;
+      this.canvas.height = intH;
+      this.scaleX = intW / w;
+      this.scaleY = intH / h;
     };
     resize();
     window.addEventListener('resize', resize);
@@ -75,11 +76,13 @@ class Game {
     };
 
     const onMove = (e) => {
-      if (!this.isDragging) return;
       e.preventDefault();
       const pos = getPos(e);
+      // Always track mouse for squad movement (no drag required)
       if (this.scene && this.scene.handleDrag) {
-        this.scene.handleDrag(pos.x);
+        if (this.isDragging || this.scene instanceof RunScene) {
+          this.scene.handleDrag(pos.x);
+        }
       }
     };
 
