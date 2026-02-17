@@ -21,5 +21,8 @@
   "upgrade_baseHP": "Grund-HP",
   "upgrade_moveSpeed": "Geschwindigkeit",
   "upgrade_magnetRange": "Magnetreichweite",
-  "upgrade_goldBonus": "Goldbonus"
+  "upgrade_goldBonus": "Goldbonus",
+  "menu_endless": "ENDLOS",
+  "endless_start": "ENDLOS-MODUS",
+  "endless_record": "NEUER REKORD!"
 }

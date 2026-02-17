@@ -21,5 +21,8 @@
   "upgrade_baseHP": "HP Dasar",
   "upgrade_moveSpeed": "Kecepatan",
   "upgrade_magnetRange": "Jangkauan Magnet",
-  "upgrade_goldBonus": "Bonus Emas"
+  "upgrade_goldBonus": "Bonus Emas",
+  "menu_endless": "TAK TERBATAS",
+  "endless_start": "MODE TAK TERBATAS",
+  "endless_record": "REKOR BARU!"
 }

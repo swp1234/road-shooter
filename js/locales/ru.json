@@ -21,5 +21,8 @@
   "upgrade_baseHP": "Базовое HP",
   "upgrade_moveSpeed": "Скорость",
   "upgrade_magnetRange": "Радиус Магнита",
-  "upgrade_goldBonus": "Бонус Золота"
+  "upgrade_goldBonus": "Бонус Золота",
+  "menu_endless": "БЕСКОНЕЧНЫЙ",
+  "endless_start": "БЕСКОНЕЧНЫЙ РЕЖИМ",
+  "endless_record": "НОВЫЙ РЕКОРД!"
 }

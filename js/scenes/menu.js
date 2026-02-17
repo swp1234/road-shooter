@@ -31,6 +31,7 @@ class MenuScene {
     const ch = CONFIG.CANVAS_HEIGHT;
     const save = this.game.saveData;
     const maxStage = (save.progress.maxStage || 0) + 1;
+    const unlockEndless = (save.progress.maxStage || 0) >= 3;
 
     // Background
     ctx.fillStyle = CONFIG.COLORS.bg;
@@ -48,10 +49,10 @@ class MenuScene {
     const roadW = cw * 0.4;
     const roadL = (cw - roadW) / 2;
     ctx.fillStyle = CONFIG.COLORS.road;
-    ctx.fillRect(roadL, ch * 0.3, roadW, ch * 0.5);
+    ctx.fillRect(roadL, ch * 0.28, roadW, ch * 0.38);
     ctx.strokeStyle = '#475569';
     ctx.lineWidth = 2;
-    ctx.strokeRect(roadL, ch * 0.3, roadW, ch * 0.5);
+    ctx.strokeRect(roadL, ch * 0.28, roadW, ch * 0.38);
 
     // Title
     ctx.globalAlpha = this.titleAlpha;
@@ -60,18 +61,18 @@ class MenuScene {
     ctx.textAlign = 'center';
     ctx.shadowColor = CONFIG.COLORS.primary;
     ctx.shadowBlur = 20;
-    ctx.fillText('ROAD', cw / 2, ch * 0.15);
-    ctx.fillText('SHOOTER', cw / 2, ch * 0.22);
+    ctx.fillText('ROAD', cw / 2, ch * 0.12);
+    ctx.fillText('SHOOTER', cw / 2, ch * 0.19);
     ctx.shadowBlur = 0;
 
     // Subtitle
     ctx.fillStyle = '#94a3b8';
     ctx.font = '14px Outfit, sans-serif';
-    ctx.fillText(this.game.i18n('menu_subtitle') || '1 to Army - Squad Runner Shooter', cw / 2, ch * 0.28);
+    ctx.fillText(this.game.i18n('menu_subtitle') || '1 to Army - Squad Runner Shooter', cw / 2, ch * 0.25);
 
     // Animated squad preview
     const time = Date.now() / 1000;
-    const previewY = ch * 0.6 + Math.sin(time) * 10;
+    const previewY = ch * 0.5 + Math.sin(time) * 10;
     ctx.fillStyle = '#10b981';
     for (let i = 0; i < 7; i++) {
       const px = cw / 2 + (i - 3) * 12;
@@ -82,12 +83,11 @@ class MenuScene {
     }
 
     // Stage selector
-    const stageY = ch * 0.77;
-    const stageText = `Stage ${this.selectedStage}`;
+    const stageY = ch * 0.72;
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 16px Outfit';
     ctx.textAlign = 'center';
-    ctx.fillText(stageText, cw / 2, stageY);
+    ctx.fillText(`Stage ${this.selectedStage}`, cw / 2, stageY);
 
     // Stars for this stage
     const stageStars = save.progress.stars[this.selectedStage] || 0;
@@ -123,9 +123,9 @@ class MenuScene {
 
     // Start button
     const btnW = 200;
-    const btnH = 50;
+    const btnH = 46;
     const btnX = (cw - btnW) / 2;
-    const btnY = ch * 0.83;
+    const btnY = ch * 0.79;
     const pulse = Math.sin(this.buttonPulse) * 0.1 + 0.9;
 
     ctx.save();
@@ -150,28 +150,60 @@ class MenuScene {
 
     this.startBtn = { x: btnX, y: btnY, w: btnW, h: btnH };
 
-    // Upgrade button
-    const upgBtnW = 160;
-    const upgBtnH = 40;
-    const upgBtnX = (cw - upgBtnW) / 2;
-    const upgBtnY = ch * 0.92;
+    // Bottom row: Endless + Upgrade side by side
+    const rowY = ch * 0.88;
+    const rowBtnW = unlockEndless ? 115 : 160;
+    const rowBtnH = 36;
+    const gap = 10;
 
+    // Endless button (unlocked after stage 3)
+    this.endlessBtn = null;
+    if (unlockEndless) {
+      const endX = cw / 2 - rowBtnW - gap / 2;
+      ctx.fillStyle = '#4c1d95';
+      ctx.beginPath();
+      ctx.roundRect(endX, rowY, rowBtnW, rowBtnH, 8);
+      ctx.fill();
+      ctx.strokeStyle = '#a78bfa';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = '#a78bfa';
+      ctx.font = 'bold 13px Outfit, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const endLabel = this.game.i18n('menu_endless') || 'ENDLESS';
+      ctx.fillText(endLabel, endX + rowBtnW / 2, rowY + rowBtnH / 2);
+      this.endlessBtn = { x: endX, y: rowY, w: rowBtnW, h: rowBtnH };
+
+      // High score
+      const hiWave = save.progress.endlessHighWave || 0;
+      if (hiWave > 0) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = '9px Outfit';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(`Best: Wave ${hiWave}`, endX + rowBtnW / 2, rowY + rowBtnH + 12);
+      }
+    }
+
+    // Upgrade button
+    const upgX = unlockEndless ? cw / 2 + gap / 2 : (cw - rowBtnW) / 2;
     ctx.fillStyle = '#334155';
     ctx.beginPath();
-    ctx.roundRect(upgBtnX, upgBtnY, upgBtnW, upgBtnH, 10);
+    ctx.roundRect(upgX, rowY, rowBtnW, rowBtnH, 8);
     ctx.fill();
     ctx.strokeStyle = CONFIG.COLORS.primary;
     ctx.lineWidth = 1;
     ctx.stroke();
 
     ctx.fillStyle = CONFIG.COLORS.primary;
-    ctx.font = 'bold 15px Outfit, sans-serif';
+    ctx.font = 'bold 13px Outfit, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(this.game.i18n('menu_upgrade') || 'UPGRADE', cw / 2, upgBtnY + upgBtnH / 2);
+    ctx.fillText(this.game.i18n('menu_upgrade') || 'UPGRADE', upgX + rowBtnW / 2, rowY + rowBtnH / 2);
     ctx.textBaseline = 'alphabetic';
 
-    this.upgradeBtn = { x: upgBtnX, y: upgBtnY, w: upgBtnW, h: upgBtnH };
+    this.upgradeBtn = { x: upgX, y: rowY, w: rowBtnW, h: rowBtnH };
 
     // Gold display
     ctx.fillStyle = CONFIG.COLORS.gold;
@@ -179,10 +211,38 @@ class MenuScene {
     ctx.textAlign = 'center';
     ctx.fillText(`${save.currency.gold} Gold`, cw / 2, ch * 0.97);
 
+    // Sound toggle (top-right)
+    const sndX = cw - 36;
+    const sndY = 8;
+    const sndOn = Sound.enabled;
+    ctx.fillStyle = sndOn ? 'rgba(0,229,255,0.15)' : 'rgba(255,255,255,0.05)';
+    ctx.beginPath();
+    ctx.roundRect(sndX, sndY, 28, 28, 6);
+    ctx.fill();
+    ctx.fillStyle = sndOn ? CONFIG.COLORS.primary : '#64748b';
+    ctx.font = '16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(sndOn ? '\uD83D\uDD0A' : '\uD83D\uDD07', sndX + 14, sndY + 14);
+    ctx.textBaseline = 'alphabetic';
+    this.soundBtn = { x: sndX, y: sndY, w: 28, h: 28 };
+
     ctx.globalAlpha = 1;
   }
 
   handleClick(x, y) {
+    // Sound toggle
+    if (this.soundBtn) {
+      const b = this.soundBtn;
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        Sound.enabled = !Sound.enabled;
+        this.game.saveData.settings.sound = Sound.enabled;
+        SaveManager.save(this.game.saveData);
+        Sound.uiClick();
+        return true;
+      }
+    }
+
     // Stage arrows
     if (this.leftArrow) {
       const b = this.leftArrow;
@@ -208,6 +268,16 @@ class MenuScene {
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
         Sound.uiClick();
         this.game.startRun(this.selectedStage);
+        return true;
+      }
+    }
+
+    // Endless
+    if (this.endlessBtn) {
+      const b = this.endlessBtn;
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        Sound.uiClick();
+        this.game.startEndless();
         return true;
       }
     }

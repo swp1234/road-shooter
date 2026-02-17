@@ -23,6 +23,9 @@ class Game {
     this.isDragging = false;
     this.dragStartX = 0;
 
+    // Restore sound setting
+    Sound.enabled = this.saveData.settings.sound !== false;
+
     this.setupCanvas();
     this.setupInput();
     this.loadI18n().then(() => {
@@ -96,7 +99,7 @@ class Game {
       e.preventDefault();
       const pos = getPos(e);
       if (this.scene && this.scene.handleDrag) {
-        if (this.isDragging || this.scene instanceof RunScene) {
+        if (this.isDragging || this.scene instanceof RunScene || this.scene instanceof EndlessScene) {
           this.scene.handleDrag(pos.x);
         }
       }
@@ -178,7 +181,7 @@ class Game {
   processKeyboard(dt) {
     if (!this.scene || !this.scene.handleDrag) return;
     const speed = CONFIG.SQUAD_MOVE_SPEED;
-    if (this.scene instanceof RunScene) {
+    if (this.scene instanceof RunScene || this.scene instanceof EndlessScene) {
       if (this.keys['ArrowLeft'] || this.keys['a']) {
         this.scene.squad.moveTo(this.scene.squad.targetX - speed);
       }
@@ -208,6 +211,14 @@ class Game {
 
   showUpgrade() {
     this.scene = new UpgradeScene(this);
+  }
+
+  startEndless() {
+    this.scene = new EndlessScene(this);
+  }
+
+  showEndlessResult(result) {
+    this.scene = new EndlessResultScene(this, result);
   }
 }
 

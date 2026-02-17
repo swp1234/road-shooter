@@ -21,5 +21,8 @@
   "upgrade_baseHP": "आधार HP",
   "upgrade_moveSpeed": "गति",
   "upgrade_magnetRange": "चुंबक सीमा",
-  "upgrade_goldBonus": "सोना बोनस"
+  "upgrade_goldBonus": "सोना बोनस",
+  "menu_endless": "अंतहीन",
+  "endless_start": "अंतहीन मोड",
+  "endless_record": "नया रिकॉर्ड!"
 }

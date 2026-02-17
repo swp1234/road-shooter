@@ -21,5 +21,8 @@
   "upgrade_baseHP": "基本HP",
   "upgrade_moveSpeed": "移動速度",
   "upgrade_magnetRange": "マグネット範囲",
-  "upgrade_goldBonus": "ゴールドボーナス"
+  "upgrade_goldBonus": "ゴールドボーナス",
+  "menu_endless": "エンドレス",
+  "endless_start": "エンドレスモード",
+  "endless_record": "新記録!"
 }

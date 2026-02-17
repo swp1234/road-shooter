@@ -5,7 +5,7 @@ const SaveManager = {
   getDefault() {
     return {
       version: 1,
-      progress: { maxStage: 0, stars: {}, difficulty: 'normal' },
+      progress: { maxStage: 0, stars: {}, difficulty: 'normal', endlessHighWave: 0, endlessHighScore: 0 },
       upgrades: {
         startSquad: 0, baseDamage: 0, baseHP: 0,
         moveSpeed: 0, magnetRange: 0, goldBonus: 0

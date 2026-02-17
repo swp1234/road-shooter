@@ -21,5 +21,8 @@
   "upgrade_baseHP": "Temel HP",
   "upgrade_moveSpeed": "Hareket Hızı",
   "upgrade_magnetRange": "Mıknatıs Menzili",
-  "upgrade_goldBonus": "Altın Bonusu"
+  "upgrade_goldBonus": "Altın Bonusu",
+  "menu_endless": "SONSUZ",
+  "endless_start": "SONSUZ MOD",
+  "endless_record": "YENİ REKOR!"
 }

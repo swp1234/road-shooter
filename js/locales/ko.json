@@ -21,5 +21,8 @@
   "upgrade_baseHP": "기본 체력",
   "upgrade_moveSpeed": "이동 속도",
   "upgrade_magnetRange": "자석 범위",
-  "upgrade_goldBonus": "골드 보너스"
+  "upgrade_goldBonus": "골드 보너스",
+  "menu_endless": "무한모드",
+  "endless_start": "무한모드",
+  "endless_record": "신기록!"
 }

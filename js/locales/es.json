@@ -21,5 +21,8 @@
   "upgrade_baseHP": "HP Base",
   "upgrade_moveSpeed": "Vel. Movimiento",
   "upgrade_magnetRange": "Rango Imán",
-  "upgrade_goldBonus": "Bonus de Oro"
+  "upgrade_goldBonus": "Bonus de Oro",
+  "menu_endless": "INFINITO",
+  "endless_start": "MODO INFINITO",
+  "endless_record": "¡NUEVO RÉCORD!"
 }
