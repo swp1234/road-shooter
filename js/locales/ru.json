@@ -31,5 +31,9 @@
   "hud_endless": "БЕСКОНЕЧНЫЙ",
   "hud_endless_over": "БЕСКОНЕЧНЫЙ РЕЖИМ ОКОНЧЕН",
   "upgrade_max": "МАКС",
-  "hud_wave": "Волна"
+  "hud_wave": "Волна",
+  "endless_wave_reached": "Достигнутая Волна",
+  "endless_bosses": "Боссов Побеждено",
+  "hud_best": "Лучший",
+  "upgrade_level": "Ур."
 }

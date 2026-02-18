@@ -31,5 +31,9 @@
   "hud_endless": "无尽",
   "hud_endless_over": "无尽模式结束",
   "upgrade_max": "满级",
-  "hud_wave": "波次"
+  "hud_wave": "波次",
+  "endless_wave_reached": "到达波次",
+  "endless_bosses": "击败Boss",
+  "hud_best": "最佳",
+  "upgrade_level": "Lv."
 }

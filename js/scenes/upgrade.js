@@ -80,7 +80,7 @@ class UpgradeScene {
       // Level
       ctx.fillStyle = '#64748b';
       ctx.font = '11px Outfit';
-      ctx.fillText(`Lv.${btn.level}/${btn.max}`, bx + 12, btn.y + 56);
+      ctx.fillText(`${this.game.i18n('upgrade_level') || 'Lv.'}${btn.level}/${btn.max}`, bx + 12, btn.y + 56);
 
       // Buy button or MAX
       if (btn.maxed) {

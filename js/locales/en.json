@@ -31,5 +31,9 @@
   "hud_endless": "ENDLESS",
   "hud_endless_over": "ENDLESS OVER",
   "upgrade_max": "MAX",
-  "hud_wave": "Wave"
+  "hud_wave": "Wave",
+  "endless_wave_reached": "Wave Reached",
+  "endless_bosses": "Bosses Defeated",
+  "hud_best": "Best",
+  "upgrade_level": "Lv."
 }

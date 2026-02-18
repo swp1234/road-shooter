@@ -31,5 +31,9 @@
   "hud_endless": "TAK TERBATAS",
   "hud_endless_over": "MODE TAK TERBATAS SELESAI",
   "upgrade_max": "MAKS",
-  "hud_wave": "Gelombang"
+  "hud_wave": "Gelombang",
+  "endless_wave_reached": "Gelombang Tercapai",
+  "endless_bosses": "Bos Dikalahkan",
+  "hud_best": "Terbaik",
+  "upgrade_level": "Lv."
 }

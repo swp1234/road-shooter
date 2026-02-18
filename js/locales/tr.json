@@ -31,5 +31,9 @@
   "hud_endless": "SONSUZ",
   "hud_endless_over": "SONSUZ MOD BİTTİ",
   "upgrade_max": "MAKS",
-  "hud_wave": "Dalga"
+  "hud_wave": "Dalga",
+  "endless_wave_reached": "Ulaşılan Dalga",
+  "endless_bosses": "Yenilen Patron",
+  "hud_best": "En İyi",
+  "upgrade_level": "Sv."
 }

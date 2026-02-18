@@ -31,5 +31,9 @@
   "hud_endless": "अंतहीन",
   "hud_endless_over": "अंतहीन मोड समाप्त",
   "upgrade_max": "अधिकतम",
-  "hud_wave": "लहर"
+  "hud_wave": "लहर",
+  "endless_wave_reached": "पहुँची लहर",
+  "endless_bosses": "बॉस हराए",
+  "hud_best": "सर्वश्रेष्ठ",
+  "upgrade_level": "स्तर"
 }

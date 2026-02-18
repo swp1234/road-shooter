@@ -31,5 +31,9 @@
   "hud_endless": "ENDLOS",
   "hud_endless_over": "ENDLOSMODUS VORBEI",
   "upgrade_max": "MAX",
-  "hud_wave": "Welle"
+  "hud_wave": "Welle",
+  "endless_wave_reached": "Erreichte Welle",
+  "endless_bosses": "Bosse Besiegt",
+  "hud_best": "Beste",
+  "upgrade_level": "Lv."
 }

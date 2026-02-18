@@ -134,14 +134,14 @@ class EndlessScene {
         const rot = CONFIG.BOSS_ROTATION;
         const bossType = rot[(this.wave / 5 - 1) % rot.length];
         this.boss = new Boss(bossType, this.stageMul);
-        this.transitionText = `BOSS - ${this.boss.name}`;
+        this.transitionText = `${this.game.i18n('run_boss') || 'BOSS'} - ${this.boss.name}`;
         this.transitionTimer = 1.5;
         Sound.stageIntro();
         return;
       }
 
       this.spawnEnemyWave();
-      this.transitionText = `Wave ${this.wave}`;
+      this.transitionText = `${this.game.i18n('hud_wave') || 'Wave'} ${this.wave}`;
       this.transitionTimer = 1;
       Sound.stageIntro();
       this.waveCooldown = true;
@@ -617,10 +617,10 @@ class EndlessResultScene {
     ctx.fill();
 
     const stats = [
-      { label: 'Wave Reached', value: this.counters.wave, color: '#a78bfa' },
+      { label: this.game.i18n('endless_wave_reached') || 'Wave Reached', value: this.counters.wave, color: '#a78bfa' },
       { label: this.game.i18n('result_kills') || 'Kills', value: this.counters.kills, color: '#ef4444' },
-      { label: 'Max Squad', value: this.result.maxSquad, color: '#10b981' },
-      { label: 'Bosses Defeated', value: this.counters.bosses, color: '#7c3aed' },
+      { label: this.game.i18n('result_max_squad') || 'Max Squad', value: this.result.maxSquad, color: '#10b981' },
+      { label: this.game.i18n('endless_bosses') || 'Bosses Defeated', value: this.counters.bosses, color: '#7c3aed' },
       { label: this.game.i18n('result_gold') || 'Gold', value: this.counters.gold, color: CONFIG.COLORS.gold },
     ];
 

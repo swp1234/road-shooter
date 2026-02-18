@@ -31,5 +31,9 @@
   "hud_endless": "エンドレス",
   "hud_endless_over": "エンドレス終了",
   "upgrade_max": "最大",
-  "hud_wave": "ウェーブ"
+  "hud_wave": "ウェーブ",
+  "endless_wave_reached": "到達ウェーブ",
+  "endless_bosses": "ボス撃破",
+  "hud_best": "ベスト",
+  "upgrade_level": "Lv."
 }

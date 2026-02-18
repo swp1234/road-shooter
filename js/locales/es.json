@@ -31,5 +31,9 @@
   "hud_endless": "INFINITO",
   "hud_endless_over": "MODO INFINITO TERMINADO",
   "upgrade_max": "MÁX",
-  "hud_wave": "Oleada"
+  "hud_wave": "Oleada",
+  "endless_wave_reached": "Oleada Alcanzada",
+  "endless_bosses": "Jefes Derrotados",
+  "hud_best": "Mejor",
+  "upgrade_level": "Nv."
 }

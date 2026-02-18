@@ -51,7 +51,7 @@ class ResultScene {
     // Stage info
     ctx.fillStyle = '#94a3b8';
     ctx.font = '16px Outfit';
-    ctx.fillText(`Stage ${this.result.stage}`, cw / 2, ch * 0.18);
+    ctx.fillText(`${this.game.i18n('hud_stage') || 'Stage'} ${this.result.stage}`, cw / 2, ch * 0.18);
 
     // Stars
     if (cleared && this.counters.stars > 0) {

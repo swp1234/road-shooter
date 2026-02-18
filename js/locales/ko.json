@@ -31,5 +31,9 @@
   "hud_endless": "무한",
   "hud_endless_over": "무한모드 종료",
   "upgrade_max": "최대",
-  "hud_wave": "웨이브"
+  "hud_wave": "웨이브",
+  "endless_wave_reached": "도달 웨이브",
+  "endless_bosses": "보스 격파",
+  "hud_best": "최고",
+  "upgrade_level": "Lv."
 }

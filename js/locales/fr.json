@@ -31,5 +31,9 @@
   "hud_endless": "INFINI",
   "hud_endless_over": "MODE INFINI TERMINÉ",
   "upgrade_max": "MAX",
-  "hud_wave": "Vague"
+  "hud_wave": "Vague",
+  "endless_wave_reached": "Vague Atteinte",
+  "endless_bosses": "Boss Vaincus",
+  "hud_best": "Meilleur",
+  "upgrade_level": "Nv."
 }

@@ -87,7 +87,7 @@ class MenuScene {
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 16px Outfit';
     ctx.textAlign = 'center';
-    ctx.fillText(`Stage ${this.selectedStage}`, cw / 2, stageY);
+    ctx.fillText(`${this.game.i18n('hud_stage') || 'Stage'} ${this.selectedStage}`, cw / 2, stageY);
 
     // Stars for this stage
     const stageStars = save.progress.stars[this.selectedStage] || 0;
@@ -182,7 +182,7 @@ class MenuScene {
         ctx.fillStyle = '#64748b';
         ctx.font = '9px Outfit';
         ctx.textBaseline = 'alphabetic';
-        ctx.fillText(`Best: Wave ${hiWave}`, endX + rowBtnW / 2, rowY + rowBtnH + 12);
+        ctx.fillText(`${this.game.i18n('hud_best') || 'Best'}: ${this.game.i18n('hud_wave') || 'Wave'} ${hiWave}`, endX + rowBtnW / 2, rowY + rowBtnH + 12);
       }
     }
 
