@@ -107,6 +107,8 @@ class EndlessScene {
 
     // Game over check
     if (this.squad.size <= 0) {
+      this.game.slowMotion(0.4);
+      this.game.shake(8, 0.4);
       this.endRun();
       return;
     }

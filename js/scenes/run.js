@@ -183,6 +183,8 @@ class RunScene {
 
     // Check game over
     if (this.squad.size <= 0) {
+      this.game.slowMotion(0.4);
+      this.game.shake(8, 0.4);
       this.endRun(false);
       return;
     }
@@ -1107,13 +1109,24 @@ class RunScene {
     ctx.textAlign = 'left';
     ctx.fillText(`${this.game.i18n('hud_stage') || 'Stage'} ${this.stage}`, 10, 20);
 
-    // Segment type
+    // Segment type + progress bar
     ctx.fillStyle = '#94a3b8';
     ctx.font = '11px Outfit';
     const segLabel = this.segmentType === 'road' ? `${this.game.i18n('run_road') || 'Road'} ${this.segment + 1}/5`
       : this.segmentType === 'combat' ? `${this.game.i18n('run_combat') || 'Combat'} ${this.segment + 1}/5`
       : this.game.i18n('run_boss') || 'BOSS';
-    ctx.fillText(segLabel, 10, 38);
+    ctx.fillText(segLabel, 10, 35);
+
+    // Segment progress bar (thin line under top bar)
+    const segDuration = this.segmentType === 'road' ? CONFIG.ROAD_DURATION
+      : this.segmentType === 'combat' ? CONFIG.COMBAT_DURATION : CONFIG.BOSS_DURATION;
+    const segProgress = Math.max(0, 1 - this.segmentTimer / segDuration);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 48, cw, 3);
+    const segColor = this.segmentType === 'boss' ? '#ef4444'
+      : this.segmentType === 'combat' ? '#f97316' : CONFIG.COLORS.primary;
+    ctx.fillStyle = segColor;
+    ctx.fillRect(0, 48, cw * segProgress, 3);
 
     // Gold
     ctx.fillStyle = CONFIG.COLORS.gold;

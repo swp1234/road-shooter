@@ -211,6 +211,15 @@ class MenuScene {
     ctx.textAlign = 'center';
     ctx.fillText(`${save.currency.gold} Gold`, cw / 2, ch * 0.97);
 
+    // Career stats (subtle, below road preview)
+    if (save.stats.totalRuns > 0) {
+      ctx.fillStyle = '#475569';
+      ctx.font = '10px Outfit';
+      ctx.textAlign = 'center';
+      const statsText = `${save.stats.totalRuns} ${this.game.i18n('stat_runs') || 'runs'} | ${save.stats.totalKills} ${this.game.i18n('hud_kills_suffix') || 'kills'} | ${save.stats.bossesDefeated} ${this.game.i18n('stat_bosses') || 'bosses'}`;
+      ctx.fillText(statsText, cw / 2, ch * 0.68);
+    }
+
     // Sound toggle (top-right)
     const sndX = cw - 36;
     const sndY = 8;
