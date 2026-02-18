@@ -572,6 +572,7 @@ class EndlessScene {
       kills: this.kills,
       gold: this.gold,
       maxSquad: this.maxSquad,
+      bestCombo: this.bestCombo,
       bossesDefeated: this.bossesDefeated,
       time: Math.floor(this.totalTimer),
       isNewRecord: this.wave > oldHighWave
@@ -661,10 +662,11 @@ class EndlessScene {
     ctx.textAlign = 'right';
     ctx.fillText(`${mins}:${secs.toString().padStart(2, '0')}`, cw - 10, 20);
 
-    // Kills
+    // Kills + wave dmg bonus
     ctx.fillStyle = '#ef4444';
     ctx.font = '11px Outfit';
-    ctx.fillText(`${this.kills} ${this.game.i18n('hud_kills_suffix') || 'kills'}`, cw - 10, 38);
+    const dmgBonusStr = this.waveDmgBonus > 0 ? ` | +${Math.round(this.waveDmgBonus * 100)}%` : '';
+    ctx.fillText(`${this.kills} ${this.game.i18n('hud_kills_suffix') || 'kills'}${dmgBonusStr}`, cw - 10, 38);
 
     // Kill combo indicator (bottom-left)
     if (this.killCombo >= 3) {
@@ -756,6 +758,19 @@ class EndlessScene {
       ctx.font = 'bold 24px Outfit';
       ctx.textAlign = 'center';
       ctx.fillText(this.comboText, cw / 2, ch * 0.4 - (1 - this.comboTimer) * 30);
+      ctx.globalAlpha = 1;
+    }
+
+    // --- Death sequence overlay ---
+    if (this.deathSequence && !this.finished) {
+      const pct = 1 - (this.deathTimer / 1.0);
+      ctx.fillStyle = `rgba(239,68,68,${pct * 0.4})`;
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 28px Syne';
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = Math.min(1, pct * 2);
+      ctx.fillText(this.game.i18n('run_gameover') || 'GAME OVER', cw / 2, ch / 2);
       ctx.globalAlpha = 1;
     }
 
@@ -906,10 +921,11 @@ class EndlessScene {
     ctx.textAlign = 'right';
     ctx.fillText(`${mins}:${secs.toString().padStart(2, '0')}`, cw - 10, 20);
 
-    // Kills
+    // Kills + wave dmg bonus
     ctx.fillStyle = '#ef4444';
     ctx.font = '11px Outfit';
-    ctx.fillText(`${this.kills} ${this.game.i18n('hud_kills_suffix') || 'kills'}`, cw - 10, 38);
+    const dmgBonusStr = this.waveDmgBonus > 0 ? ` | +${Math.round(this.waveDmgBonus * 100)}%` : '';
+    ctx.fillText(`${this.kills} ${this.game.i18n('hud_kills_suffix') || 'kills'}${dmgBonusStr}`, cw - 10, 38);
 
     // Kill combo indicator (bottom-left)
     if (this.killCombo >= 3) {

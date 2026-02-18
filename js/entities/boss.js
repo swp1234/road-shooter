@@ -155,7 +155,11 @@ class Boss {
     const pct = this.hpPercent;
     for (let i = this.phases.length - 1; i >= 0; i--) {
       if (pct <= this.phases[i].threshold + 0.34) {
-        if (this.phase < i) this.phase = i;
+        if (this.phase < i) {
+          this.phase = i;
+          // Immediately trigger attack on phase transition
+          this.attackTimer = 0;
+        }
         break;
       }
     }
