@@ -182,11 +182,12 @@ class Game {
     if (!this.scene || !this.scene.handleDrag) return;
     const speed = CONFIG.SQUAD_MOVE_SPEED;
     if (this.scene instanceof RunScene || this.scene instanceof EndlessScene) {
+      const speedMul = this.scene.speedMul || 1;
       if (this.keys['ArrowLeft'] || this.keys['a']) {
-        this.scene.squad.moveTo(this.scene.squad.targetX - speed);
+        this.scene.squad.moveTo(this.scene.squad.targetX - speed * speedMul, speedMul);
       }
       if (this.keys['ArrowRight'] || this.keys['d']) {
-        this.scene.squad.moveTo(this.scene.squad.targetX + speed);
+        this.scene.squad.moveTo(this.scene.squad.targetX + speed * speedMul, speedMul);
       }
     }
   }

@@ -49,6 +49,7 @@ class RunScene {
     this.gateSpawnTimer = CONFIG.GATE_SPAWN_INTERVAL / 2;
     this.enemySpawnTimer = 0;
     this.waveCount = 0;
+    this.quicksandTimer = 0;
 
     // HUD
     this.comboText = '';
@@ -114,6 +115,14 @@ class RunScene {
     if (this.buffs.fireRate > 0) this.buffs.fireRate -= dt;
     if (this.buffs.magnet > 0) this.buffs.magnet -= dt;
 
+    // Quicksand timer
+    if (this.quicksandTimer > 0) {
+      this.quicksandTimer -= dt;
+      if (this.quicksandTimer <= 0) {
+        this.road.speed = CONFIG.SCROLL_SPEED;
+      }
+    }
+
     // Road always scrolls
     this.road.update();
 
@@ -162,14 +171,14 @@ class RunScene {
 
   updateRoadSegment(dt) {
     // Spawn items
-    this.itemSpawnTimer -= 1;
+    this.itemSpawnTimer -= dt;
     if (this.itemSpawnTimer <= 0) {
       this.spawnItem();
       this.itemSpawnTimer = CONFIG.ITEM_SPAWN_INTERVAL * (0.7 + Math.random() * 0.6);
     }
 
     // Spawn gates
-    this.gateSpawnTimer -= 1;
+    this.gateSpawnTimer -= dt;
     if (this.gateSpawnTimer <= 0) {
       this.spawnGate();
       this.gateSpawnTimer = CONFIG.GATE_SPAWN_INTERVAL;
@@ -582,7 +591,7 @@ class RunScene {
           this.game.shake(5, 0.25);
         } else if (type === 'quicksand') {
           this.road.speed = CONFIG.SCROLL_SPEED * 0.3;
-          setTimeout(() => { this.road.speed = CONFIG.SCROLL_SPEED; }, 2000);
+          this.quicksandTimer = 2; // seconds
         }
       }
     }
@@ -744,8 +753,9 @@ class RunScene {
     // Enemies (depth-scaled)
     for (const e of this.enemies) this.drawScaled(ctx, e);
 
-    // Boss (depth-scaled)
+    // Boss (depth-scaled body, then unscaled effects)
     if (this.boss) this.drawScaled(ctx, this.boss);
+    if (this.boss) this.boss.drawEffects(ctx);
 
     // Bullets (depth-scaled with X projection)
     const bullets = this.combat.bulletPool.active;

@@ -95,7 +95,7 @@ class EndlessScene {
     if (this.buffs.magnet > 0) this.buffs.magnet -= dt;
 
     // Spawn items continuously
-    this.itemSpawnTimer -= 1;
+    this.itemSpawnTimer -= dt;
     if (this.itemSpawnTimer <= 0) {
       this.spawnItem();
       this.itemSpawnTimer = CONFIG.ITEM_SPAWN_INTERVAL * (0.8 + Math.random() * 0.4);
@@ -171,27 +171,27 @@ class EndlessScene {
       this.waveCooldown = true;
     }
 
-    // Combat during wave
+    // Combat always runs (regardless of waveCooldown)
+    const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
+    const rapid = this.buffs.fireRate > 0;
+    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid);
+
+    const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
+    this.kills += hitResult.kills;
+    this.gold += hitResult.gold;
+
+    const waveHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
+    this.buffs.shield = Math.max(0, this.buffs.shield - waveHit.shieldUsed);
+    this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
+    this.checkDetonatorExplosions();
+    this.assignThiefTargets();
+
+    // Wave cleared check (only when in wave)
     if (this.waveCooldown) {
-      const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
-      const rapid = this.buffs.fireRate > 0;
-      this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid);
-
-      const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
-      this.kills += hitResult.kills;
-      this.gold += hitResult.gold;
-
-      const waveHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
-      this.buffs.shield = Math.max(0, this.buffs.shield - waveHit.shieldUsed);
-      this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
-      this.checkDetonatorExplosions();
-      this.assignThiefTargets();
-
-      // Wave cleared?
       const alive = this.enemies.filter(e => e.active && !e.dying).length;
       if (alive === 0) {
         this.waveCooldown = false;
-        this.waveTimer = 2; // Cooldown before next wave
+        this.waveTimer = 2;
       }
     }
   }
@@ -293,7 +293,6 @@ class EndlessScene {
       if (!this.boss._counted) {
         this.boss._counted = true;
         this.bossesDefeated++;
-        this.gold += CONFIG.BOSS_GOLD;
         this.game.shake(12, 0.8);
         Sound.bossDeath();
         this.particles.emitBossDeath(this.boss.x, this.boss.y);
@@ -332,8 +331,15 @@ class EndlessScene {
   }
 
   spawnItem() {
-    const types = Object.keys(CONFIG.ITEMS);
-    const type = types[Math.floor(Math.random() * types.length)];
+    const items = CONFIG.ITEMS;
+    const types = Object.keys(items);
+    const totalWeight = types.reduce((sum, t) => sum + (items[t].weight || 10), 0);
+    let roll = Math.random() * totalWeight;
+    let type = types[0];
+    for (const t of types) {
+      roll -= items[t].weight || 10;
+      if (roll <= 0) { type = t; break; }
+    }
     const x = this.road.getRandomX();
     this.items.push(new Item(x, -20, type));
   }
@@ -464,6 +470,7 @@ class EndlessScene {
   endRun() {
     this.finished = true;
     this.gold = Math.floor(this.gold * this.goldMul);
+    const oldHighWave = this.game.saveData.progress.endlessHighWave || 0;
 
     const result = {
       wave: this.wave,
@@ -471,7 +478,8 @@ class EndlessScene {
       gold: this.gold,
       maxSquad: this.maxSquad,
       bossesDefeated: this.bossesDefeated,
-      time: Math.floor(this.totalTimer)
+      time: Math.floor(this.totalTimer),
+      isNewRecord: this.wave > oldHighWave
     };
 
     // Save
@@ -493,15 +501,78 @@ class EndlessScene {
     }, 800);
   }
 
+  drawScaled(ctx, obj) {
+    const scale = this.road.getScale(obj.y);
+    if (scale < 0.15) return;
+    const projX = this.road.projectX(obj.x, obj.y);
+    ctx.save();
+    ctx.translate(projX, obj.y);
+    ctx.scale(scale, scale);
+    ctx.translate(-obj.x, -obj.y);
+    obj.draw(ctx, scale);
+    ctx.restore();
+  }
+
   draw(ctx) {
+    const cw = CONFIG.CANVAS_WIDTH;
     this.road.draw(ctx);
 
-    for (const item of this.items) item.draw(ctx);
-    for (const e of this.enemies) e.draw(ctx);
-    if (this.boss) this.boss.draw(ctx);
+    // Items (depth-scaled)
+    for (const item of this.items) this.drawScaled(ctx, item);
 
-    this.combat.draw(ctx);
+    // Enemies (depth-scaled)
+    for (const e of this.enemies) this.drawScaled(ctx, e);
+
+    // Boss (depth-scaled)
+    if (this.boss) {
+      this.drawScaled(ctx, this.boss);
+      this.boss.drawEffects(ctx);
+    }
+
+    // Bullets (depth-scaled with X projection)
+    const bullets = this.combat.bulletPool.active;
+    for (const b of bullets) {
+      if (!b.active) continue;
+      const scale = this.road.getScale(b.y);
+      if (scale < 0.15) continue;
+      const sz = CONFIG.BULLET_SIZE * scale;
+      const projBx = this.road.projectX(b.x, b.y);
+      if (b.isEnemy) {
+        ctx.fillStyle = '#ef4444';
+        ctx.shadowColor = '#ef4444';
+      } else {
+        ctx.fillStyle = '#00e5ff';
+        ctx.shadowColor = '#00e5ff';
+      }
+      ctx.shadowBlur = 4 * scale;
+      ctx.beginPath();
+      ctx.arc(projBx, b.y, Math.max(1, sz), 0, Math.PI * 2);
+      ctx.fill();
+      if (b.prevX !== undefined) {
+        const projPrevX = this.road.projectX(b.prevX, b.prevY);
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath();
+        ctx.moveTo(projPrevX, b.prevY);
+        ctx.lineTo(projBx, b.y);
+        ctx.strokeStyle = b.isEnemy ? '#ef4444' : '#00e5ff';
+        ctx.lineWidth = Math.max(0.5, sz * 0.6);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      ctx.shadowBlur = 0;
+    }
+
+    // Squad (depth-scaled with X projection)
+    const sqScale = this.road.getScale(this.squad.y);
+    const sqProjX = this.road.projectX(this.squad.x, this.squad.y);
+    ctx.save();
+    ctx.translate(sqProjX, this.squad.y);
+    ctx.scale(sqScale, sqScale);
+    ctx.translate(-this.squad.x, -this.squad.y);
     this.squad.draw(ctx);
+    ctx.restore();
+
+    // Particles (no scaling — effects)
     this.particles.draw(ctx);
 
     this.drawHUD(ctx);
@@ -638,7 +709,7 @@ class EndlessResultScene {
     this.animTimer = 0;
     this.shown = false;
     this.counters = { wave: 0, kills: 0, gold: 0, bosses: 0 };
-    this.isNewRecord = result.wave >= (game.saveData.progress.endlessHighWave || 0);
+    this.isNewRecord = result.isNewRecord;
   }
 
   update(dt) {

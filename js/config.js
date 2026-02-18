@@ -37,7 +37,7 @@ const CONFIG = {
 
   // Items
   ITEM_SIZE: 16,
-  ITEM_SPAWN_INTERVAL: 40, // frames between spawns
+  ITEM_SPAWN_INTERVAL: 0.667, // seconds between spawns
   ITEMS: {
     // Squad growth
     scoutToken:  { value: 1,  color: '#10b981', label: '+1',   charType: 'rifleman', weight: 20 },
@@ -55,7 +55,7 @@ const CONFIG = {
 
   // Gates
   GATE_HEIGHT: 60,
-  GATE_SPAWN_INTERVAL: 600, // frames between gates
+  GATE_SPAWN_INTERVAL: 10, // seconds between gates
 
   // Enemies
   ENEMIES: {

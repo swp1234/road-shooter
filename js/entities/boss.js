@@ -16,7 +16,7 @@ class Boss {
     // Position
     this.x = CONFIG.CANVAS_WIDTH / 2;
     this.y = -this.size * 2;
-    this.targetY = 180;
+    this.targetY = 300;
     this.entered = false;
 
     // Phase
@@ -293,7 +293,7 @@ class Boss {
     const alpha = this.dying ? this.deathTimer / 1.5 : 1;
     ctx.globalAlpha = alpha;
 
-    // Shockwave
+    // Shockwave (centered on boss position, should be perspective-scaled)
     if (this.shockwaveActive) {
       ctx.strokeStyle = `rgba(239,68,68,${1 - this.shockwaveRadius / 300})`;
       ctx.lineWidth = 3;
@@ -302,10 +302,43 @@ class Boss {
       ctx.stroke();
     }
 
+    const s = this.size;
+    ctx.fillStyle = this.flashTimer > 0 ? '#fff' : this.color;
+
+    if (this.type === 'warMachine') {
+      this.drawWarMachine(ctx, s);
+    } else if (this.type === 'stormColossus') {
+      this.drawStormColossus(ctx, s);
+    } else {
+      this.drawZombieTitan(ctx, s);
+    }
+
+    // Shield visual
+    if (this.shielded) {
+      ctx.strokeStyle = 'rgba(100,200,255,0.6)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, s + 8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // HP Bar
+    if (!this.dying) {
+      this.drawHPBar(ctx, s);
+    }
+
+    ctx.globalAlpha = 1;
+  }
+
+  drawEffects(ctx) {
+    if (!this.active) return;
+    const alpha = this.dying ? this.deathTimer / 1.5 : 1;
+
     // Missile warnings
     for (const m of this.missileWarnings) {
       const a = Math.sin(Date.now() / 100) * 0.3 + 0.4;
-      ctx.fillStyle = `rgba(239,68,68,${a})`;
+      ctx.globalAlpha = a * alpha;
+      ctx.fillStyle = `rgba(239,68,68,1)`;
       ctx.beginPath();
       ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
       ctx.fill();
@@ -313,6 +346,7 @@ class Boss {
       ctx.lineWidth = 2;
       ctx.stroke();
     }
+    ctx.globalAlpha = alpha;
 
     // Lightning strikes
     for (const l of this.lightningStrikes) {
@@ -344,8 +378,8 @@ class Boss {
         ctx.lineTo(l.x + (Math.random() - 0.5) * l.width * 0.5, ly);
       }
       ctx.stroke();
-      ctx.globalAlpha = alpha;
     }
+    ctx.globalAlpha = alpha;
 
     // Tornado
     if (this.tornadoActive) {
@@ -362,39 +396,14 @@ class Boss {
         ctx.ellipse(tx + offset, ty, tw, 10, 0, 0, Math.PI * 2);
         ctx.fill();
       }
-      ctx.globalAlpha = alpha;
     }
+    ctx.globalAlpha = alpha;
 
     // Storm overlay
     if (this.stormActive) {
       const sa = Math.min(this.stormTimer / 0.5, 1) * 0.15;
       ctx.fillStyle = `rgba(124,58,237,${sa})`;
       ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
-    }
-
-    const s = this.size;
-    ctx.fillStyle = this.flashTimer > 0 ? '#fff' : this.color;
-
-    if (this.type === 'warMachine') {
-      this.drawWarMachine(ctx, s);
-    } else if (this.type === 'stormColossus') {
-      this.drawStormColossus(ctx, s);
-    } else {
-      this.drawZombieTitan(ctx, s);
-    }
-
-    // Shield visual
-    if (this.shielded) {
-      ctx.strokeStyle = 'rgba(100,200,255,0.6)';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, s + 8, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-
-    // HP Bar
-    if (!this.dying) {
-      this.drawHPBar(ctx, s);
     }
 
     ctx.globalAlpha = 1;
