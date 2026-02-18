@@ -93,7 +93,7 @@ class Renderer3D {
 
     // Animate road scroll
     if (state.road) {
-      this._roadTexture.offset.y = state.road.scrollY * 0.002;
+      this._roadTexture.offset.y = state.road.scrollY * 0.005;
     }
 
     // Camera shake
@@ -565,6 +565,9 @@ class Renderer3D {
     // Apply size scaling
     group.scale.setScalar(sizeFactor);
 
+    // Enemies face toward squad (+z direction)
+    group.rotation.y = Math.PI;
+
     group.userData = {
       baseY: 0,
       type: type,
@@ -746,6 +749,9 @@ class Renderer3D {
     }
 
     group.scale.setScalar(bossScale);
+
+    // Boss faces toward squad (+z direction)
+    group.rotation.y = Math.PI;
 
     group.userData = {
       baseY: 0,
@@ -1091,8 +1097,8 @@ class Renderer3D {
         this._bossMesh = null;
         this._bossEntity = null;
       }
-      this._bossHpBar.visible = false;
-      this._bossHpBg.visible = false;
+      if (this._bossHpBar) this._bossHpBar.visible = false;
+      if (this._bossHpBg) this._bossHpBg.visible = false;
       return;
     }
 
