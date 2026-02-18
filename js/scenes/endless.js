@@ -11,11 +11,17 @@ class EndlessScene {
     // Squad
     const ups = game.saveData.upgrades;
     const startSize = CONFIG.START_SQUAD + (ups.startSquad || 0) + 3; // Bonus start for endless
-    this.squad = new Squad(startSize);
+    const hpBonus = (ups.baseHP || 0) * CONFIG.UPGRADES.baseHP.perLevel;
+    this.squad = new Squad(startSize, hpBonus);
 
     // Upgrade multipliers
     this.dmgMul = 1 + (ups.baseDamage || 0) * CONFIG.UPGRADES.baseDamage.perLevel;
     this.goldMul = 1 + (ups.goldBonus || 0) * CONFIG.UPGRADES.goldBonus.perLevel;
+    this.speedMul = 1 + (ups.moveSpeed || 0) * CONFIG.UPGRADES.moveSpeed.perLevel;
+    this.magnetMul = 1 + (ups.magnetRange || 0) * CONFIG.UPGRADES.magnetRange.perLevel;
+
+    // Buffs (power-up timers)
+    this.buffs = { dmg: 0, shield: 0, fireRate: 0, magnet: 0 };
 
     // Entities
     this.items = [];
@@ -83,6 +89,11 @@ class EndlessScene {
       return;
     }
 
+    // Update buffs
+    if (this.buffs.dmg > 0) this.buffs.dmg -= dt;
+    if (this.buffs.fireRate > 0) this.buffs.fireRate -= dt;
+    if (this.buffs.magnet > 0) this.buffs.magnet -= dt;
+
     // Spawn items continuously
     this.itemSpawnTimer -= 1;
     if (this.itemSpawnTimer <= 0) {
@@ -90,13 +101,25 @@ class EndlessScene {
       this.itemSpawnTimer = CONFIG.ITEM_SPAWN_INTERVAL * (0.8 + Math.random() * 0.4);
     }
 
+    // Magnet effect
+    const magnetRange = 120 * this.magnetMul;
+    if (this.buffs.magnet > 0) {
+      for (const item of this.items) {
+        if (item.collected) continue;
+        const dx = this.squad.x - item.x;
+        const dy = this.squad.y - item.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < magnetRange && dist > 5) {
+          item.x += (dx / dist) * 3;
+          item.y += (dy / dist) * 2;
+        }
+      }
+    }
+
     // Item collection
     this.checkItemCollision();
 
-    // Always run combat (squad should always shoot if targets exist)
-    if (!this.bossWave) {
-      this.combat.squadFire(this.squad, this.enemies, null, this.dmgMul);
-    }
+    // Combat firing handled per-segment (updateCombatWave / updateBossWave)
     this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
 
     // Wave logic
@@ -150,14 +173,16 @@ class EndlessScene {
 
     // Combat during wave
     if (this.waveCooldown) {
-      this.combat.squadFire(this.squad, this.enemies, null, this.dmgMul);
-      this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
+      const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
+      const rapid = this.buffs.fireRate > 0;
+      this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid);
 
       const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
       this.kills += hitResult.kills;
       this.gold += hitResult.gold;
 
-      this.combat.checkEnemyBulletHits(this.squad, this.particles);
+      const waveHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
+      this.buffs.shield = Math.max(0, this.buffs.shield - waveHit.shieldUsed);
       this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
       this.checkDetonatorExplosions();
       this.assignThiefTargets();
@@ -248,15 +273,17 @@ class EndlessScene {
       }
     }
 
-    // Combat
-    this.combat.squadFire(this.squad, this.enemies, this.boss, this.dmgMul);
-    this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
+    // Combat with buffs
+    const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
+    const rapid = this.buffs.fireRate > 0;
+    this.combat.squadFire(this.squad, this.enemies, this.boss, dmg, rapid);
 
     const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles);
     this.kills += hitResult.kills;
     this.gold += hitResult.gold;
 
-    this.combat.checkEnemyBulletHits(this.squad, this.particles);
+    const bossHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
+    this.buffs.shield = Math.max(0, this.buffs.shield - bossHit.shieldUsed);
     this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
     this.checkDetonatorExplosions();
     this.combat.checkBossShockwave(this.boss, this.squad, this.particles);
@@ -311,8 +338,65 @@ class EndlessScene {
     this.items.push(new Item(x, -20, type));
   }
 
+  collectItem(item) {
+    const cfg = item.collect();
+    if (!cfg) return;
+    if (cfg.isBuff) {
+      this.applyBuff(cfg);
+    } else if (cfg.isPercent) {
+      this.squad.addByPercent(cfg.value);
+    } else if (cfg.charType === 'random') {
+      const types = Object.keys(CONFIG.CHAR_TYPES);
+      for (let j = 0; j < cfg.value; j++) {
+        this.squad.addMember(types[Math.floor(Math.random() * types.length)]);
+      }
+    } else if (cfg.charType === 'mixed') {
+      this.squad.addMember('rifleman', Math.ceil(cfg.value / 2));
+      this.squad.addMember('tanker', Math.floor(cfg.value / 4));
+      this.squad.addMember('sniper', 1);
+      if (cfg.value >= 6) this.squad.addMember('bomber', 1);
+    } else {
+      this.squad.addMember(cfg.charType || 'rifleman', cfg.value);
+    }
+    this.gold += CONFIG.GOLD_PER_ITEM;
+    this.particles.emitCollect(item.x, item.y);
+    Sound.itemCollect();
+    this.showCombo(cfg.label);
+  }
+
+  applyBuff(cfg) {
+    switch (cfg.buffType) {
+      case 'dmg':
+        this.buffs.dmg = cfg.duration || 8;
+        break;
+      case 'shield':
+        this.buffs.shield += cfg.value || 5;
+        break;
+      case 'fireRate':
+        this.buffs.fireRate = cfg.duration || 8;
+        break;
+      case 'magnet':
+        this.buffs.magnet = cfg.duration || 6;
+        break;
+      case 'nuke':
+        for (const e of this.enemies) {
+          if (e.active && !e.dying) {
+            e.takeDamage(999);
+            this.kills++;
+            this.gold += e.reward;
+            this.particles.emitDeath(e.x, e.y);
+          }
+        }
+        Sound.explosion();
+        this.game.shake(10, 0.5);
+        this.particles.emit(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2, '#ff6b35', 25, 8, 0.5, 6);
+        break;
+    }
+  }
+
   checkItemCollision() {
     const alive = this.squad.alive;
+    const collectR = 30 * this.magnetMul;
     for (const item of this.items) {
       if (item.collected) continue;
       // Squad center check with projected X (visual-accurate)
@@ -320,29 +404,8 @@ class EndlessScene {
       const squadProjX = this.road.projectX(this.squad.x, this.squad.y);
       const vdx = itemProjX - squadProjX;
       const gdy = item.y - this.squad.y;
-      if (vdx * vdx + gdy * gdy < (item.size + 30) * (item.size + 30)) {
-        const cfg = item.collect();
-        if (cfg) {
-          if (cfg.isPercent) {
-            this.squad.addByPercent(cfg.value);
-          } else if (cfg.charType === 'random') {
-            const types = Object.keys(CONFIG.CHAR_TYPES);
-            for (let j = 0; j < cfg.value; j++) {
-              this.squad.addMember(types[Math.floor(Math.random() * types.length)]);
-            }
-          } else if (cfg.charType === 'mixed') {
-            this.squad.addMember('rifleman', Math.ceil(cfg.value / 2));
-            this.squad.addMember('tanker', Math.floor(cfg.value / 4));
-            this.squad.addMember('sniper', 1);
-            if (cfg.value >= 6) this.squad.addMember('bomber', 1);
-          } else {
-            this.squad.addMember(cfg.charType || 'rifleman', cfg.value);
-          }
-          this.gold += CONFIG.GOLD_PER_ITEM;
-          this.particles.emitCollect(item.x, item.y);
-          Sound.itemCollect();
-          this.showCombo(cfg.label);
-        }
+      if (vdx * vdx + gdy * gdy < (item.size + collectR) * (item.size + collectR)) {
+        this.collectItem(item);
         continue;
       }
       // Individual member check
@@ -350,28 +413,7 @@ class EndlessScene {
         const dx = item.x - char.x;
         const dy = item.y - char.y;
         if (dx * dx + dy * dy < (item.size + 18) * (item.size + 18)) {
-          const cfg = item.collect();
-          if (cfg) {
-            if (cfg.isPercent) {
-              this.squad.addByPercent(cfg.value);
-            } else if (cfg.charType === 'random') {
-              const types = Object.keys(CONFIG.CHAR_TYPES);
-              for (let j = 0; j < cfg.value; j++) {
-                this.squad.addMember(types[Math.floor(Math.random() * types.length)]);
-              }
-            } else if (cfg.charType === 'mixed') {
-              this.squad.addMember('rifleman', Math.ceil(cfg.value / 2));
-              this.squad.addMember('tanker', Math.floor(cfg.value / 4));
-              this.squad.addMember('sniper', 1);
-              if (cfg.value >= 6) this.squad.addMember('bomber', 1);
-            } else {
-              this.squad.addMember(cfg.charType || 'rifleman', cfg.value);
-            }
-            this.gold += CONFIG.GOLD_PER_ITEM;
-            this.particles.emitCollect(item.x, item.y);
-            Sound.itemCollect();
-            this.showCombo(cfg.label);
-          }
+          this.collectItem(item);
           break;
         }
       }
@@ -463,6 +505,7 @@ class EndlessScene {
     this.particles.draw(ctx);
 
     this.drawHUD(ctx);
+    this.drawBuffBar(ctx);
 
     // Danger overlay
     if (this.dangerAlpha > 0) {
@@ -561,7 +604,29 @@ class EndlessScene {
 
   handleDrag(x) {
     const gameX = this.road.unprojectX(x, this.squad.y);
-    this.squad.moveTo(gameX);
+    this.squad.moveTo(gameX, this.speedMul);
+  }
+
+  drawBuffBar(ctx) {
+    let x = 8;
+    const y = 54;
+    const draw = (label, color, val) => {
+      if (val <= 0) return;
+      ctx.font = 'bold 9px Outfit';
+      ctx.textAlign = 'left';
+      const text = typeof val === 'number' && val > 1 ? `${label} ${Math.ceil(val)}s` : label;
+      const tw = ctx.measureText(text).width + 8;
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(x, y, tw, 14);
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, 2, 14);
+      ctx.fillText(text, x + 5, y + 10);
+      x += tw + 4;
+    };
+    draw('DMG+', '#f43f5e', this.buffs.dmg);
+    draw('SHIELD ' + Math.ceil(this.buffs.shield), '#60a5fa', this.buffs.shield);
+    draw('RAPID', '#eab308', this.buffs.fireRate);
+    draw('MAGNET', '#a855f7', this.buffs.magnet);
   }
 }
 

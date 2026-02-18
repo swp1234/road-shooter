@@ -148,7 +148,7 @@ class ResultScene {
     if (this.retryBtn) {
       const b = this.retryBtn;
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
-        this.game.startRun();
+        this.game.startRun(this.result.stage);
         return true;
       }
     }

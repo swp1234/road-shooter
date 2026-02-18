@@ -13,11 +13,14 @@ class RunScene {
     // Squad
     const ups = game.saveData.upgrades;
     const startSize = CONFIG.START_SQUAD + (ups.startSquad || 0);
-    this.squad = new Squad(startSize);
+    const hpBonus = (ups.baseHP || 0) * CONFIG.UPGRADES.baseHP.perLevel;
+    this.squad = new Squad(startSize, hpBonus);
 
     // Upgrade multipliers
     this.dmgMul = 1 + (ups.baseDamage || 0) * CONFIG.UPGRADES.baseDamage.perLevel;
     this.goldMul = 1 + (ups.goldBonus || 0) * CONFIG.UPGRADES.goldBonus.perLevel;
+    this.speedMul = 1 + (ups.moveSpeed || 0) * CONFIG.UPGRADES.moveSpeed.perLevel;
+    this.magnetMul = 1 + (ups.magnetRange || 0) * CONFIG.UPGRADES.magnetRange.perLevel;
 
     // Entities
     this.items = [];
@@ -192,19 +195,20 @@ class RunScene {
     const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
     this.kills += hitResult.kills;
     this.gold += hitResult.gold;
-    const losses = this.combat.checkEnemyBulletHits(this.squad, this.particles);
-    if (losses > 0 && this.buffs.shield > 0) this.buffs.shield = Math.max(0, this.buffs.shield - losses);
+    const roadHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
+    this.buffs.shield = Math.max(0, this.buffs.shield - roadHit.shieldUsed);
     this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
     this.checkDetonatorExplosions();
 
-    // Magnet effect: attract items toward squad
+    // Magnet effect: attract items toward squad (magnetRange upgrade applies)
+    const magnetRange = 120 * this.magnetMul;
     if (this.buffs.magnet > 0) {
       for (const item of this.items) {
         if (item.collected) continue;
         const dx = this.squad.x - item.x;
         const dy = this.squad.y - item.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 120 && dist > 5) {
+        if (dist < magnetRange && dist > 5) {
           item.x += (dx / dist) * 3;
           item.y += (dy / dist) * 2;
         }
@@ -242,9 +246,9 @@ class RunScene {
     this.kills += hitResult.kills;
     this.gold += hitResult.gold;
 
-    // Enemy bullet hits (shield absorbs in all segments)
-    const cLosses = this.combat.checkEnemyBulletHits(this.squad, this.particles);
-    if (cLosses > 0 && this.buffs.shield > 0) this.buffs.shield = Math.max(0, this.buffs.shield - cLosses);
+    // Enemy bullet hits (shield absorbs)
+    const combatHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
+    this.buffs.shield = Math.max(0, this.buffs.shield - combatHit.shieldUsed);
 
     // Rusher collisions
     this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
@@ -314,8 +318,8 @@ class RunScene {
       this.kills += hitResult.kills;
       this.gold += hitResult.gold;
 
-      const bLosses = this.combat.checkEnemyBulletHits(this.squad, this.particles);
-      if (bLosses > 0 && this.buffs.shield > 0) this.buffs.shield = Math.max(0, this.buffs.shield - bLosses);
+      const bossHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
+      this.buffs.shield = Math.max(0, this.buffs.shield - bossHit.shieldUsed);
       this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
       this.checkDetonatorExplosions();
       this.combat.checkBossShockwave(this.boss, this.squad, this.particles);
@@ -509,7 +513,7 @@ class RunScene {
 
   checkItemCollision() {
     const alive = this.squad.alive;
-    const collectR = 32; // generous collision radius
+    const collectR = 32 * this.magnetMul; // magnetRange upgrade expands pickup
     for (const item of this.items) {
       if (item.collected) continue;
       // Use projected X positions for visual-accurate collision
@@ -925,6 +929,6 @@ class RunScene {
   handleDrag(x) {
     // Inverse-project screen X to game-space X so squad appears where user drags
     const gameX = this.road.unprojectX(x, this.squad.y);
-    this.squad.moveTo(gameX);
+    this.squad.moveTo(gameX, this.speedMul);
   }
 }

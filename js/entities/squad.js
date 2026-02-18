@@ -1,12 +1,13 @@
 // Road Shooter - Squad Management (Enhanced Visuals)
 class Squad {
-  constructor(startSize = 1) {
+  constructor(startSize = 1, hpBonus = 0) {
     this.members = [];
     this.x = CONFIG.CANVAS_WIDTH / 2;
     this.y = CONFIG.CANVAS_HEIGHT * 0.85;
     this.targetX = this.x;
     this.maxSize = 0;
     this.shieldPulse = 0;
+    this.hpBonus = hpBonus;
 
     for (let i = 0; i < startSize; i++) {
       this.addMember('rifleman');
@@ -19,7 +20,7 @@ class Squad {
   addMember(type = 'rifleman', count = 1) {
     for (let i = 0; i < count; i++) {
       if (this.members.filter(m => m.active).length >= CONFIG.HARD_CAP) break;
-      const char = new Character(this.x, this.y, type);
+      const char = new Character(this.x, this.y, type, this.hpBonus);
       this.members.push(char);
     }
     this.maxSize = Math.max(this.maxSize, this.size);
@@ -64,16 +65,18 @@ class Squad {
     }
   }
 
-  moveTo(x) {
+  moveTo(x, speedMul = 1) {
     const cw = CONFIG.CANVAS_WIDTH;
     const roadW = cw * CONFIG.ROAD_WIDTH_RATIO;
     const roadL = (cw - roadW) / 2;
     const roadR = roadL + roadW;
     this.targetX = Math.max(roadL + 20, Math.min(roadR - 20, x));
+    this.speedMul = speedMul;
   }
 
   update(dt) {
-    this.x += (this.targetX - this.x) * 0.12;
+    const lerp = 0.12 * (this.speedMul || 1);
+    this.x += (this.targetX - this.x) * lerp;
     this.shieldPulse += dt * 2;
     this.updateFormation();
 

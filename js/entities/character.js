@@ -1,11 +1,11 @@
 // Road Shooter - Single Character Entity (Detailed Military Sprites)
 class Character {
-  constructor(x, y, type = 'rifleman') {
+  constructor(x, y, type = 'rifleman', hpBonus = 0) {
     this.x = x;
     this.y = y;
     this.type = type;
     this.active = true;
-    this.hp = CONFIG.CHAR_TYPES[type].hp;
+    this.hp = CONFIG.CHAR_TYPES[type].hp + hpBonus;
     this.maxHp = this.hp;
     this.fireTimer = 0;
     this.deathTimer = 0;

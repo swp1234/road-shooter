@@ -183,6 +183,24 @@ class CombatSystem {
           } else {
             Sound.enemyHit();
           }
+          // AOE splash damage to nearby enemies
+          if (b.aoe > 0) {
+            for (const e2 of enemies) {
+              if (e2 === e || !e2.active || e2.dying) continue;
+              const adx = b.x - e2.x;
+              const ady = b.y - e2.y;
+              if (adx * adx + ady * ady < b.aoe * b.aoe) {
+                const splashKill = e2.takeDamage(Math.ceil(b.dmg * 0.5));
+                if (splashKill) {
+                  kills++;
+                  gold += e2.reward;
+                  particles.emitDeath(e2.x, e2.y);
+                  Sound.enemyDeath();
+                }
+              }
+            }
+            particles.emit(b.x, b.y, '#f97316', 6, 4, 0.3, 3);
+          }
           break;
         }
       }
@@ -190,11 +208,12 @@ class CombatSystem {
     return { kills, gold };
   }
 
-  // Check enemy bullets hitting squad
-  checkEnemyBulletHits(squad, particles) {
+  // Check enemy bullets hitting squad (shield absorbs hits)
+  checkEnemyBulletHits(squad, particles, shieldCharges = 0) {
     const bullets = this.bulletPool.active;
     const alive = squad.alive;
     let losses = 0;
+    let shieldUsed = 0;
 
     for (let i = bullets.length - 1; i >= 0; i--) {
       const b = bullets[i];
@@ -205,18 +224,23 @@ class CombatSystem {
         const dx = b.x - char.x;
         const dy = b.y - char.y;
         if (dx * dx + dy * dy < 100) { // 10px radius
-          const died = char.takeDamage(b.dmg);
           b.active = false;
-          if (died) {
-            losses++;
-            particles.emitDeath(char.x, char.y);
-            Sound.damageTaken();
+          if (shieldCharges > shieldUsed) {
+            shieldUsed++;
+            particles.emit(b.x, b.y, '#60a5fa', 3, 3, 0.2, 2);
+          } else {
+            const died = char.takeDamage(b.dmg);
+            if (died) {
+              losses++;
+              particles.emitDeath(char.x, char.y);
+              Sound.damageTaken();
+            }
           }
           break;
         }
       }
     }
-    return losses;
+    return { losses, shieldUsed };
   }
 
   // Check rusher collision with squad

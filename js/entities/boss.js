@@ -16,7 +16,7 @@ class Boss {
     // Position
     this.x = CONFIG.CANVAS_WIDTH / 2;
     this.y = -this.size * 2;
-    this.targetY = 80;
+    this.targetY = 180;
     this.entered = false;
 
     // Phase
