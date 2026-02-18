@@ -401,103 +401,483 @@ class Boss {
   }
 
   drawZombieTitan(ctx, s) {
-    // Main body - circle
+    const x = this.x;
+    const y = this.y;
+    const flash = this.flashTimer > 0;
+
+    // Legs (massive, torn pants with exposed muscle)
+    ctx.fillStyle = flash ? '#ddd' : '#5c1010';
+    ctx.fillRect(x - s * 0.55, y + s * 0.45, s * 0.35, s * 0.65);
+    ctx.fillRect(x + s * 0.2, y + s * 0.45, s * 0.35, s * 0.65);
+    // Torn cloth strips
+    ctx.fillStyle = flash ? '#ccc' : '#3a0a0a';
+    ctx.fillRect(x - s * 0.5, y + s * 0.7, s * 0.12, s * 0.3);
+    ctx.fillRect(x + s * 0.4, y + s * 0.65, s * 0.1, s * 0.35);
+    // Exposed bone/muscle on left leg
+    ctx.fillStyle = flash ? '#eee' : '#e8c8a8';
+    ctx.fillRect(x - s * 0.42, y + s * 0.55, s * 0.12, s * 0.2);
+
+    // Massive torso (hunched, wide)
+    ctx.fillStyle = flash ? '#fff' : '#b91c1c';
     ctx.beginPath();
-    ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
+    ctx.moveTo(x - s * 0.8, y - s * 0.1);
+    ctx.lineTo(x - s * 0.85, y + s * 0.55);
+    ctx.lineTo(x + s * 0.85, y + s * 0.55);
+    ctx.lineTo(x + s * 0.8, y - s * 0.1);
+    ctx.arc(x, y - s * 0.1, s * 0.8, 0, -Math.PI, true);
     ctx.fill();
 
-    if (!this.dying) {
-      // X eyes
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 3;
-      for (const side of [-1, 1]) {
-        ctx.beginPath();
-        ctx.moveTo(this.x + side * s * 0.35 - 5, this.y - s * 0.2 - 5);
-        ctx.lineTo(this.x + side * s * 0.35 + 5, this.y - s * 0.2 + 5);
-        ctx.moveTo(this.x + side * s * 0.35 + 5, this.y - s * 0.2 - 5);
-        ctx.lineTo(this.x + side * s * 0.35 - 5, this.y - s * 0.2 + 5);
-        ctx.stroke();
-      }
-      // Mouth weak spot
-      ctx.fillStyle = this.weakSpotActive ? '#fbbf24' : '#7f1d1d';
-      if (this.weakSpotActive) { ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 15; }
+    // Exposed ribcage (right side)
+    ctx.strokeStyle = flash ? '#ddd' : '#e8c8a8';
+    ctx.lineWidth = 1.2;
+    for (let i = 0; i < 4; i++) {
       ctx.beginPath();
-      ctx.arc(this.x, this.y + s * 0.3, s * 0.2, 0, Math.PI);
+      ctx.moveTo(x + s * 0.25, y + i * s * 0.1);
+      ctx.quadraticCurveTo(x + s * 0.55, y + i * s * 0.1 + s * 0.03, x + s * 0.65, y + i * s * 0.1 - s * 0.02);
+      ctx.stroke();
+    }
+
+    // Rusted shoulder armor plates
+    ctx.fillStyle = flash ? '#ccc' : '#7f1d1d';
+    // Left shoulder
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.9, y - s * 0.25);
+    ctx.lineTo(x - s * 1.1, y + s * 0.1);
+    ctx.lineTo(x - s * 0.7, y + s * 0.15);
+    ctx.lineTo(x - s * 0.65, y - s * 0.2);
+    ctx.closePath();
+    ctx.fill();
+    // Right shoulder
+    ctx.beginPath();
+    ctx.moveTo(x + s * 0.9, y - s * 0.25);
+    ctx.lineTo(x + s * 1.1, y + s * 0.1);
+    ctx.lineTo(x + s * 0.7, y + s * 0.15);
+    ctx.lineTo(x + s * 0.65, y - s * 0.2);
+    ctx.closePath();
+    ctx.fill();
+    // Bolts on armor
+    ctx.fillStyle = flash ? '#bbb' : '#991b1b';
+    ctx.beginPath(); ctx.arc(x - s * 0.85, y - s * 0.05, s * 0.05, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + s * 0.85, y - s * 0.05, s * 0.05, 0, Math.PI * 2); ctx.fill();
+
+    // Long arms with clawed hands
+    ctx.fillStyle = flash ? '#eee' : '#991b1b';
+    // Left arm
+    ctx.fillRect(x - s * 1.05, y - s * 0.15, s * 0.22, s * 0.65);
+    // Right arm
+    ctx.fillRect(x + s * 0.83, y - s * 0.15, s * 0.22, s * 0.65);
+    // Claws
+    if (!this.dying) {
+      ctx.fillStyle = flash ? '#ddd' : '#e8c8a8';
+      for (const side of [-1, 1]) {
+        const cx = side < 0 ? x - s * 0.95 : x + s * 0.94;
+        for (let i = -1; i <= 1; i++) {
+          ctx.beginPath();
+          ctx.moveTo(cx + i * s * 0.06, y + s * 0.5);
+          ctx.lineTo(cx + i * s * 0.04, y + s * 0.65);
+          ctx.lineTo(cx + i * s * 0.08, y + s * 0.5);
+          ctx.fill();
+        }
+      }
+    }
+
+    // Chains dangling from wrists
+    ctx.strokeStyle = flash ? '#bbb' : '#78350f';
+    ctx.lineWidth = 1.5;
+    for (const side of [-1, 1]) {
+      const wx = side < 0 ? x - s * 0.95 : x + s * 0.94;
+      ctx.beginPath();
+      let cy = y + s * 0.45;
+      ctx.moveTo(wx, cy);
+      for (let i = 0; i < 4; i++) {
+        cy += s * 0.08;
+        ctx.lineTo(wx + (i % 2 === 0 ? s * 0.06 : -s * 0.06), cy);
+      }
+      ctx.stroke();
+    }
+
+    // Head (cracked skull helmet)
+    ctx.fillStyle = flash ? '#eee' : '#7f1d1d';
+    ctx.beginPath();
+    ctx.arc(x, y - s * 0.55, s * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    // Skull helmet (cracked dome)
+    ctx.fillStyle = flash ? '#ddd' : '#5c1010';
+    ctx.beginPath();
+    ctx.arc(x, y - s * 0.6, s * 0.55, -Math.PI, 0);
+    ctx.fill();
+    // Crack lines on helmet
+    ctx.strokeStyle = flash ? '#ccc' : '#ef4444';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.1, y - s * 1.1);
+    ctx.lineTo(x + s * 0.05, y - s * 0.7);
+    ctx.lineTo(x + s * 0.15, y - s * 0.85);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x + s * 0.2, y - s * 1.05);
+    ctx.lineTo(x + s * 0.1, y - s * 0.65);
+    ctx.stroke();
+
+    if (!this.dying) {
+      // Glowing eye sockets (hollow, menacing)
+      ctx.fillStyle = '#fbbf24';
+      ctx.shadowColor = '#fbbf24';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(x - s * 0.2, y - s * 0.5, s * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x + s * 0.2, y - s * 0.5, s * 0.1, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
+      // Pupil dots
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath(); ctx.arc(x - s * 0.2, y - s * 0.5, s * 0.04, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x + s * 0.2, y - s * 0.5, s * 0.04, 0, Math.PI * 2); ctx.fill();
+
+      // Exposed lower jaw
+      ctx.fillStyle = flash ? '#ddd' : '#e8c8a8';
+      ctx.beginPath();
+      ctx.moveTo(x - s * 0.25, y - s * 0.3);
+      ctx.lineTo(x - s * 0.2, y - s * 0.15);
+      ctx.lineTo(x + s * 0.2, y - s * 0.15);
+      ctx.lineTo(x + s * 0.25, y - s * 0.3);
+      ctx.closePath();
+      ctx.fill();
+
+      // Mouth weak spot (between jaw bones)
+      ctx.fillStyle = this.weakSpotActive ? '#fbbf24' : '#450a0a';
+      if (this.weakSpotActive) { ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 15; }
+      ctx.beginPath();
+      ctx.arc(x, y - s * 0.22, s * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Jagged teeth
+      ctx.fillStyle = flash ? '#eee' : '#e8c8a8';
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x + i * s * 0.08 - s * 0.03, y - s * 0.3);
+        ctx.lineTo(x + i * s * 0.08, y - s * 0.23);
+        ctx.lineTo(x + i * s * 0.08 + s * 0.03, y - s * 0.3);
+        ctx.fill();
+      }
     }
   }
 
   drawWarMachine(ctx, s) {
-    // Main body - angular rectangle
+    const x = this.x;
+    const y = this.y;
+    const flash = this.flashTimer > 0;
+
+    // Heavy treads (two wide tracked sections)
+    ctx.fillStyle = flash ? '#ddd' : '#1e293b';
+    ctx.fillRect(x - s * 1.15, y + s * 0.1, s * 0.35, s * 0.9);
+    ctx.fillRect(x + s * 0.8, y + s * 0.1, s * 0.35, s * 0.9);
+    // Track wheels (circles inside treads)
+    ctx.fillStyle = flash ? '#ccc' : '#334155';
+    for (let i = 0; i < 3; i++) {
+      const ty = y + s * 0.25 + i * s * 0.28;
+      ctx.beginPath(); ctx.arc(x - s * 0.97, ty, s * 0.1, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x + s * 0.97, ty, s * 0.1, 0, Math.PI * 2); ctx.fill();
+    }
+    // Track segments
+    ctx.strokeStyle = flash ? '#bbb' : '#475569';
+    ctx.lineWidth = 0.8;
+    for (let i = 0; i < 6; i++) {
+      const ty = y + s * 0.15 + i * s * 0.14;
+      ctx.beginPath();
+      ctx.moveTo(x - s * 1.15, ty); ctx.lineTo(x - s * 0.8, ty);
+      ctx.moveTo(x + s * 0.8, ty); ctx.lineTo(x + s * 1.15, ty);
+      ctx.stroke();
+    }
+
+    // Hull body (sloped armor, trapezoid shape)
+    ctx.fillStyle = flash ? '#fff' : '#475569';
     ctx.beginPath();
-    ctx.roundRect(this.x - s, this.y - s * 0.8, s * 2, s * 1.6, 6);
+    ctx.moveTo(x - s * 0.75, y - s * 0.3);
+    ctx.lineTo(x - s * 0.85, y + s * 0.65);
+    ctx.lineTo(x + s * 0.85, y + s * 0.65);
+    ctx.lineTo(x + s * 0.75, y - s * 0.3);
+    ctx.closePath();
     ctx.fill();
 
+    // Reactive armor blocks (bolt-on panels)
+    ctx.fillStyle = flash ? '#eee' : '#64748b';
+    ctx.fillRect(x - s * 0.7, y - s * 0.15, s * 0.3, s * 0.5);
+    ctx.fillRect(x + s * 0.4, y - s * 0.15, s * 0.3, s * 0.5);
+    // Panel rivets
+    ctx.fillStyle = flash ? '#ddd' : '#334155';
+    for (let i = 0; i < 2; i++) {
+      for (let j = 0; j < 2; j++) {
+        ctx.beginPath(); ctx.arc(x - s * 0.6 + j * s * 0.15, y + i * s * 0.2, s * 0.025, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + s * 0.5 + j * s * 0.15, y + i * s * 0.2, s * 0.025, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    // Hull detail lines (welding seams)
+    ctx.strokeStyle = flash ? '#ddd' : '#334155';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.6, y + s * 0.2);
+    ctx.lineTo(x + s * 0.6, y + s * 0.2);
+    ctx.moveTo(x - s * 0.5, y + s * 0.45);
+    ctx.lineTo(x + s * 0.5, y + s * 0.45);
+    ctx.stroke();
+
+    // Turret base (circular platform)
+    ctx.fillStyle = flash ? '#eee' : '#334155';
+    ctx.beginPath();
+    ctx.ellipse(x, y - s * 0.3, s * 0.55, s * 0.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Turret dome (main rotating turret)
+    ctx.fillStyle = flash ? '#fff' : '#64748b';
+    ctx.beginPath();
+    ctx.arc(x, y - s * 0.5, s * 0.45, 0, Math.PI * 2);
+    ctx.fill();
+    // Turret armor ring
+    ctx.strokeStyle = flash ? '#ddd' : '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y - s * 0.5, s * 0.45, 0, Math.PI * 2);
+    ctx.stroke();
+
     if (!this.dying) {
-      // Turret (top center)
-      ctx.fillStyle = '#64748b';
-      ctx.fillRect(this.x - s * 0.3, this.y - s * 0.8 - 8, s * 0.6, 12);
+      // Twin gatling barrels (extending downward toward player)
+      ctx.fillStyle = flash ? '#bbb' : '#94a3b8';
+      ctx.fillRect(x - s * 0.22, y + s * 0.3, s * 0.12, s * 0.8);
+      ctx.fillRect(x + s * 0.1, y + s * 0.3, s * 0.12, s * 0.8);
+      // Barrel tips
+      ctx.fillStyle = flash ? '#eee' : '#ef4444';
+      ctx.beginPath(); ctx.arc(x - s * 0.16, y + s * 1.1, s * 0.08, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x + s * 0.16, y + s * 1.1, s * 0.08, 0, Math.PI * 2); ctx.fill();
+      // Barrel shroud
+      ctx.fillStyle = flash ? '#ccc' : '#475569';
+      ctx.fillRect(x - s * 0.28, y + s * 0.3, s * 0.56, s * 0.12);
 
-      // Barrel
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(this.x - 2, this.y + s * 0.8, 4, 10);
+      // Missile launchers (two pods on turret sides)
+      ctx.fillStyle = flash ? '#ccc' : '#334155';
+      ctx.fillRect(x - s * 0.8, y - s * 0.7, s * 0.2, s * 0.4);
+      ctx.fillRect(x + s * 0.6, y - s * 0.7, s * 0.2, s * 0.4);
+      // Missile tube openings
+      ctx.fillStyle = flash ? '#aaa' : '#1e293b';
+      ctx.beginPath(); ctx.arc(x - s * 0.7, y - s * 0.6, s * 0.06, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x - s * 0.7, y - s * 0.45, s * 0.06, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x + s * 0.7, y - s * 0.6, s * 0.06, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x + s * 0.7, y - s * 0.45, s * 0.06, 0, Math.PI * 2); ctx.fill();
 
-      // Eyes (red LEDs)
+      // Commander hatch
+      ctx.fillStyle = flash ? '#ddd' : '#475569';
+      ctx.beginPath();
+      ctx.arc(x + s * 0.2, y - s * 0.7, s * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Antenna array (back)
+      ctx.strokeStyle = flash ? '#ccc' : '#94a3b8';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x - s * 0.15, y - s * 0.9);
+      ctx.lineTo(x - s * 0.15, y - s * 1.2);
+      ctx.stroke();
+      // Antenna tip
+      ctx.fillStyle = flash ? '#eee' : '#ef4444';
+      ctx.beginPath(); ctx.arc(x - s * 0.15, y - s * 1.2, s * 0.04, 0, Math.PI * 2); ctx.fill();
+
+      // Sensor viewport (weak spot)
       ctx.fillStyle = this.weakSpotActive ? '#fbbf24' : '#ef4444';
       if (this.weakSpotActive) { ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 12; }
-      ctx.beginPath();
-      ctx.arc(this.x - s * 0.3, this.y - s * 0.2, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(this.x + s * 0.3, this.y - s * 0.2, 4, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(x - s * 0.25, y - s * 0.55, s * 0.5, s * 0.1);
       ctx.shadowBlur = 0;
+      // Sensor sub-lenses
+      ctx.fillStyle = this.weakSpotActive ? '#fff' : '#fbbf24';
+      ctx.beginPath(); ctx.arc(x - s * 0.12, y - s * 0.5, s * 0.04, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x + s * 0.12, y - s * 0.5, s * 0.04, 0, Math.PI * 2); ctx.fill();
 
-      // Track marks (sides)
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(this.x - s - 4, this.y - s * 0.6, 4, s * 1.2);
-      ctx.fillRect(this.x + s, this.y - s * 0.6, 4, s * 1.2);
+      // Exhaust vents (back of hull)
+      ctx.fillStyle = flash ? '#aaa' : '#1e293b';
+      ctx.fillRect(x - s * 0.35, y - s * 0.25, s * 0.1, s * 0.08);
+      ctx.fillRect(x + s * 0.25, y - s * 0.25, s * 0.1, s * 0.08);
     }
   }
 
   drawStormColossus(ctx, s) {
-    // Main body - hexagonal shape
+    const x = this.x;
+    const y = this.y;
+    const flash = this.flashTimer > 0;
+    const time = Date.now() / 300;
+    const pulse = Math.sin(Date.now() / 200) * 0.15 + 0.85;
+
+    // Floating armor plates (3 segments orbiting the core)
+    for (let i = 0; i < 3; i++) {
+      const angle = time * 0.5 + (Math.PI * 2 * i) / 3;
+      const dist = s * 0.85 * pulse;
+      const px = x + Math.cos(angle) * dist;
+      const py = y + Math.sin(angle) * dist * 0.7;
+
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(angle + Math.PI / 2);
+
+      // Armor plate body
+      ctx.fillStyle = flash ? '#eee' : '#5b21b6';
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.28, -s * 0.4);
+      ctx.lineTo(-s * 0.22, s * 0.4);
+      ctx.lineTo(s * 0.22, s * 0.4);
+      ctx.lineTo(s * 0.28, -s * 0.4);
+      ctx.closePath();
+      ctx.fill();
+      // Circuit/rune pattern
+      ctx.strokeStyle = flash ? '#ddd' : '#a78bfa';
+      ctx.lineWidth = 0.6;
+      ctx.beginPath();
+      ctx.moveTo(0, -s * 0.3);
+      ctx.lineTo(0, s * 0.3);
+      ctx.moveTo(-s * 0.15, 0);
+      ctx.lineTo(s * 0.15, 0);
+      ctx.stroke();
+      // Energy dots at intersections
+      ctx.fillStyle = flash ? '#fff' : '#c4b5fd';
+      ctx.beginPath(); ctx.arc(0, 0, s * 0.04, 0, Math.PI * 2); ctx.fill();
+
+      ctx.restore();
+    }
+
+    // Electric arcs between floating plates
+    if (!this.dying) {
+      ctx.strokeStyle = `rgba(167,139,250,${0.3 + Math.sin(time * 3) * 0.2})`;
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 3; i++) {
+        const a1 = time * 0.5 + (Math.PI * 2 * i) / 3;
+        const a2 = time * 0.5 + (Math.PI * 2 * ((i + 1) % 3)) / 3;
+        const d = s * 0.85 * pulse;
+        const x1 = x + Math.cos(a1) * d;
+        const y1 = y + Math.sin(a1) * d * 0.7;
+        const x2 = x + Math.cos(a2) * d;
+        const y2 = y + Math.sin(a2) * d * 0.7;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        // Jagged arc path
+        const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * s * 0.3;
+        const my = (y1 + y2) / 2 + (Math.random() - 0.5) * s * 0.2;
+        ctx.lineTo(mx, my);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+    }
+
+    // Central hexagonal reactor core (main body)
+    ctx.fillStyle = flash ? '#fff' : '#4c1d95';
     ctx.beginPath();
     for (let i = 0; i < 6; i++) {
       const angle = (Math.PI * 2 * i) / 6 - Math.PI / 6;
-      const px = this.x + Math.cos(angle) * s;
-      const py = this.y + Math.sin(angle) * s;
+      const px = x + Math.cos(angle) * s * 0.65;
+      const py = y + Math.sin(angle) * s * 0.65;
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     }
     ctx.closePath();
     ctx.fill();
 
-    if (!this.dying) {
-      // Inner energy core
-      const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.7;
-      ctx.fillStyle = `rgba(167,139,250,${pulse})`;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, s * 0.4, 0, Math.PI * 2);
-      ctx.fill();
+    // Inner hexagonal shell
+    ctx.fillStyle = flash ? '#eee' : '#7c3aed';
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI * 2 * i) / 6 - Math.PI / 6;
+      const px = x + Math.cos(angle) * s * 0.45;
+      const py = y + Math.sin(angle) * s * 0.45;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
 
-      // Eye - single glowing orb
-      ctx.fillStyle = this.weakSpotActive ? '#fbbf24' : '#c4b5fd';
+    // Reactor panel lines
+    ctx.strokeStyle = flash ? '#ddd' : '#5b21b6';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI * 2 * i) / 6 - Math.PI / 6;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + Math.cos(angle) * s * 0.6, y + Math.sin(angle) * s * 0.6);
+      ctx.stroke();
+    }
+
+    // Lightning conductor spires (3 extending upward/outward)
+    if (!this.dying) {
+      ctx.fillStyle = flash ? '#ccc' : '#374151';
+      for (let i = 0; i < 3; i++) {
+        const sa = -Math.PI / 2 + (i - 1) * 0.6;
+        const sx = x + Math.cos(sa) * s * 0.45;
+        const sy = y + Math.sin(sa) * s * 0.45;
+        const tx = x + Math.cos(sa) * s * 1.3;
+        const ty = y + Math.sin(sa) * s * 1.3;
+        // Spire shaft
+        ctx.lineWidth = s * 0.08;
+        ctx.strokeStyle = flash ? '#ccc' : '#475569';
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(tx, ty);
+        ctx.stroke();
+        // Spire tip (glowing)
+        ctx.fillStyle = flash ? '#eee' : '#c4b5fd';
+        ctx.shadowColor = '#a78bfa';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(tx, ty, s * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        // Mini arcs from tips
+        const sparkAlpha = 0.3 + Math.sin(time * 5 + i) * 0.3;
+        ctx.strokeStyle = `rgba(196,181,253,${sparkAlpha})`;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(tx, ty);
+        ctx.lineTo(tx + (Math.random() - 0.5) * s * 0.4, ty + (Math.random() - 0.5) * s * 0.4);
+        ctx.stroke();
+      }
+    }
+
+    // Pulsing energy core (innermost)
+    const corePulse = 0.5 + Math.sin(Date.now() / 150) * 0.3;
+    ctx.fillStyle = `rgba(196,181,253,${corePulse})`;
+    ctx.shadowColor = '#a78bfa';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.arc(x, y, s * 0.25 * pulse, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Core inner bright ring
+    ctx.strokeStyle = `rgba(255,255,255,${corePulse * 0.6})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(x, y, s * 0.18, 0, Math.PI * 2);
+    ctx.stroke();
+
+    if (!this.dying) {
+      // Central eye/sensor (weak spot)
+      ctx.fillStyle = this.weakSpotActive ? '#fbbf24' : '#e0e7ff';
       if (this.weakSpotActive) { ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 15; }
       ctx.beginPath();
-      ctx.arc(this.x, this.y - s * 0.15, s * 0.18, 0, Math.PI * 2);
+      ctx.arc(x, y, s * 0.14, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
+      // Pupil
+      ctx.fillStyle = this.weakSpotActive ? '#fff' : '#4c1d95';
+      ctx.beginPath();
+      ctx.arc(x, y, s * 0.06, 0, Math.PI * 2);
+      ctx.fill();
 
-      // Orbiting particles (electric arcs)
-      const time = Date.now() / 300;
-      for (let i = 0; i < 3; i++) {
-        const oa = time + (Math.PI * 2 * i) / 3;
-        const ox = this.x + Math.cos(oa) * (s + 8);
-        const oy = this.y + Math.sin(oa) * (s + 8);
-        ctx.fillStyle = '#a78bfa';
+      // Orbiting energy spheres (6 smaller orbs)
+      for (let i = 0; i < 6; i++) {
+        const oa = time * 1.5 + (Math.PI * 2 * i) / 6;
+        const od = s * 0.35;
+        const ox = x + Math.cos(oa) * od;
+        const oy = y + Math.sin(oa) * od;
+        ctx.fillStyle = `rgba(167,139,250,${0.5 + Math.sin(oa * 2) * 0.3})`;
         ctx.beginPath();
-        ctx.arc(ox, oy, 3, 0, Math.PI * 2);
+        ctx.arc(ox, oy, s * 0.04, 0, Math.PI * 2);
         ctx.fill();
       }
     }
