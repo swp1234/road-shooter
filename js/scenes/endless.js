@@ -1067,10 +1067,15 @@ class EndlessResultScene {
       { label: this.game.i18n('result_max_squad') || 'Max Squad', value: this.result.maxSquad, color: '#10b981' },
       { label: this.game.i18n('endless_bosses') || 'Bosses Defeated', value: this.counters.bosses, color: '#7c3aed' },
       { label: this.game.i18n('result_gold') || 'Gold', value: this.counters.gold, color: CONFIG.COLORS.gold },
+      { label: this.game.i18n('result_time') || 'Time', value: `${Math.floor(this.result.time / 60)}:${(this.result.time % 60).toString().padStart(2, '0')}`, color: '#94a3b8' },
     ];
+    if (this.result.bestCombo > 0) {
+      stats.push({ label: this.game.i18n('result_best_combo') || 'Best Combo', value: `${this.result.bestCombo}x`, color: '#fbbf24' });
+    }
 
+    const rowHeight = stats.length > 5 ? 36 : 48;
     stats.forEach((stat, i) => {
-      const sy = panelY + 35 + i * 48;
+      const sy = panelY + 35 + i * rowHeight;
       ctx.fillStyle = '#94a3b8';
       ctx.font = '14px Outfit';
       ctx.textAlign = 'left';

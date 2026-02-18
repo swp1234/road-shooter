@@ -77,6 +77,7 @@ class ResultScene {
       { label: this.game.i18n('result_kills') || 'Kills', value: this.counters.kills, color: '#ef4444' },
       { label: this.game.i18n('result_max_squad') || 'Max Squad', value: this.counters.squad, color: '#10b981' },
       { label: this.game.i18n('result_gold') || 'Gold', value: this.counters.gold, color: CONFIG.COLORS.gold },
+      { label: this.game.i18n('result_time') || 'Time', value: `${Math.floor(this.result.time / 60)}:${(this.result.time % 60).toString().padStart(2, '0')}`, color: '#94a3b8' },
     ];
 
     if (this.result.bestCombo > 0) {
