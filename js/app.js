@@ -153,15 +153,18 @@ class Game {
     try {
       const container = document.getElementById('game-container');
       this.renderer3d = new Renderer3D(container);
-      // Position WebGL canvas behind the 2D overlay, centered to match flex layout
+      // Both canvases use identical absolute positioning for pixel-perfect alignment
       const dom = this.renderer3d.domElement;
       dom.style.position = 'absolute';
       dom.style.top = '50%';
       dom.style.left = '50%';
       dom.style.transform = 'translate(-50%, -50%)';
       dom.style.zIndex = '0';
-      // 2D canvas on top for HUD overlay
-      this.canvas.style.position = 'relative';
+      // 2D canvas on top for HUD overlay — same positioning method
+      this.canvas.style.position = 'absolute';
+      this.canvas.style.top = '50%';
+      this.canvas.style.left = '50%';
+      this.canvas.style.transform = 'translate(-50%, -50%)';
       this.canvas.style.zIndex = '1';
     } catch (e) {
       console.warn('3D renderer init failed, falling back to 2D:', e);

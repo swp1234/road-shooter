@@ -23,14 +23,14 @@ class Renderer3D {
 
     // --- Scene ---
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0x87CEEB, 25, 45);
+    this.scene.fog = new THREE.Fog(0x87CEEB, 35, 60);
 
     // --- Camera ---
     const w = container.clientWidth || CONFIG.CANVAS_WIDTH;
     const h = container.clientHeight || CONFIG.CANVAS_HEIGHT;
     this.camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 200);
-    this.camera.position.set(0, 8, 5);
-    this.camera.lookAt(0, 0, -6);
+    this.camera.position.set(0, 14, 10);
+    this.camera.lookAt(0, 0, -10);
 
     // --- Lighting ---
     this._setupLights();
@@ -99,7 +99,7 @@ class Renderer3D {
     }
 
     // Camera shake
-    const baseX = 0, baseY = 8, baseZ = 5;
+    const baseX = 0, baseY = 14, baseZ = 10;
     const sx = (state.shakeX || 0) * this.SCALE * 0.5;
     const sy = (state.shakeY || 0) * this.SCALE * 0.5;
     this.camera.position.set(baseX + sx, baseY + sy, baseZ);
@@ -153,12 +153,12 @@ class Renderer3D {
     dir.position.set(5, 20, 10);
     dir.castShadow = true;
     dir.shadow.mapSize.set(512, 512);
-    dir.shadow.camera.left = -20;
-    dir.shadow.camera.right = 20;
-    dir.shadow.camera.top = 20;
-    dir.shadow.camera.bottom = -40;
+    dir.shadow.camera.left = -25;
+    dir.shadow.camera.right = 25;
+    dir.shadow.camera.top = 25;
+    dir.shadow.camera.bottom = -60;
     dir.shadow.camera.near = 1;
-    dir.shadow.camera.far = 60;
+    dir.shadow.camera.far = 80;
     this.scene.add(dir);
 
     // Ambient

@@ -67,10 +67,10 @@ class Squad {
 
   moveTo(x, speedMul = 1) {
     const cw = CONFIG.CANVAS_WIDTH;
-    const roadW = cw * CONFIG.ROAD_WIDTH_RATIO;
-    const roadL = (cw - roadW) / 2;
-    const roadR = roadL + roadW;
-    this.targetX = Math.max(roadL + 20, Math.min(roadR - 20, x));
+    // Clamp to 3D visible area (camera frustum at squad z-position)
+    // Visible x range from center is ~±95 game pixels in the 3D view
+    const visibleHalf = 85;
+    this.targetX = Math.max(cw / 2 - visibleHalf, Math.min(cw / 2 + visibleHalf, x));
     this.speedMul = speedMul;
   }
 
