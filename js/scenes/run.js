@@ -507,13 +507,20 @@ class RunScene {
 
   checkItemCollision() {
     const alive = this.squad.alive;
-    const collectR = 22; // generous collision radius
+    const collectR = 32; // generous collision radius
     for (const item of this.items) {
       if (item.collected) continue;
-      // Check squad center first (generous radius)
-      const sdx = item.x - this.squad.x;
-      const sdy = item.y - this.squad.y;
-      if (sdx * sdx + sdy * sdy < (item.size + collectR) * (item.size + collectR)) {
+      // Use projected X positions for visual-accurate collision
+      const itemProjX = this.road.projectX(item.x, item.y);
+      const squadProjX = this.road.projectX(this.squad.x, this.squad.y);
+      // Check both game-space and visual-space (either triggers collection)
+      const gdx = item.x - this.squad.x;
+      const gdy = item.y - this.squad.y;
+      const vdx = itemProjX - squadProjX;
+      const gameR2 = gdx * gdx + gdy * gdy;
+      const visR2 = vdx * vdx + gdy * gdy;
+      const threshold = (item.size + collectR) * (item.size + collectR);
+      if (gameR2 < threshold || visR2 < threshold) {
         this.collectItem(item);
         continue;
       }
@@ -521,7 +528,7 @@ class RunScene {
       for (const char of alive) {
         const dx = item.x - char.x;
         const dy = item.y - char.y;
-        if (dx * dx + dy * dy < (item.size + 12) * (item.size + 12)) {
+        if (dx * dx + dy * dy < (item.size + 18) * (item.size + 18)) {
           this.collectItem(item);
           break;
         }

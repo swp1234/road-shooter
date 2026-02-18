@@ -314,10 +314,41 @@ class EndlessScene {
     const alive = this.squad.alive;
     for (const item of this.items) {
       if (item.collected) continue;
+      // Squad center check with projected X (visual-accurate)
+      const itemProjX = this.road.projectX(item.x, item.y);
+      const squadProjX = this.road.projectX(this.squad.x, this.squad.y);
+      const vdx = itemProjX - squadProjX;
+      const gdy = item.y - this.squad.y;
+      if (vdx * vdx + gdy * gdy < (item.size + 30) * (item.size + 30)) {
+        const cfg = item.collect();
+        if (cfg) {
+          if (cfg.isPercent) {
+            this.squad.addByPercent(cfg.value);
+          } else if (cfg.charType === 'random') {
+            const types = Object.keys(CONFIG.CHAR_TYPES);
+            for (let j = 0; j < cfg.value; j++) {
+              this.squad.addMember(types[Math.floor(Math.random() * types.length)]);
+            }
+          } else if (cfg.charType === 'mixed') {
+            this.squad.addMember('rifleman', Math.ceil(cfg.value / 2));
+            this.squad.addMember('tanker', Math.floor(cfg.value / 4));
+            this.squad.addMember('sniper', 1);
+            if (cfg.value >= 6) this.squad.addMember('bomber', 1);
+          } else {
+            this.squad.addMember(cfg.charType || 'rifleman', cfg.value);
+          }
+          this.gold += CONFIG.GOLD_PER_ITEM;
+          this.particles.emitCollect(item.x, item.y);
+          Sound.itemCollect();
+          this.showCombo(cfg.label);
+        }
+        continue;
+      }
+      // Individual member check
       for (const char of alive) {
         const dx = item.x - char.x;
         const dy = item.y - char.y;
-        if (dx * dx + dy * dy < (item.size + 8) * (item.size + 8)) {
+        if (dx * dx + dy * dy < (item.size + 18) * (item.size + 18)) {
           const cfg = item.collect();
           if (cfg) {
             if (cfg.isPercent) {

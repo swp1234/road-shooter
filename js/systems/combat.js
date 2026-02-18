@@ -56,6 +56,25 @@ class CombatSystem {
               ty += (edy / eDist) * e.speed * flightTime * 0.6;
             } else if (e.type === 'flanker') {
               tx += (e.flankerSide || 1) * e.speed * 0.7 * flightTime * 0.7;
+            } else if (e.type === 'shooter') {
+              // Shooter drifts down slowly and tracks squad X
+              ty += e.speed * 0.5 * flightTime * 0.7;
+              const drift = char.x > e.x + 5 ? 0.5 : char.x < e.x - 5 ? -0.5 : 0;
+              tx += drift * flightTime * 0.5;
+            } else if (e.type === 'thief') {
+              // Thief moves toward steal target or downward
+              if (e.stealTarget && e.stealTarget.active) {
+                const stx = e.stealTarget.x - e.x;
+                const sty = e.stealTarget.y - e.y;
+                const std = Math.sqrt(stx * stx + sty * sty) || 1;
+                tx += (stx / std) * e.speed * flightTime * 0.5;
+                ty += (sty / std) * e.speed * flightTime * 0.5;
+              } else {
+                ty += e.speed * flightTime * 0.5;
+              }
+            } else {
+              // mortar, elite: general downward prediction
+              ty += e.speed * flightTime * 0.6;
             }
           }
 

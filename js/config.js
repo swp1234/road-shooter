@@ -59,13 +59,13 @@ const CONFIG = {
 
   // Enemies
   ENEMIES: {
-    rusher:    { hp: 1,  speed: 3,   dmg: 1, color: '#ef4444', size: 8,  shape: 'triangle', reward: 2 },
-    shooter:   { hp: 3,  speed: 1,   dmg: 1, color: '#f97316', size: 8,  shape: 'rect',     reward: 5,  fireRate: 2.0 },
-    mortar:    { hp: 4,  speed: 0.5, dmg: 2, color: '#ea580c', size: 10, shape: 'circle',   reward: 8,  fireRate: 0.5, minStage: 5 },
-    detonator: { hp: 2,  speed: 2.5, dmg: 5, color: '#dc2626', size: 7,  shape: 'circle',   reward: 6,  minStage: 10 },
-    thief:     { hp: 2,  speed: 4,   dmg: 0, color: '#1f2937', size: 7,  shape: 'triangle', reward: 10, minStage: 7 },
-    flanker:   { hp: 3,  speed: 2.5, dmg: 1, color: '#991b1b', size: 8,  shape: 'diamond',  reward: 7,  fireRate: 1.5, minStage: 12 },
-    elite:     { hp: 25, speed: 0.3, dmg: 3, color: '#7c3aed', size: 35, shape: 'elite',    reward: 30, fireRate: 1.0, minStage: 2 }
+    rusher:    { hp: 1,  speed: 3,   dmg: 1, color: '#ef4444', size: 14, shape: 'triangle', reward: 2 },
+    shooter:   { hp: 3,  speed: 1,   dmg: 1, color: '#f97316', size: 14, shape: 'rect',     reward: 5,  fireRate: 2.0 },
+    mortar:    { hp: 4,  speed: 0.5, dmg: 2, color: '#ea580c', size: 16, shape: 'circle',   reward: 8,  fireRate: 0.5, minStage: 5 },
+    detonator: { hp: 2,  speed: 2.5, dmg: 5, color: '#dc2626', size: 12, shape: 'circle',   reward: 6,  minStage: 10 },
+    thief:     { hp: 2,  speed: 4,   dmg: 0, color: '#1f2937', size: 12, shape: 'triangle', reward: 10, minStage: 7 },
+    flanker:   { hp: 3,  speed: 2.5, dmg: 1, color: '#991b1b', size: 14, shape: 'diamond',  reward: 7,  fireRate: 1.5, minStage: 12 },
+    elite:     { hp: 25, speed: 0.3, dmg: 3, color: '#7c3aed', size: 42, shape: 'elite',    reward: 30, fireRate: 1.0, minStage: 2 }
   },
 
   // Upgrades

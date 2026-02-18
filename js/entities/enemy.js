@@ -191,7 +191,8 @@ class Enemy {
     const alpha = this.dying ? this.deathTimer / 0.2 : 1;
     ctx.globalAlpha = alpha;
     const isFlash = this.flashTimer > 0;
-    const s = this.size;
+    // Visual size multiplier: render larger than collision hitbox for 3D detail visibility
+    const s = this.type === 'elite' ? this.size * 1.3 : this.size * 2.2;
 
     switch (this.type) {
       case 'rusher':
@@ -224,10 +225,11 @@ class Enemy {
 
     // HP bar for multi-HP enemies (elite draws its own)
     if (this.maxHp > 1 && !this.dying && this.type !== 'elite') {
-      const barW = s * 2.2;
-      const barH = 2.5;
+      const cs = this.size; // Use collision size for bar positioning
+      const barW = cs * 3;
+      const barH = 3;
       const bx = this.x - barW / 2;
-      const by = this.y - s - 7;
+      const by = this.y - s * 0.6 - 5;
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
       ctx.fillRect(bx - 0.5, by - 0.5, barW + 1, barH + 1);
       ctx.fillStyle = '#1e293b';
