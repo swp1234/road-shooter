@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "Bonus d'Or",
   "menu_endless": "INFINI",
   "endless_start": "MODE INFINI",
-  "endless_record": "NOUVEAU RECORD!"
+  "endless_record": "NOUVEAU RECORD!",
+  "hud_gold": "OR",
+  "hud_squad": "ESCOUADE",
+  "hud_kills_suffix": "élims",
+  "hud_endless": "INFINI",
+  "hud_endless_over": "MODE INFINI TERMINÉ",
+  "upgrade_max": "MAX",
+  "hud_wave": "Vague"
 }

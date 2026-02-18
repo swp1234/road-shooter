@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "Бонус Золота",
   "menu_endless": "БЕСКОНЕЧНЫЙ",
   "endless_start": "БЕСКОНЕЧНЫЙ РЕЖИМ",
-  "endless_record": "НОВЫЙ РЕКОРД!"
+  "endless_record": "НОВЫЙ РЕКОРД!",
+  "hud_gold": "ЗОЛОТО",
+  "hud_squad": "ОТРЯД",
+  "hud_kills_suffix": "убийств",
+  "hud_endless": "БЕСКОНЕЧНЫЙ",
+  "hud_endless_over": "БЕСКОНЕЧНЫЙ РЕЖИМ ОКОНЧЕН",
+  "upgrade_max": "МАКС",
+  "hud_wave": "Волна"
 }

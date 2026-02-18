@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "Goldbonus",
   "menu_endless": "ENDLOS",
   "endless_start": "ENDLOS-MODUS",
-  "endless_record": "NEUER REKORD!"
+  "endless_record": "NEUER REKORD!",
+  "hud_gold": "GOLD",
+  "hud_squad": "TRUPP",
+  "hud_kills_suffix": "Kills",
+  "hud_endless": "ENDLOS",
+  "hud_endless_over": "ENDLOSMODUS VORBEI",
+  "upgrade_max": "MAX",
+  "hud_wave": "Welle"
 }

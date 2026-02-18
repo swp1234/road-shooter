@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "Altın Bonusu",
   "menu_endless": "SONSUZ",
   "endless_start": "SONSUZ MOD",
-  "endless_record": "YENİ REKOR!"
+  "endless_record": "YENİ REKOR!",
+  "hud_gold": "ALTIN",
+  "hud_squad": "MANGA",
+  "hud_kills_suffix": "öldürme",
+  "hud_endless": "SONSUZ",
+  "hud_endless_over": "SONSUZ MOD BİTTİ",
+  "upgrade_max": "MAKS",
+  "hud_wave": "Dalga"
 }

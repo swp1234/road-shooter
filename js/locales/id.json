@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "Bonus Emas",
   "menu_endless": "TAK TERBATAS",
   "endless_start": "MODE TAK TERBATAS",
-  "endless_record": "REKOR BARU!"
+  "endless_record": "REKOR BARU!",
+  "hud_gold": "EMAS",
+  "hud_squad": "PASUKAN",
+  "hud_kills_suffix": "kill",
+  "hud_endless": "TAK TERBATAS",
+  "hud_endless_over": "MODE TAK TERBATAS SELESAI",
+  "upgrade_max": "MAKS",
+  "hud_wave": "Gelombang"
 }

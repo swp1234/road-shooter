@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "Bonus de Oro",
   "menu_endless": "INFINITO",
   "endless_start": "MODO INFINITO",
-  "endless_record": "¡NUEVO RÉCORD!"
+  "endless_record": "¡NUEVO RÉCORD!",
+  "hud_gold": "ORO",
+  "hud_squad": "ESCUADRÓN",
+  "hud_kills_suffix": "bajas",
+  "hud_endless": "INFINITO",
+  "hud_endless_over": "MODO INFINITO TERMINADO",
+  "upgrade_max": "MÁX",
+  "hud_wave": "Oleada"
 }

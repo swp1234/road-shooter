@@ -861,14 +861,14 @@ class RunScene {
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 14px Outfit';
     ctx.textAlign = 'left';
-    ctx.fillText(`Stage ${this.stage}`, 10, 20);
+    ctx.fillText(`${this.game.i18n('hud_stage') || 'Stage'} ${this.stage}`, 10, 20);
 
     // Segment type
     ctx.fillStyle = '#94a3b8';
     ctx.font = '11px Outfit';
-    const segLabel = this.segmentType === 'road' ? `Road ${this.segment + 1}/5`
-      : this.segmentType === 'combat' ? `Combat ${this.segment + 1}/5`
-      : 'BOSS';
+    const segLabel = this.segmentType === 'road' ? `${this.game.i18n('run_road') || 'Road'} ${this.segment + 1}/5`
+      : this.segmentType === 'combat' ? `${this.game.i18n('run_combat') || 'Combat'} ${this.segment + 1}/5`
+      : this.game.i18n('run_boss') || 'BOSS';
     ctx.fillText(segLabel, 10, 38);
 
     // Gold
@@ -878,7 +878,7 @@ class RunScene {
     ctx.fillText(`${this.gold}`, cw / 2, 20);
     ctx.fillStyle = '#94a3b8';
     ctx.font = '10px Outfit';
-    ctx.fillText('GOLD', cw / 2, 35);
+    ctx.fillText(this.game.i18n('hud_gold') || 'GOLD', cw / 2, 35);
 
     // Timer
     const mins = Math.floor(this.totalTimer / 60);
@@ -891,7 +891,7 @@ class RunScene {
     // Kills
     ctx.fillStyle = '#ef4444';
     ctx.font = '11px Outfit';
-    ctx.fillText(`${this.kills} kills`, cw - 10, 38);
+    ctx.fillText(`${this.kills} ${this.game.i18n('hud_kills_suffix') || 'kills'}`, cw - 10, 38);
 
     // Squad count (bottom-right above bar)
     ctx.fillStyle = '#10b981';
@@ -900,7 +900,7 @@ class RunScene {
     ctx.fillText(`${this.squad.size}`, cw - 8, CONFIG.CANVAS_HEIGHT - 14);
     ctx.fillStyle = '#64748b';
     ctx.font = '9px Outfit';
-    ctx.fillText('SQUAD', cw - 8, CONFIG.CANVAS_HEIGHT - 26);
+    ctx.fillText(this.game.i18n('hud_squad') || 'SQUAD', cw - 8, CONFIG.CANVAS_HEIGHT - 26);
 
     // Squad size bar (bottom)
     const barY = CONFIG.CANVAS_HEIGHT - 6;

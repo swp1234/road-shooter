@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "ゴールドボーナス",
   "menu_endless": "エンドレス",
   "endless_start": "エンドレスモード",
-  "endless_record": "新記録!"
+  "endless_record": "新記録!",
+  "hud_gold": "ゴールド",
+  "hud_squad": "部隊",
+  "hud_kills_suffix": "撃破",
+  "hud_endless": "エンドレス",
+  "hud_endless_over": "エンドレス終了",
+  "upgrade_max": "最大",
+  "hud_wave": "ウェーブ"
 }

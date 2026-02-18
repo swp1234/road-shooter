@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "골드 보너스",
   "menu_endless": "무한모드",
   "endless_start": "무한모드",
-  "endless_record": "신기록!"
+  "endless_record": "신기록!",
+  "hud_gold": "골드",
+  "hud_squad": "분대",
+  "hud_kills_suffix": "처치",
+  "hud_endless": "무한",
+  "hud_endless_over": "무한모드 종료",
+  "upgrade_max": "최대",
+  "hud_wave": "웨이브"
 }

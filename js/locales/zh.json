@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "金币加成",
   "menu_endless": "无尽模式",
   "endless_start": "无尽模式",
-  "endless_record": "新纪录!"
+  "endless_record": "新纪录!",
+  "hud_gold": "金币",
+  "hud_squad": "小队",
+  "hud_kills_suffix": "击杀",
+  "hud_endless": "无尽",
+  "hud_endless_over": "无尽模式结束",
+  "upgrade_max": "满级",
+  "hud_wave": "波次"
 }

@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "सोना बोनस",
   "menu_endless": "अंतहीन",
   "endless_start": "अंतहीन मोड",
-  "endless_record": "नया रिकॉर्ड!"
+  "endless_record": "नया रिकॉर्ड!",
+  "hud_gold": "सोना",
+  "hud_squad": "दस्ता",
+  "hud_kills_suffix": "किल",
+  "hud_endless": "अंतहीन",
+  "hud_endless_over": "अंतहीन मोड समाप्त",
+  "upgrade_max": "अधिकतम",
+  "hud_wave": "लहर"
 }

@@ -24,5 +24,12 @@
   "upgrade_goldBonus": "Gold Bonus",
   "menu_endless": "ENDLESS",
   "endless_start": "ENDLESS MODE",
-  "endless_record": "NEW RECORD!"
+  "endless_record": "NEW RECORD!",
+  "hud_gold": "GOLD",
+  "hud_squad": "SQUAD",
+  "hud_kills_suffix": "kills",
+  "hud_endless": "ENDLESS",
+  "hud_endless_over": "ENDLESS OVER",
+  "upgrade_max": "MAX",
+  "hud_wave": "Wave"
 }

@@ -87,7 +87,7 @@ class UpgradeScene {
         ctx.fillStyle = '#10b981';
         ctx.font = 'bold 14px Outfit';
         ctx.textAlign = 'right';
-        ctx.fillText('MAX', bx + bw - 12, btn.y + 38);
+        ctx.fillText(this.game.i18n('upgrade_max') || 'MAX', bx + bw - 12, btn.y + 38);
       } else {
         const bbw = 80;
         const bbh = 32;
