@@ -20,8 +20,11 @@ html, body {
 }
 
 /* Hide cross-promo for fullscreen canvas game */
-[id*="cross-promo"],
+.cp-section,
+.cp-grid,
+.cp-card,
 [class*="cross-promo"],
+[id*="cross-promo"],
 .cross-promo-sidebar {
   display: none !important;
   visibility: hidden !important;

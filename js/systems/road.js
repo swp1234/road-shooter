@@ -63,6 +63,13 @@ class Road {
     return 0.3 + this.getDepth(y) * 0.7;
   }
 
+  // Project flat game-space X to visual perspective X
+  projectX(gameX, y) {
+    const t = (gameX - this.roadLeft) / this.roadWidth;
+    const edges = this.getVisualEdges(y);
+    return edges.left + t * edges.width;
+  }
+
   // Random X in flat game-space road (for spawning)
   getRandomX(margin = 30) {
     return this.roadLeft + margin + Math.random() * (this.roadWidth - margin * 2);

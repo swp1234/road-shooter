@@ -676,12 +676,13 @@ class RunScene {
     }, cleared ? 1500 : 500);
   }
 
-  // Depth-scaled draw helper
+  // Depth-scaled draw helper with X projection
   drawScaled(ctx, obj) {
     const scale = this.road.getScale(obj.y);
     if (scale < 0.15) return;
+    const projX = this.road.projectX(obj.x, obj.y);
     ctx.save();
-    ctx.translate(obj.x, obj.y);
+    ctx.translate(projX, obj.y);
     ctx.scale(scale, scale);
     ctx.translate(-obj.x, -obj.y);
     obj.draw(ctx);
@@ -701,13 +702,14 @@ class RunScene {
     // Items (depth-scaled)
     for (const item of this.items) this.drawScaled(ctx, item);
 
-    // Gates (depth-scaled)
+    // Gates (depth-scaled with X projection)
     for (const gate of this.gates) {
       const scale = this.road.getScale(gate.y + gate.height / 2);
       if (scale < 0.15) continue;
       ctx.save();
       const cy = gate.y + gate.height / 2;
-      ctx.translate(cw / 2, cy);
+      const projCx = this.road.projectX(cw / 2, cy);
+      ctx.translate(projCx, cy);
       ctx.scale(scale, scale);
       ctx.translate(-cw / 2, -cy);
       gate.draw(ctx);
@@ -720,13 +722,14 @@ class RunScene {
     // Boss (depth-scaled)
     if (this.boss) this.drawScaled(ctx, this.boss);
 
-    // Bullets (depth-scaled per bullet)
+    // Bullets (depth-scaled with X projection)
     const bullets = this.combat.bulletPool.active;
     for (const b of bullets) {
       if (!b.active) continue;
       const scale = this.road.getScale(b.y);
       if (scale < 0.15) continue;
       const sz = CONFIG.BULLET_SIZE * scale;
+      const projBx = this.road.projectX(b.x, b.y);
       if (b.isEnemy) {
         ctx.fillStyle = '#ef4444';
         ctx.shadowColor = '#ef4444';
@@ -736,14 +739,15 @@ class RunScene {
       }
       ctx.shadowBlur = 4 * scale;
       ctx.beginPath();
-      ctx.arc(b.x, b.y, Math.max(1, sz), 0, Math.PI * 2);
+      ctx.arc(projBx, b.y, Math.max(1, sz), 0, Math.PI * 2);
       ctx.fill();
       // Trail
       if (b.prevX !== undefined) {
+        const projPrevX = this.road.projectX(b.prevX, b.prevY);
         ctx.globalAlpha = 0.3;
         ctx.beginPath();
-        ctx.moveTo(b.prevX, b.prevY);
-        ctx.lineTo(b.x, b.y);
+        ctx.moveTo(projPrevX, b.prevY);
+        ctx.lineTo(projBx, b.y);
         ctx.strokeStyle = b.isEnemy ? '#ef4444' : '#00e5ff';
         ctx.lineWidth = Math.max(0.5, sz * 0.6);
         ctx.stroke();
@@ -752,10 +756,11 @@ class RunScene {
       ctx.shadowBlur = 0;
     }
 
-    // Squad (depth-scaled as group)
+    // Squad (depth-scaled with X projection)
     const sqScale = this.road.getScale(this.squad.y);
+    const sqProjX = this.road.projectX(this.squad.x, this.squad.y);
     ctx.save();
-    ctx.translate(this.squad.x, this.squad.y);
+    ctx.translate(sqProjX, this.squad.y);
     ctx.scale(sqScale, sqScale);
     ctx.translate(-this.squad.x, -this.squad.y);
     this.squad.draw(ctx);
