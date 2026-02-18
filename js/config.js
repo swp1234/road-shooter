@@ -25,12 +25,12 @@ const CONFIG = {
 
   // Character Types
   CHAR_TYPES: {
-    rifleman:   { dmg: 10, range: 150, hp: 1, fireRate: 1.0, color: '#10b981', size: 4 },
+    rifleman:   { dmg: 12, range: 150, hp: 1, fireRate: 1.0, color: '#10b981', size: 4 },
     tanker:     { dmg: 7,  range: 50,  hp: 3, fireRate: 0.7, color: '#3b82f6', size: 6 },
-    sniper:     { dmg: 30, range: 300, hp: 1, fireRate: 0.4, color: '#8b5cf6', size: 4 },
+    sniper:     { dmg: 25, range: 280, hp: 1, fireRate: 0.35, color: '#8b5cf6', size: 4 },
     bomber:     { dmg: 20, range: 120, hp: 1, fireRate: 0.3, color: '#f97316', size: 4, aoe: 40 },
     shotgunner: { dmg: 6,  range: 90,  hp: 1, fireRate: 0.45, color: '#dc2626', size: 5, spread: 5 },
-    laser:      { dmg: 18, range: 350, hp: 1, fireRate: 0.2, color: '#06b6d4', size: 4, pierce: true }
+    laser:      { dmg: 15, range: 320, hp: 1, fireRate: 0.22, color: '#06b6d4', size: 4, pierce: true }
   },
 
   // Perspective

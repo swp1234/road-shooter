@@ -38,7 +38,7 @@ class CombatSystem {
 
         if (nearest) {
           char.fire();
-          if (rapidFire) char.fireTimer *= 0.5;
+          if (rapidFire) char.fireTimer *= 0.6; // Rapid fire: 40% faster, not double bullets
 
           // Lead prediction
           let tx = nearest.x;
@@ -97,9 +97,6 @@ class CombatSystem {
           // Normal fire
           else {
             this.bulletPool.spawn(char.x, char.y - 3, vx, vy, bulletDmg, false, char.config.aoe || 0);
-            if (rapidFire) {
-              this.bulletPool.spawn(char.x + 2, char.y - 3, vx, vy, bulletDmg, false, char.config.aoe || 0);
-            }
           }
           if (Math.random() < 0.15) Sound.shoot();
         } else {

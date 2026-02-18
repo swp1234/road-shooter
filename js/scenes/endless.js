@@ -620,7 +620,9 @@ class EndlessScene {
       bulletPool: this.combat.bulletPool,
       road: this.road,
       buffs: this.buffs || { dmg: 0, shield: 0, fireRate: 0, magnet: 0 },
-      segment: 'endless'
+      segment: 'endless',
+      traps: [],
+      particles: this.particles
     };
   }
 
