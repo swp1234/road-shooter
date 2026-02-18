@@ -322,7 +322,9 @@ class EndlessScene {
         this.boss._counted = true;
         this.bossesDefeated++;
         this.game.shake(12, 0.8);
+        this.game.slowMotion(0.5);
         Sound.bossDeath();
+        Sound.bigKill();
         this.particles.emitBossDeath(this.boss.x, this.boss.y);
       }
       if (!this.boss.active) {

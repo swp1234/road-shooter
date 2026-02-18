@@ -192,7 +192,7 @@ class Enemy {
     this.fireTimer = 1 / this.fireRate;
   }
 
-  takeDamage(dmg) {
+  takeDamage(dmg, fromX, fromY) {
     if (this.dying) return false;
     if (this.shieldActive && this.shieldHp > 0) {
       this.shieldHp -= dmg;
@@ -206,6 +206,21 @@ class Enemy {
       this.hp -= dmg;
     }
     this.flashTimer = 0.1;
+
+    // Knockback: small enemies get pushed, heavy enemies barely budge
+    const knockResist = this.type === 'brute' ? 0.05 : this.type === 'tank' ? 0.1
+      : this.type === 'elite' ? 0.08 : 0.4;
+    const knockStr = Math.min(dmg * knockResist, 6);
+    if (fromX !== undefined && fromY !== undefined) {
+      const dx = this.x - fromX;
+      const dy = this.y - fromY;
+      const d = Math.sqrt(dx * dx + dy * dy) || 1;
+      this.x += (dx / d) * knockStr;
+      this.y += (dy / d) * knockStr * 0.3;
+    } else {
+      this.y -= knockStr * 0.5; // default: push away from squad (upward)
+    }
+
     if (this.hp <= 0) {
       this.dying = true;
       this.deathTimer = (this.type === 'elite' || this.type === 'brute') ? 0.5 : this.type === 'tank' ? 0.35 : 0.2;

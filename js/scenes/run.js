@@ -7,7 +7,7 @@ class RunScene {
     this.speedScale = 1 + (stage - 1) * (CONFIG.DIFFICULTY_SCALE.enemySpeedMul || 0);
     this.spawnMul = Math.max(0.4, 1 - (stage - 1) * (CONFIG.DIFFICULTY_SCALE.spawnRateReduction || 0));
     this.countAdd = (stage - 1) * CONFIG.DIFFICULTY_SCALE.enemyCountAdd;
-    this.itemMul = Math.max(0.5, 1 - (stage - 1) * CONFIG.DIFFICULTY_SCALE.itemReduction);
+    this.itemMul = Math.max(0.7, 1 - (stage - 1) * CONFIG.DIFFICULTY_SCALE.itemReduction);
 
     // Systems
     this.road = new Road();
@@ -165,9 +165,17 @@ class RunScene {
     // Combo text fade
     if (this.comboTimer > 0) this.comboTimer -= dt;
 
-    // Danger indicator
+    // Danger indicator (intensifies as squad shrinks)
     const squadPct = this.squad.size / Math.max(this.startSquad, 10);
-    this.dangerAlpha = squadPct < 0.25 ? 0.3 + Math.sin(Date.now() / 200) * 0.2 : 0;
+    if (this.squad.size <= 1) {
+      this.dangerAlpha = 0.4 + Math.sin(Date.now() / 120) * 0.2;
+    } else if (this.squad.size <= 3) {
+      this.dangerAlpha = 0.25 + Math.sin(Date.now() / 180) * 0.15;
+    } else if (squadPct < 0.25) {
+      this.dangerAlpha = 0.15 + Math.sin(Date.now() / 200) * 0.1;
+    } else {
+      this.dangerAlpha = 0;
+    }
 
     // Update squad
     this.squad.update(dt);
@@ -417,7 +425,9 @@ class RunScene {
       if (this.boss.dying || !this.boss.active) {
         if (!this.bossDefeated) {
           this.game.shake(12, 0.8);
+          this.game.slowMotion(0.5);
           Sound.bossDeath();
+          Sound.bigKill();
         }
         this.bossDefeated = true;
         // Wait for death animation then end

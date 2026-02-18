@@ -188,7 +188,7 @@ class CombatSystem {
         const dy = b.y - e.y;
         const hitR = e.size + b.size + 2;
         if (dx * dx + dy * dy < hitR * hitR) {
-          const killed = e.takeDamage(b.dmg);
+          const killed = e.takeDamage(b.dmg, b.x, b.y);
           // Pierce bullets go through enemies (up to 4 hits)
           if (b.pierce) {
             b.pierceHits++;
@@ -213,7 +213,7 @@ class CombatSystem {
               const adx = b.x - e2.x;
               const ady = b.y - e2.y;
               if (adx * adx + ady * ady < b.aoe * b.aoe) {
-                const splashKill = e2.takeDamage(Math.ceil(b.dmg * 0.5));
+                const splashKill = e2.takeDamage(Math.ceil(b.dmg * 0.5), b.x, b.y);
                 if (splashKill) {
                   kills++;
                   gold += e2.reward;

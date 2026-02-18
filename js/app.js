@@ -15,6 +15,10 @@ class Game {
     this.shakeDuration = 0;
     this.shakeIntensity = 0;
 
+    // Slow motion
+    this.slowMo = 1;
+    this.slowMoTimer = 0;
+
     // i18n
     this.translations = {};
     this.lang = this.saveData.settings.language || 'ko';
@@ -184,8 +188,16 @@ class Game {
 
   loop(timestamp) {
     if (!this.running) return;
-    const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05);
+    let dt = Math.min((timestamp - this.lastTime) / 1000, 0.05);
     this.lastTime = timestamp;
+
+    // Slow motion effect
+    if (this.slowMoTimer > 0) {
+      this.slowMoTimer -= dt;
+      this.slowMo = 0.3 + (1 - Math.min(this.slowMoTimer / 0.3, 1)) * 0.7;
+      if (this.slowMoTimer <= 0) this.slowMo = 1;
+    }
+    dt *= this.slowMo;
 
     this.processKeyboard(dt);
     if (this.scene) this.scene.update(dt);
@@ -250,6 +262,10 @@ class Game {
   shake(intensity = 4, duration = 0.2) {
     this.shakeIntensity = Math.max(this.shakeIntensity, intensity);
     this.shakeDuration = Math.max(this.shakeDuration, duration);
+  }
+
+  slowMotion(duration = 0.3) {
+    this.slowMoTimer = Math.max(this.slowMoTimer, duration);
   }
 
   showMenu() {
