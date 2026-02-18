@@ -479,38 +479,50 @@ class RunScene {
   }
 
   // Collision checking
+  collectItem(item) {
+    const cfg = item.collect();
+    if (!cfg) return;
+    if (cfg.isBuff) {
+      this.applyBuff(cfg);
+    } else if (cfg.isPercent) {
+      this.squad.addByPercent(cfg.value);
+    } else if (cfg.charType === 'random') {
+      const types = Object.keys(CONFIG.CHAR_TYPES);
+      for (let j = 0; j < cfg.value; j++) {
+        this.squad.addMember(types[Math.floor(Math.random() * types.length)]);
+      }
+    } else if (cfg.charType === 'mixed') {
+      this.squad.addMember('rifleman', Math.ceil(cfg.value / 2));
+      this.squad.addMember('tanker', Math.floor(cfg.value / 4));
+      this.squad.addMember('sniper', 1);
+      if (cfg.value >= 6) this.squad.addMember('bomber', 1);
+    } else {
+      this.squad.addMember(cfg.charType || 'rifleman', cfg.value);
+    }
+    this.gold += CONFIG.GOLD_PER_ITEM;
+    this.particles.emitCollect(item.x, item.y);
+    Sound.itemCollect();
+    this.showCombo(cfg.label);
+  }
+
   checkItemCollision() {
     const alive = this.squad.alive;
+    const collectR = 22; // generous collision radius
     for (const item of this.items) {
       if (item.collected) continue;
+      // Check squad center first (generous radius)
+      const sdx = item.x - this.squad.x;
+      const sdy = item.y - this.squad.y;
+      if (sdx * sdx + sdy * sdy < (item.size + collectR) * (item.size + collectR)) {
+        this.collectItem(item);
+        continue;
+      }
+      // Then check individual members
       for (const char of alive) {
         const dx = item.x - char.x;
         const dy = item.y - char.y;
-        if (dx * dx + dy * dy < (item.size + 8) * (item.size + 8)) {
-          const cfg = item.collect();
-          if (cfg) {
-            if (cfg.isBuff) {
-              this.applyBuff(cfg);
-            } else if (cfg.isPercent) {
-              this.squad.addByPercent(cfg.value);
-            } else if (cfg.charType === 'random') {
-              const types = Object.keys(CONFIG.CHAR_TYPES);
-              for (let j = 0; j < cfg.value; j++) {
-                this.squad.addMember(types[Math.floor(Math.random() * types.length)]);
-              }
-            } else if (cfg.charType === 'mixed') {
-              this.squad.addMember('rifleman', Math.ceil(cfg.value / 2));
-              this.squad.addMember('tanker', Math.floor(cfg.value / 4));
-              this.squad.addMember('sniper', 1);
-              if (cfg.value >= 6) this.squad.addMember('bomber', 1);
-            } else {
-              this.squad.addMember(cfg.charType || 'rifleman', cfg.value);
-            }
-            this.gold += CONFIG.GOLD_PER_ITEM;
-            this.particles.emitCollect(item.x, item.y);
-            Sound.itemCollect();
-            this.showCombo(cfg.label);
-          }
+        if (dx * dx + dy * dy < (item.size + 12) * (item.size + 12)) {
+          this.collectItem(item);
           break;
         }
       }
@@ -902,6 +914,8 @@ class RunScene {
   }
 
   handleDrag(x) {
-    this.squad.moveTo(x);
+    // Inverse-project screen X to game-space X so squad appears where user drags
+    const gameX = this.road.unprojectX(x, this.squad.y);
+    this.squad.moveTo(gameX);
   }
 }

@@ -242,10 +242,19 @@ class Enemy {
   }
 
   drawRusher(ctx, s, isFlash) {
-    // Zombie soldier — humanoid rushing figure
+    // Zombie soldier — 3D humanoid rushing figure
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle + Math.PI / 2);
+
+    // Ground shadow
+    ctx.save();
+    ctx.rotate(-(this.angle + Math.PI / 2));
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(0, s * 0.85, s * 0.7, s * 0.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
 
     // Motion lines behind
     if (!this.dying) {
@@ -261,13 +270,24 @@ class Enemy {
       ctx.globalAlpha /= 0.25;
     }
 
-    // Legs (running stance)
-    ctx.fillStyle = isFlash ? '#ddd' : '#4a1010';
+    // Legs (running stance) — gradient for volume
+    const legGrad = ctx.createLinearGradient(-s * 0.3, s * 0.2, s * 0.3, s * 0.7);
+    legGrad.addColorStop(0, isFlash ? '#eee' : '#6b1a1a');
+    legGrad.addColorStop(1, isFlash ? '#bbb' : '#2a0808');
+    ctx.fillStyle = legGrad;
     ctx.fillRect(-s * 0.3, s * 0.2, s * 0.2, s * 0.5);
     ctx.fillRect(s * 0.1, s * 0.15, s * 0.2, s * 0.55);
+    // Leg edge shadow (right side)
+    ctx.fillStyle = isFlash ? '#aaa' : '#1a0505';
+    ctx.fillRect(-s * 0.13, s * 0.2, s * 0.03, s * 0.5);
+    ctx.fillRect(s * 0.27, s * 0.15, s * 0.03, s * 0.55);
 
-    // Body (hunched torso with torn armor)
-    ctx.fillStyle = isFlash ? '#fff' : '#b91c1c';
+    // Body (hunched torso) — gradient lit from top-left
+    const bodyGrad = ctx.createLinearGradient(-s * 0.55, -s * 0.7, s * 0.55, s * 0.35);
+    bodyGrad.addColorStop(0, isFlash ? '#fff' : '#e23636');
+    bodyGrad.addColorStop(0.4, isFlash ? '#fff' : '#b91c1c');
+    bodyGrad.addColorStop(1, isFlash ? '#ccc' : '#7a1010');
+    ctx.fillStyle = bodyGrad;
     ctx.beginPath();
     ctx.moveTo(0, -s * 0.7);
     ctx.lineTo(-s * 0.55, s * 0.1);
@@ -277,9 +297,24 @@ class Enemy {
     ctx.closePath();
     ctx.fill();
 
-    // Torn armor plates (damage marks)
-    ctx.fillStyle = isFlash ? '#eee' : '#7f1d1d';
+    // Rim lighting — top-left bright edge on torso
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(255,120,120,0.35)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, -s * 0.7);
+    ctx.lineTo(-s * 0.55, s * 0.1);
+    ctx.stroke();
+
+    // Torn armor plates (gradient)
+    const armorGrad = ctx.createLinearGradient(-s * 0.3, -s * 0.2, s * 0.3, s * 0.05);
+    armorGrad.addColorStop(0, isFlash ? '#eee' : '#9a2525');
+    armorGrad.addColorStop(1, isFlash ? '#ccc' : '#551010');
+    ctx.fillStyle = armorGrad;
     ctx.fillRect(-s * 0.3, -s * 0.2, s * 0.6, s * 0.25);
+    // Bottom edge shadow on armor
+    ctx.fillStyle = isFlash ? '#aaa' : '#3a0808';
+    ctx.fillRect(-s * 0.3, s * 0.03, s * 0.6, s * 0.02);
+
     // Scratch lines
     ctx.strokeStyle = isFlash ? '#ddd' : '#991b1b';
     ctx.lineWidth = 0.5;
@@ -290,21 +325,50 @@ class Enemy {
     ctx.lineTo(-s * 0.05, s * 0.05);
     ctx.stroke();
 
-    // Arms reaching forward
-    ctx.fillStyle = isFlash ? '#eee' : '#a91c1c';
+    // Arms reaching forward — gradient for volume
+    const armGrad = ctx.createLinearGradient(-s * 0.65, -s * 0.4, -s * 0.47, s * 0.1);
+    armGrad.addColorStop(0, isFlash ? '#fff' : '#cc2a2a');
+    armGrad.addColorStop(1, isFlash ? '#bbb' : '#701515');
+    ctx.fillStyle = armGrad;
     ctx.fillRect(-s * 0.65, -s * 0.4, s * 0.18, s * 0.5);
     ctx.fillRect(s * 0.47, -s * 0.35, s * 0.18, s * 0.45);
+    // Arm edge shadow
+    ctx.fillStyle = isFlash ? '#999' : '#400a0a';
+    ctx.fillRect(-s * 0.65, s * 0.07, s * 0.18, s * 0.03);
+    ctx.fillRect(s * 0.47, s * 0.07, s * 0.18, s * 0.03);
 
-    // Head (cracked helmet)
-    ctx.fillStyle = isFlash ? '#eee' : '#991b1b';
+    // Head (cracked helmet) — radial-style gradient via linear
+    const headGrad = ctx.createLinearGradient(-s * 0.35, -s * 1.0, s * 0.35, -s * 0.3);
+    headGrad.addColorStop(0, isFlash ? '#fff' : '#c42a2a');
+    headGrad.addColorStop(0.5, isFlash ? '#eee' : '#991b1b');
+    headGrad.addColorStop(1, isFlash ? '#bbb' : '#5c1010');
+    ctx.fillStyle = headGrad;
     ctx.beginPath();
     ctx.arc(0, -s * 0.65, s * 0.35, 0, Math.PI * 2);
     ctx.fill();
-    // Cracked helmet top
-    ctx.fillStyle = isFlash ? '#ddd' : '#5c1010';
+
+    // Cracked helmet top — darker gradient
+    const helmetGrad = ctx.createLinearGradient(-s * 0.38, -s * 1.08, s * 0.2, -s * 0.5);
+    helmetGrad.addColorStop(0, isFlash ? '#eee' : '#7a1515');
+    helmetGrad.addColorStop(1, isFlash ? '#aaa' : '#3a0808');
+    ctx.fillStyle = helmetGrad;
     ctx.beginPath();
     ctx.arc(0, -s * 0.7, s * 0.38, -Math.PI, 0);
     ctx.fill();
+
+    // Specular highlight on helmet
+    ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.18)';
+    ctx.beginPath();
+    ctx.arc(-s * 0.1, -s * 0.85, s * 0.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Rim lighting on helmet upper-left
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(255,160,160,0.3)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.arc(0, -s * 0.7, s * 0.37, -Math.PI * 0.85, -Math.PI * 0.2);
+    ctx.stroke();
+
     // Crack line
     ctx.strokeStyle = isFlash ? '#ccc' : '#ef4444';
     ctx.lineWidth = 0.8;
@@ -313,8 +377,13 @@ class Enemy {
     ctx.lineTo(s * 0.1, -s * 0.65);
     ctx.stroke();
 
-    // Angry V-shaped eye
+    // Angry V-shaped eye (with glow)
     if (!this.dying) {
+      // Eye glow behind
+      ctx.fillStyle = 'rgba(251,191,36,0.2)';
+      ctx.beginPath();
+      ctx.arc(0, -s * 0.54, s * 0.2, 0, Math.PI * 2);
+      ctx.fill();
       ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
       ctx.moveTo(-s * 0.2, -s * 0.58);
@@ -331,16 +400,33 @@ class Enemy {
   }
 
   drawShooter(ctx, s, isFlash) {
-    // Gun turret emplacement with tracked base
+    // Gun turret emplacement with tracked base — 3D
     const x = this.x;
     const y = this.y;
 
-    // Treads (two parallel tracks)
-    ctx.fillStyle = isFlash ? '#ddd' : '#334155';
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.95, s * 1.0, s * 0.22, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Treads — metallic gradient (dark-light-dark)
+    const treadGradL = ctx.createLinearGradient(x - s * 0.9, 0, x - s * 0.65, 0);
+    treadGradL.addColorStop(0, isFlash ? '#ccc' : '#1e293b');
+    treadGradL.addColorStop(0.4, isFlash ? '#eee' : '#4a5568');
+    treadGradL.addColorStop(1, isFlash ? '#bbb' : '#1e293b');
+    ctx.fillStyle = treadGradL;
     ctx.fillRect(x - s * 0.9, y + s * 0.1, s * 0.25, s * 0.8);
+
+    const treadGradR = ctx.createLinearGradient(x + s * 0.65, 0, x + s * 0.9, 0);
+    treadGradR.addColorStop(0, isFlash ? '#ccc' : '#1e293b');
+    treadGradR.addColorStop(0.5, isFlash ? '#eee' : '#4a5568');
+    treadGradR.addColorStop(1, isFlash ? '#bbb' : '#2d3748');
+    ctx.fillStyle = treadGradR;
     ctx.fillRect(x + s * 0.65, y + s * 0.1, s * 0.25, s * 0.8);
+
     // Tread segments
-    ctx.strokeStyle = isFlash ? '#ccc' : '#475569';
+    ctx.strokeStyle = isFlash ? '#aaa' : '#64748b';
     ctx.lineWidth = 0.5;
     for (let i = 0; i < 4; i++) {
       const ty = y + s * 0.2 + i * s * 0.18;
@@ -352,48 +438,105 @@ class Enemy {
       ctx.stroke();
     }
 
-    // Body platform
-    ctx.fillStyle = isFlash ? '#fff' : '#92400e';
+    // Body platform — volumetric gradient
+    const bodyGrad = ctx.createLinearGradient(x - s * 0.65, y - s * 0.1, x + s * 0.65, y + s * 0.6);
+    bodyGrad.addColorStop(0, isFlash ? '#fff' : '#c4610f');
+    bodyGrad.addColorStop(0.5, isFlash ? '#eee' : '#92400e');
+    bodyGrad.addColorStop(1, isFlash ? '#ccc' : '#5c2a08');
+    ctx.fillStyle = bodyGrad;
     ctx.fillRect(x - s * 0.65, y - s * 0.1, s * 1.3, s * 0.7);
 
-    // Rivets on body
+    // Bottom edge shadow on body
+    ctx.fillStyle = isFlash ? '#aaa' : '#3d1a04';
+    ctx.fillRect(x - s * 0.65, y + s * 0.55, s * 1.3, s * 0.05);
+    // Right edge shadow
+    ctx.fillStyle = isFlash ? '#bbb' : '#4a2508';
+    ctx.fillRect(x + s * 0.6, y - s * 0.1, s * 0.05, s * 0.7);
+
+    // Rim lighting on body — top-left edge
+    ctx.fillStyle = isFlash ? '#fff' : 'rgba(255,200,120,0.2)';
+    ctx.fillRect(x - s * 0.65, y - s * 0.1, s * 1.3, s * 0.03);
+
+    // Rivets on body (3D raised)
     if (!this.dying) {
-      ctx.fillStyle = isFlash ? '#ddd' : '#78350f';
       for (let i = 0; i < 3; i++) {
+        const rx = x - s * 0.4 + i * s * 0.4;
+        const ry = y + s * 0.45;
+        ctx.fillStyle = isFlash ? '#eee' : '#a0600f';
         ctx.beginPath();
-        ctx.arc(x - s * 0.4 + i * s * 0.4, y + s * 0.45, 1, 0, Math.PI * 2);
+        ctx.arc(rx, ry, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = isFlash ? '#fff' : 'rgba(255,255,255,0.2)';
+        ctx.beginPath();
+        ctx.arc(rx - 0.3, ry - 0.3, 0.5, 0, Math.PI * 2);
         ctx.fill();
       }
     }
 
-    // Turret dome
-    ctx.fillStyle = isFlash ? '#eee' : '#f97316';
+    // Turret dome — gradient for 3D sphere
+    const turretGrad = ctx.createLinearGradient(x - s * 0.5, y - s * 0.6, x + s * 0.5, y + s * 0.4);
+    turretGrad.addColorStop(0, isFlash ? '#fff' : '#fba43c');
+    turretGrad.addColorStop(0.45, isFlash ? '#eee' : '#f97316');
+    turretGrad.addColorStop(1, isFlash ? '#bbb' : '#a14a0c');
+    ctx.fillStyle = turretGrad;
     ctx.beginPath();
     ctx.arc(x, y - s * 0.1, s * 0.5, 0, Math.PI * 2);
     ctx.fill();
-    // Turret ring
-    ctx.strokeStyle = isFlash ? '#ddd' : '#c2410c';
+
+    // Turret ring (darker)
+    ctx.strokeStyle = isFlash ? '#bbb' : '#8b3d0a';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.arc(x, y - s * 0.1, s * 0.5, 0, Math.PI * 2);
     ctx.stroke();
 
+    // Specular highlight on turret dome
+    ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)';
+    ctx.beginPath();
+    ctx.arc(x - s * 0.15, y - s * 0.3, s * 0.14, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Rim lighting on turret — upper-left arc
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(255,220,180,0.25)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(x, y - s * 0.1, s * 0.48, -Math.PI * 0.9, -Math.PI * 0.3);
+    ctx.stroke();
+
     if (!this.dying) {
-      // Barrel (pointing down toward player)
-      ctx.fillStyle = isFlash ? '#bbb' : '#64748b';
+      // Barrel — metallic sheen gradient
+      const barrelGrad = ctx.createLinearGradient(x - s * 0.1, 0, x + s * 0.1, 0);
+      barrelGrad.addColorStop(0, isFlash ? '#ccc' : '#475569');
+      barrelGrad.addColorStop(0.4, isFlash ? '#eee' : '#94a3b8');
+      barrelGrad.addColorStop(1, isFlash ? '#aaa' : '#334155');
+      ctx.fillStyle = barrelGrad;
       ctx.fillRect(x - s * 0.1, y + s * 0.3, s * 0.2, s * 0.7);
-      // Muzzle tip
+      // Barrel edge shadow
+      ctx.fillStyle = isFlash ? '#999' : '#1e293b';
+      ctx.fillRect(x + s * 0.08, y + s * 0.3, s * 0.02, s * 0.7);
+
+      // Muzzle tip (glowing)
       ctx.fillStyle = isFlash ? '#eee' : '#f97316';
       ctx.beginPath();
       ctx.arc(x, y + s * 1.0, s * 0.12, 0, Math.PI * 2);
       ctx.fill();
+      ctx.fillStyle = isFlash ? '#fff' : 'rgba(251,191,36,0.3)';
+      ctx.beginPath();
+      ctx.arc(x, y + s * 1.0, s * 0.18, 0, Math.PI * 2);
+      ctx.fill();
 
-      // Viewport slit
+      // Viewport slit (emissive glow)
+      ctx.fillStyle = 'rgba(251,191,36,0.2)';
+      ctx.fillRect(x - s * 0.3, y - s * 0.24, s * 0.6, s * 0.16);
       ctx.fillStyle = '#fbbf24';
       ctx.fillRect(x - s * 0.25, y - s * 0.2, s * 0.5, s * 0.08);
 
-      // Ammo belt (left side)
-      ctx.fillStyle = isFlash ? '#ccc' : '#78350f';
+      // Ammo belt (left side) — metallic
+      const beltGrad = ctx.createLinearGradient(x - s * 0.7, 0, x - s * 0.58, 0);
+      beltGrad.addColorStop(0, isFlash ? '#bbb' : '#5c2a06');
+      beltGrad.addColorStop(0.5, isFlash ? '#ddd' : '#9a5a10');
+      beltGrad.addColorStop(1, isFlash ? '#aaa' : '#5c2a06');
+      ctx.fillStyle = beltGrad;
       ctx.fillRect(x - s * 0.7, y - s * 0.05, s * 0.12, s * 0.35);
       // Belt segments
       ctx.fillStyle = isFlash ? '#eee' : '#fbbf24';
@@ -404,24 +547,45 @@ class Enemy {
   }
 
   drawMortar(ctx, s, isFlash) {
-    // Mobile artillery piece with detailed treads
+    // Mobile artillery piece — 3D with detailed treads
     const x = this.x;
     const y = this.y;
 
-    // Heavy treads (wider, segmented)
-    ctx.fillStyle = isFlash ? '#ddd' : '#334155';
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.8, s * 1.05, s * 0.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Heavy treads — metallic sheen (dark-light-dark)
+    const treadGradL = ctx.createLinearGradient(x - s * 0.95, 0, x - s * 0.65, 0);
+    treadGradL.addColorStop(0, isFlash ? '#ccc' : '#1e293b');
+    treadGradL.addColorStop(0.35, isFlash ? '#eee' : '#4a5568');
+    treadGradL.addColorStop(1, isFlash ? '#bbb' : '#1e293b');
+    ctx.fillStyle = treadGradL;
     ctx.fillRect(x - s * 0.95, y + s * 0.15, s * 0.3, s * 0.6);
+
+    const treadGradR = ctx.createLinearGradient(x + s * 0.65, 0, x + s * 0.95, 0);
+    treadGradR.addColorStop(0, isFlash ? '#ccc' : '#1e293b');
+    treadGradR.addColorStop(0.5, isFlash ? '#eee' : '#4a5568');
+    treadGradR.addColorStop(1, isFlash ? '#bbb' : '#2d3748');
+    ctx.fillStyle = treadGradR;
     ctx.fillRect(x + s * 0.65, y + s * 0.15, s * 0.3, s * 0.6);
+
     // Tread teeth
-    ctx.fillStyle = isFlash ? '#ccc' : '#1e293b';
+    ctx.fillStyle = isFlash ? '#aaa' : '#0f172a';
     for (let i = 0; i < 5; i++) {
       const ty = y + s * 0.2 + i * s * 0.1;
       ctx.fillRect(x - s * 0.95, ty, s * 0.3, s * 0.03);
       ctx.fillRect(x + s * 0.65, ty, s * 0.3, s * 0.03);
     }
 
-    // Hull body (rounded rectangle)
-    ctx.fillStyle = isFlash ? '#fff' : '#7c2d12';
+    // Hull body — volumetric gradient (lit top-left)
+    const hullGrad = ctx.createLinearGradient(x - s * 0.65, y - s * 0.15, x + s * 0.65, y + s * 0.5);
+    hullGrad.addColorStop(0, isFlash ? '#fff' : '#a8420f');
+    hullGrad.addColorStop(0.45, isFlash ? '#eee' : '#7c2d12');
+    hullGrad.addColorStop(1, isFlash ? '#bbb' : '#4a1a0a');
+    ctx.fillStyle = hullGrad;
     ctx.beginPath();
     ctx.moveTo(x - s * 0.6, y - s * 0.15);
     ctx.lineTo(x + s * 0.6, y - s * 0.15);
@@ -430,8 +594,35 @@ class Enemy {
     ctx.closePath();
     ctx.fill();
 
+    // Hull bottom edge shadow
+    ctx.fillStyle = isFlash ? '#999' : '#2e1208';
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.65, y + s * 0.47);
+    ctx.lineTo(x + s * 0.65, y + s * 0.47);
+    ctx.lineTo(x + s * 0.65, y + s * 0.5);
+    ctx.lineTo(x - s * 0.65, y + s * 0.5);
+    ctx.closePath();
+    ctx.fill();
+    // Hull right edge shadow
+    ctx.fillStyle = isFlash ? '#aaa' : '#3d1c0a';
+    ctx.beginPath();
+    ctx.moveTo(x + s * 0.58, y - s * 0.15);
+    ctx.lineTo(x + s * 0.6, y - s * 0.15);
+    ctx.lineTo(x + s * 0.65, y + s * 0.5);
+    ctx.lineTo(x + s * 0.62, y + s * 0.5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Rim lighting — top edge
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(255,180,100,0.25)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.6, y - s * 0.15);
+    ctx.lineTo(x + s * 0.6, y - s * 0.15);
+    ctx.stroke();
+
     // Hull armor lines
-    ctx.strokeStyle = isFlash ? '#eee' : '#6b2510';
+    ctx.strokeStyle = isFlash ? '#ccc' : '#5a200d';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
     ctx.moveTo(x - s * 0.5, y + s * 0.1);
@@ -445,17 +636,42 @@ class Enemy {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(0.2 * Math.sin(this.animTimer));
-      // Recoil cylinder
-      ctx.fillStyle = isFlash ? '#ccc' : '#475569';
+
+      // Recoil cylinder — metallic
+      const cylGrad = ctx.createLinearGradient(-s * 0.08, 0, s * 0.08, 0);
+      cylGrad.addColorStop(0, isFlash ? '#ccc' : '#334155');
+      cylGrad.addColorStop(0.4, isFlash ? '#eee' : '#64748b');
+      cylGrad.addColorStop(1, isFlash ? '#aaa' : '#334155');
+      ctx.fillStyle = cylGrad;
       ctx.fillRect(-s * 0.08, -s * 0.4, s * 0.16, s * 0.35);
-      // Main tube
-      ctx.fillStyle = isFlash ? '#bbb' : '#64748b';
+
+      // Main tube — metallic sheen
+      const tubeGrad = ctx.createLinearGradient(-s * 0.12, 0, s * 0.12, 0);
+      tubeGrad.addColorStop(0, isFlash ? '#bbb' : '#475569');
+      tubeGrad.addColorStop(0.35, isFlash ? '#eee' : '#94a3b8');
+      tubeGrad.addColorStop(0.65, isFlash ? '#ddd' : '#7a8a9e');
+      tubeGrad.addColorStop(1, isFlash ? '#999' : '#334155');
+      ctx.fillStyle = tubeGrad;
       ctx.fillRect(-s * 0.12, -s * 1.4, s * 0.24, s * 1.1);
-      // Muzzle
-      ctx.fillStyle = isFlash ? '#eee' : '#ea580c';
+
+      // Tube rim light — left edge
+      ctx.fillStyle = isFlash ? '#fff' : 'rgba(200,220,255,0.15)';
+      ctx.fillRect(-s * 0.12, -s * 1.4, s * 0.03, s * 1.1);
+
+      // Muzzle (glowing)
+      const muzzleGrad = ctx.createLinearGradient(-s * 0.18, -s * 1.58, s * 0.18, -s * 1.22);
+      muzzleGrad.addColorStop(0, isFlash ? '#fff' : '#fb923c');
+      muzzleGrad.addColorStop(1, isFlash ? '#bbb' : '#9a3412');
+      ctx.fillStyle = muzzleGrad;
       ctx.beginPath();
       ctx.arc(0, -s * 1.4, s * 0.18, 0, Math.PI * 2);
       ctx.fill();
+      // Muzzle specular
+      ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)';
+      ctx.beginPath();
+      ctx.arc(-s * 0.05, -s * 1.48, s * 0.06, 0, Math.PI * 2);
+      ctx.fill();
+
       ctx.restore();
 
       // Charge indicator
@@ -468,7 +684,11 @@ class Enemy {
         ctx.stroke();
       }
 
-      // Center targeting dot
+      // Center targeting dot (with glow)
+      ctx.fillStyle = 'rgba(251,191,36,0.2)';
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fill();
       ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
       ctx.arc(x, y, 1.5, 0, Math.PI * 2);
@@ -477,18 +697,38 @@ class Enemy {
   }
 
   drawDetonator(ctx, s, isFlash) {
-    // Suicide bomber — humanoid with explosive vest
+    // Suicide bomber — 3D humanoid with explosive vest
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle + Math.PI / 2);
 
-    // Legs (frantic running)
-    ctx.fillStyle = isFlash ? '#ddd' : '#4a1010';
+    // Ground shadow
+    ctx.save();
+    ctx.rotate(-(this.angle + Math.PI / 2));
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(0, s * 0.8, s * 0.6, s * 0.18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Legs (frantic running) — gradient for volume
+    const legGrad = ctx.createLinearGradient(-s * 0.35, s * 0.2, s * 0.35, s * 0.7);
+    legGrad.addColorStop(0, isFlash ? '#eee' : '#6b1515');
+    legGrad.addColorStop(1, isFlash ? '#aaa' : '#2a0606');
+    ctx.fillStyle = legGrad;
     ctx.fillRect(-s * 0.35, s * 0.2, s * 0.22, s * 0.5);
     ctx.fillRect(s * 0.13, s * 0.15, s * 0.22, s * 0.55);
+    // Leg edge shadows
+    ctx.fillStyle = isFlash ? '#999' : '#1a0404';
+    ctx.fillRect(-s * 0.15, s * 0.2, s * 0.02, s * 0.5);
+    ctx.fillRect(s * 0.33, s * 0.15, s * 0.02, s * 0.55);
 
-    // Body
-    ctx.fillStyle = isFlash ? '#eee' : '#dc2626';
+    // Body — gradient lit from top-left
+    const bodyGrad = ctx.createLinearGradient(-s * 0.45, -s * 0.6, s * 0.45, s * 0.35);
+    bodyGrad.addColorStop(0, isFlash ? '#fff' : '#ef4444');
+    bodyGrad.addColorStop(0.45, isFlash ? '#eee' : '#dc2626');
+    bodyGrad.addColorStop(1, isFlash ? '#bbb' : '#8b1414');
+    ctx.fillStyle = bodyGrad;
     ctx.beginPath();
     ctx.moveTo(-s * 0.45, -s * 0.15);
     ctx.lineTo(-s * 0.45, s * 0.35);
@@ -497,9 +737,31 @@ class Enemy {
     ctx.arc(0, -s * 0.15, s * 0.45, 0, -Math.PI, true);
     ctx.fill();
 
-    // Explosive vest (rectangular chest piece)
-    ctx.fillStyle = isFlash ? '#ddd' : '#7f1d1d';
+    // Body rim lighting — left edge
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(255,130,130,0.3)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.45, -s * 0.15);
+    ctx.lineTo(-s * 0.45, s * 0.35);
+    ctx.stroke();
+
+    // Body bottom edge shadow
+    ctx.fillStyle = isFlash ? '#999' : '#5c0a0a';
+    ctx.fillRect(-s * 0.45, s * 0.32, s * 0.9, s * 0.03);
+
+    // Explosive vest — gradient for depth
+    const vestGrad = ctx.createLinearGradient(-s * 0.3, -s * 0.1, s * 0.3, s * 0.25);
+    vestGrad.addColorStop(0, isFlash ? '#eee' : '#9a2525');
+    vestGrad.addColorStop(0.5, isFlash ? '#ddd' : '#7f1d1d');
+    vestGrad.addColorStop(1, isFlash ? '#bbb' : '#4a0e0e');
+    ctx.fillStyle = vestGrad;
     ctx.fillRect(-s * 0.3, -s * 0.1, s * 0.6, s * 0.35);
+
+    // Vest edge shadow
+    ctx.fillStyle = isFlash ? '#aaa' : '#2e0808';
+    ctx.fillRect(-s * 0.3, s * 0.22, s * 0.6, s * 0.03);
+    ctx.fillRect(s * 0.27, -s * 0.1, s * 0.03, s * 0.35);
+
     // Wires on vest
     ctx.strokeStyle = isFlash ? '#ccc' : '#fbbf24';
     ctx.lineWidth = 0.6;
@@ -515,6 +777,11 @@ class Enemy {
     // Countdown display on chest
     if (!this.dying) {
       const timeLeft = Math.max(0, Math.ceil(this.fuseTimer));
+      // Glow behind text
+      ctx.fillStyle = this.fuseStarted ? 'rgba(251,191,36,0.2)' : 'rgba(251,191,36,0.15)';
+      ctx.beginPath();
+      ctx.arc(0, s * 0.08, s * 0.2, 0, Math.PI * 2);
+      ctx.fill();
       ctx.fillStyle = this.fuseStarted ? (Math.sin(Date.now() / 80) > 0 ? '#fbbf24' : '#ef4444') : '#fbbf24';
       ctx.font = `bold ${s * 0.5}px Outfit`;
       ctx.textAlign = 'center';
@@ -523,26 +790,52 @@ class Enemy {
       ctx.textBaseline = 'alphabetic';
     }
 
-    // Arms (wide apart, frantic)
-    ctx.fillStyle = isFlash ? '#eee' : '#b91c1c';
+    // Arms (wide apart, frantic) — gradient
+    const armGrad = ctx.createLinearGradient(-s * 0.7, -s * 0.2, -s * 0.5, s * 0.15);
+    armGrad.addColorStop(0, isFlash ? '#fff' : '#d93030');
+    armGrad.addColorStop(1, isFlash ? '#bbb' : '#7a1212');
+    ctx.fillStyle = armGrad;
     ctx.save();
     ctx.rotate(-0.4);
     ctx.fillRect(-s * 0.7, -s * 0.2, s * 0.2, s * 0.35);
     ctx.restore();
+    ctx.fillStyle = armGrad;
     ctx.save();
     ctx.rotate(0.4);
     ctx.fillRect(s * 0.5, -s * 0.2, s * 0.2, s * 0.35);
     ctx.restore();
 
-    // Head
-    ctx.fillStyle = isFlash ? '#eee' : '#991b1b';
+    // Head — 3D sphere gradient
+    const headGrad = ctx.createLinearGradient(-s * 0.3, -s * 0.85, s * 0.3, -s * 0.25);
+    headGrad.addColorStop(0, isFlash ? '#fff' : '#c42a2a');
+    headGrad.addColorStop(0.45, isFlash ? '#eee' : '#991b1b');
+    headGrad.addColorStop(1, isFlash ? '#bbb' : '#5c1010');
+    ctx.fillStyle = headGrad;
     ctx.beginPath();
     ctx.arc(0, -s * 0.55, s * 0.3, 0, Math.PI * 2);
     ctx.fill();
 
+    // Head specular highlight
+    ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.arc(-s * 0.08, -s * 0.68, s * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Rim lighting on head
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(255,150,150,0.25)';
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.arc(0, -s * 0.55, s * 0.29, -Math.PI * 0.85, -Math.PI * 0.15);
+    ctx.stroke();
+
     // Fuse spark on top
     if (!this.dying && this.fuseStarted) {
       const sparkAlpha = 0.5 + Math.sin(Date.now() / 50) * 0.5;
+      // Outer glow
+      ctx.fillStyle = `rgba(251,191,36,${sparkAlpha * 0.3})`;
+      ctx.beginPath();
+      ctx.arc(0, -s * 0.9, s * 0.22, 0, Math.PI * 2);
+      ctx.fill();
       ctx.fillStyle = `rgba(251,191,36,${sparkAlpha})`;
       ctx.beginPath();
       ctx.arc(0, -s * 0.9, s * 0.12, 0, Math.PI * 2);
@@ -564,17 +857,34 @@ class Enemy {
   }
 
   drawThief(ctx, s, isFlash) {
-    // Shadow operative — tactical ninja figure
+    // Shadow operative — 3D tactical ninja figure
     const x = this.x;
     const y = this.y;
 
-    // Legs (crouched, tactical)
-    ctx.fillStyle = isFlash ? '#ccc' : '#111827';
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.85, s * 0.55, s * 0.16, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Legs (crouched, tactical) — gradient for volume
+    const legGrad = ctx.createLinearGradient(x - s * 0.3, y + s * 0.3, x + s * 0.3, y + s * 0.8);
+    legGrad.addColorStop(0, isFlash ? '#ddd' : '#1f2937');
+    legGrad.addColorStop(1, isFlash ? '#999' : '#070b12');
+    ctx.fillStyle = legGrad;
     ctx.fillRect(x - s * 0.3, y + s * 0.3, s * 0.18, s * 0.5);
     ctx.fillRect(x + s * 0.12, y + s * 0.25, s * 0.18, s * 0.55);
+    // Leg edge shadows
+    ctx.fillStyle = isFlash ? '#888' : '#030508';
+    ctx.fillRect(x - s * 0.14, y + s * 0.3, s * 0.02, s * 0.5);
+    ctx.fillRect(x + s * 0.28, y + s * 0.25, s * 0.02, s * 0.55);
 
-    // Body (sleek tactical suit)
-    ctx.fillStyle = isFlash ? '#fff' : '#1f2937';
+    // Body (sleek tactical suit) — gradient lit from top-left
+    const bodyGrad = ctx.createLinearGradient(x - s * 0.45, y - s * 0.6, x + s * 0.45, y + s * 0.4);
+    bodyGrad.addColorStop(0, isFlash ? '#fff' : '#374151');
+    bodyGrad.addColorStop(0.4, isFlash ? '#eee' : '#1f2937');
+    bodyGrad.addColorStop(1, isFlash ? '#aaa' : '#0a0f18');
+    ctx.fillStyle = bodyGrad;
     ctx.beginPath();
     ctx.moveTo(x - s * 0.4, y - s * 0.2);
     ctx.lineTo(x - s * 0.45, y + s * 0.4);
@@ -583,15 +893,38 @@ class Enemy {
     ctx.arc(x, y - s * 0.2, s * 0.4, 0, -Math.PI, true);
     ctx.fill();
 
-    // Utility belt
-    ctx.fillStyle = isFlash ? '#bbb' : '#374151';
+    // Body rim lighting — left edge
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(150,160,180,0.2)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.4, y - s * 0.2);
+    ctx.lineTo(x - s * 0.45, y + s * 0.4);
+    ctx.stroke();
+
+    // Body bottom edge shadow
+    ctx.fillStyle = isFlash ? '#888' : '#050810';
+    ctx.fillRect(x - s * 0.45, y + s * 0.37, s * 0.9, s * 0.03);
+
+    // Utility belt — metallic gradient
+    const beltGrad = ctx.createLinearGradient(x - s * 0.4, y + s * 0.2, x + s * 0.4, y + s * 0.28);
+    beltGrad.addColorStop(0, isFlash ? '#ccc' : '#2d3748');
+    beltGrad.addColorStop(0.4, isFlash ? '#eee' : '#4a5568');
+    beltGrad.addColorStop(1, isFlash ? '#aaa' : '#2d3748');
+    ctx.fillStyle = beltGrad;
     ctx.fillRect(x - s * 0.4, y + s * 0.2, s * 0.8, s * 0.08);
-    // Belt pouches
+    // Belt pouches — with small highlight
+    ctx.fillStyle = isFlash ? '#bbb' : '#374151';
     ctx.fillRect(x - s * 0.35, y + s * 0.15, s * 0.12, s * 0.12);
     ctx.fillRect(x + s * 0.23, y + s * 0.15, s * 0.12, s * 0.12);
+    ctx.fillStyle = isFlash ? '#eee' : 'rgba(255,255,255,0.08)';
+    ctx.fillRect(x - s * 0.35, y + s * 0.15, s * 0.12, s * 0.03);
+    ctx.fillRect(x + s * 0.23, y + s * 0.15, s * 0.12, s * 0.03);
 
-    // Arms
-    ctx.fillStyle = isFlash ? '#eee' : '#1f2937';
+    // Arms — gradient
+    const armGrad = ctx.createLinearGradient(x - s * 0.55, y - s * 0.1, x - s * 0.4, y + s * 0.25);
+    armGrad.addColorStop(0, isFlash ? '#fff' : '#2d3748');
+    armGrad.addColorStop(1, isFlash ? '#aaa' : '#0a0f18');
+    ctx.fillStyle = armGrad;
     ctx.fillRect(x - s * 0.55, y - s * 0.1, s * 0.15, s * 0.35);
     // Extended reaching arm
     if (this.stealTarget && !this.dying) {
@@ -600,17 +933,45 @@ class Enemy {
       ctx.fillRect(x + s * 0.4, y - s * 0.1, s * 0.15, s * 0.35);
     }
 
-    // Head with mask
-    ctx.fillStyle = isFlash ? '#eee' : '#111827';
+    // Head with mask — 3D sphere gradient
+    const headGrad = ctx.createLinearGradient(x - s * 0.32, y - s * 0.82, x + s * 0.32, y - s * 0.18);
+    headGrad.addColorStop(0, isFlash ? '#fff' : '#1f2937');
+    headGrad.addColorStop(0.4, isFlash ? '#eee' : '#111827');
+    headGrad.addColorStop(1, isFlash ? '#aaa' : '#060910');
+    ctx.fillStyle = headGrad;
     ctx.beginPath();
     ctx.arc(x, y - s * 0.5, s * 0.32, 0, Math.PI * 2);
     ctx.fill();
-    // Mask wrap
-    ctx.fillStyle = isFlash ? '#ddd' : '#374151';
+
+    // Head specular highlight
+    ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.1)';
+    ctx.beginPath();
+    ctx.arc(x - s * 0.1, y - s * 0.65, s * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Rim lighting on head
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(180,190,210,0.2)';
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.arc(x, y - s * 0.5, s * 0.31, -Math.PI * 0.85, -Math.PI * 0.15);
+    ctx.stroke();
+
+    // Mask wrap — gradient
+    const maskGrad = ctx.createLinearGradient(x - s * 0.35, y - s * 0.55, x + s * 0.35, y - s * 0.43);
+    maskGrad.addColorStop(0, isFlash ? '#eee' : '#4a5568');
+    maskGrad.addColorStop(1, isFlash ? '#aaa' : '#252e3d');
+    ctx.fillStyle = maskGrad;
     ctx.fillRect(x - s * 0.35, y - s * 0.55, s * 0.7, s * 0.12);
 
     if (!this.dying) {
-      // Glowing purple eyes
+      // Glowing purple eyes — brighter with glow
+      ctx.fillStyle = 'rgba(167,139,250,0.25)';
+      ctx.beginPath();
+      ctx.arc(x - s * 0.12, y - s * 0.48, s * 0.16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x + s * 0.12, y - s * 0.48, s * 0.16, 0, Math.PI * 2);
+      ctx.fill();
       ctx.fillStyle = '#a78bfa';
       ctx.beginPath();
       ctx.arc(x - s * 0.12, y - s * 0.48, s * 0.07, 0, Math.PI * 2);
@@ -618,13 +979,13 @@ class Enemy {
       ctx.beginPath();
       ctx.arc(x + s * 0.12, y - s * 0.48, s * 0.07, 0, Math.PI * 2);
       ctx.fill();
-      // Eye glow
-      ctx.fillStyle = 'rgba(167,139,250,0.3)';
+      // Eye specular (white dot)
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
       ctx.beginPath();
-      ctx.arc(x - s * 0.12, y - s * 0.48, s * 0.14, 0, Math.PI * 2);
+      ctx.arc(x - s * 0.14, y - s * 0.5, s * 0.025, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(x + s * 0.12, y - s * 0.48, s * 0.14, 0, Math.PI * 2);
+      ctx.arc(x + s * 0.1, y - s * 0.5, s * 0.025, 0, Math.PI * 2);
       ctx.fill();
 
       // Steal indicator
@@ -642,9 +1003,15 @@ class Enemy {
   }
 
   drawFlanker(ctx, s, isFlash) {
-    // Attack drone — quadcopter with rotors
+    // Attack drone — 3D quadcopter with rotors
     const x = this.x;
     const y = this.y;
+
+    // Ground shadow (offset for hovering effect)
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(x + s * 0.1, y + s * 1.0, s * 0.8, s * 0.18, 0, 0, Math.PI * 2);
+    ctx.fill();
 
     // Motion trail (afterimages)
     if (!this.dying && this.trailX.length > 1) {
@@ -659,29 +1026,65 @@ class Enemy {
       }
     }
 
-    // X-frame arms
-    ctx.strokeStyle = isFlash ? '#ddd' : '#64748b';
+    // X-frame arms — metallic gradient strokes
+    const armGrad = ctx.createLinearGradient(x - s * 0.8, y - s * 0.6, x + s * 0.8, y + s * 0.6);
+    armGrad.addColorStop(0, isFlash ? '#eee' : '#475569');
+    armGrad.addColorStop(0.4, isFlash ? '#fff' : '#94a3b8');
+    armGrad.addColorStop(1, isFlash ? '#bbb' : '#334155');
+    ctx.strokeStyle = armGrad;
     ctx.lineWidth = s * 0.12;
     ctx.beginPath();
     ctx.moveTo(x - s * 0.8, y - s * 0.6);
     ctx.lineTo(x + s * 0.8, y + s * 0.6);
+    ctx.stroke();
+
+    const armGrad2 = ctx.createLinearGradient(x + s * 0.8, y - s * 0.6, x - s * 0.8, y + s * 0.6);
+    armGrad2.addColorStop(0, isFlash ? '#eee' : '#475569');
+    armGrad2.addColorStop(0.4, isFlash ? '#fff' : '#94a3b8');
+    armGrad2.addColorStop(1, isFlash ? '#bbb' : '#334155');
+    ctx.strokeStyle = armGrad2;
+    ctx.beginPath();
     ctx.moveTo(x + s * 0.8, y - s * 0.6);
     ctx.lineTo(x - s * 0.8, y + s * 0.6);
     ctx.stroke();
 
-    // Central body pod
-    ctx.fillStyle = isFlash ? '#fff' : '#991b1b';
+    // Central body pod — 3D sphere gradient
+    const podGrad = ctx.createLinearGradient(x - s * 0.4, y - s * 0.4, x + s * 0.4, y + s * 0.4);
+    podGrad.addColorStop(0, isFlash ? '#fff' : '#c42828');
+    podGrad.addColorStop(0.45, isFlash ? '#eee' : '#991b1b');
+    podGrad.addColorStop(1, isFlash ? '#bbb' : '#5c1010');
+    ctx.fillStyle = podGrad;
     ctx.beginPath();
     ctx.arc(x, y, s * 0.4, 0, Math.PI * 2);
     ctx.fill();
-    // Inner ring
-    ctx.fillStyle = isFlash ? '#eee' : '#dc2626';
+
+    // Pod specular highlight
+    ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.18)';
+    ctx.beginPath();
+    ctx.arc(x - s * 0.12, y - s * 0.15, s * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pod rim lighting — upper-left arc
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(255,120,120,0.25)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.arc(x, y, s * 0.39, -Math.PI * 0.9, -Math.PI * 0.3);
+    ctx.stroke();
+
+    // Inner ring — gradient
+    const innerGrad = ctx.createLinearGradient(x - s * 0.25, y - s * 0.25, x + s * 0.25, y + s * 0.25);
+    innerGrad.addColorStop(0, isFlash ? '#fff' : '#ef4444');
+    innerGrad.addColorStop(1, isFlash ? '#ccc' : '#a81b1b');
+    ctx.fillStyle = innerGrad;
     ctx.beginPath();
     ctx.arc(x, y, s * 0.25, 0, Math.PI * 2);
     ctx.fill();
 
-    // Camera/sensor lens
-    ctx.fillStyle = isFlash ? '#ddd' : '#1e293b';
+    // Camera/sensor lens — dark with gloss
+    const lensGrad = ctx.createLinearGradient(x - s * 0.12, y - s * 0.12, x + s * 0.12, y + s * 0.12);
+    lensGrad.addColorStop(0, isFlash ? '#ddd' : '#2d3748');
+    lensGrad.addColorStop(1, isFlash ? '#aaa' : '#0a0f18');
+    ctx.fillStyle = lensGrad;
     ctx.beginPath();
     ctx.arc(x, y, s * 0.12, 0, Math.PI * 2);
     ctx.fill();
@@ -689,6 +1092,11 @@ class Enemy {
     ctx.fillStyle = '#ef4444';
     ctx.beginPath();
     ctx.arc(x - s * 0.03, y - s * 0.03, s * 0.04, 0, Math.PI * 2);
+    ctx.fill();
+    // Lens specular
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.beginPath();
+    ctx.arc(x - s * 0.04, y - s * 0.04, s * 0.025, 0, Math.PI * 2);
     ctx.fill();
 
     if (!this.dying) {
@@ -703,11 +1111,20 @@ class Enemy {
       // Rotor discs (spinning)
       const rotAngle = this.animTimer * 8;
       for (const [rx, ry] of rotorPositions) {
-        // Rotor hub
-        ctx.fillStyle = isFlash ? '#ccc' : '#475569';
+        // Rotor hub — metallic gradient
+        const hubGrad = ctx.createLinearGradient(rx - s * 0.1, ry - s * 0.1, rx + s * 0.1, ry + s * 0.1);
+        hubGrad.addColorStop(0, isFlash ? '#eee' : '#64748b');
+        hubGrad.addColorStop(1, isFlash ? '#aaa' : '#2d3748');
+        ctx.fillStyle = hubGrad;
         ctx.beginPath();
         ctx.arc(rx, ry, s * 0.1, 0, Math.PI * 2);
         ctx.fill();
+        // Hub specular
+        ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)';
+        ctx.beginPath();
+        ctx.arc(rx - s * 0.03, ry - s * 0.03, s * 0.035, 0, Math.PI * 2);
+        ctx.fill();
+
         // Spinning blades
         ctx.strokeStyle = isFlash ? '#bbb' : 'rgba(148,163,184,0.6)';
         ctx.lineWidth = s * 0.06;
@@ -721,21 +1138,40 @@ class Enemy {
         ctx.stroke();
       }
 
-      // Mounted gun underneath (pointing down)
-      ctx.fillStyle = isFlash ? '#bbb' : '#64748b';
+      // Mounted gun underneath — metallic sheen
+      const gunGrad = ctx.createLinearGradient(x - s * 0.06, 0, x + s * 0.06, 0);
+      gunGrad.addColorStop(0, isFlash ? '#ccc' : '#475569');
+      gunGrad.addColorStop(0.4, isFlash ? '#eee' : '#94a3b8');
+      gunGrad.addColorStop(1, isFlash ? '#aaa' : '#334155');
+      ctx.fillStyle = gunGrad;
       ctx.fillRect(x - s * 0.06, y + s * 0.25, s * 0.12, s * 0.35);
+      // Gun edge shadow
+      ctx.fillStyle = isFlash ? '#999' : '#1e293b';
+      ctx.fillRect(x + s * 0.04, y + s * 0.25, s * 0.02, s * 0.35);
+
+      // Muzzle tip (glowing)
       ctx.fillStyle = isFlash ? '#eee' : '#dc2626';
       ctx.beginPath();
       ctx.arc(x, y + s * 0.6, s * 0.07, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = isFlash ? '#fff' : 'rgba(220,38,38,0.3)';
+      ctx.beginPath();
+      ctx.arc(x, y + s * 0.6, s * 0.12, 0, Math.PI * 2);
       ctx.fill();
     }
   }
 
   drawElite(ctx, s, isFlash) {
-    // Heavy mech / power armor
+    // Heavy mech / power armor — 3D
     const x = this.x;
     const y = this.y;
     const pulse = 1 + Math.sin(this.animTimer * 2) * 0.03;
+
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 1.05, s * 1.1, s * 0.28, 0, 0, Math.PI * 2);
+    ctx.fill();
 
     // Shield aura
     if (this.shieldActive) {
@@ -749,25 +1185,72 @@ class Enemy {
       ctx.fill();
     }
 
-    // Mechanical legs (two thick supports)
-    ctx.fillStyle = isFlash ? '#ddd' : '#3b3275';
+    // Mechanical legs — gradient for metallic armor
+    const legGradL = ctx.createLinearGradient(x - s * 0.55, 0, x - s * 0.3, 0);
+    legGradL.addColorStop(0, isFlash ? '#eee' : '#2d2460');
+    legGradL.addColorStop(0.35, isFlash ? '#fff' : '#4e3da0');
+    legGradL.addColorStop(1, isFlash ? '#bbb' : '#2d2460');
+    ctx.fillStyle = legGradL;
     ctx.fillRect(x - s * 0.55, y + s * 0.5, s * 0.25, s * 0.5);
+
+    const legGradR = ctx.createLinearGradient(x + s * 0.3, 0, x + s * 0.55, 0);
+    legGradR.addColorStop(0, isFlash ? '#eee' : '#2d2460');
+    legGradR.addColorStop(0.4, isFlash ? '#fff' : '#4e3da0');
+    legGradR.addColorStop(1, isFlash ? '#aaa' : '#1e1850');
+    ctx.fillStyle = legGradR;
     ctx.fillRect(x + s * 0.3, y + s * 0.5, s * 0.25, s * 0.5);
-    // Leg joints
-    ctx.fillStyle = isFlash ? '#ccc' : '#5b4dad';
+
+    // Leg bottom edge shadows
+    ctx.fillStyle = isFlash ? '#999' : '#151040';
+    ctx.fillRect(x - s * 0.55, y + s * 0.97, s * 0.25, s * 0.03);
+    ctx.fillRect(x + s * 0.3, y + s * 0.97, s * 0.25, s * 0.03);
+
+    // Leg joints — 3D sphere gradient
+    const jointGradL = ctx.createLinearGradient(x - s * 0.54, y + s * 0.38, x - s * 0.3, y + s * 0.62);
+    jointGradL.addColorStop(0, isFlash ? '#eee' : '#7a6ad0');
+    jointGradL.addColorStop(1, isFlash ? '#aaa' : '#3b3080');
+    ctx.fillStyle = jointGradL;
     ctx.beginPath();
     ctx.arc(x - s * 0.42, y + s * 0.5, s * 0.12, 0, Math.PI * 2);
     ctx.fill();
+    // Joint specular
+    ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.arc(x - s * 0.45, y + s * 0.47, s * 0.04, 0, Math.PI * 2);
+    ctx.fill();
+
+    const jointGradR = ctx.createLinearGradient(x + s * 0.3, y + s * 0.38, x + s * 0.54, y + s * 0.62);
+    jointGradR.addColorStop(0, isFlash ? '#eee' : '#7a6ad0');
+    jointGradR.addColorStop(1, isFlash ? '#aaa' : '#3b3080');
+    ctx.fillStyle = jointGradR;
     ctx.beginPath();
     ctx.arc(x + s * 0.42, y + s * 0.5, s * 0.12, 0, Math.PI * 2);
     ctx.fill();
-    // Feet
-    ctx.fillStyle = isFlash ? '#bbb' : '#2d2460';
+    // Joint specular
+    ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.arc(x + s * 0.39, y + s * 0.47, s * 0.04, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Feet — metallic gradient
+    const footGrad = ctx.createLinearGradient(0, y + s * 0.9, 0, y + s * 1.02);
+    footGrad.addColorStop(0, isFlash ? '#ccc' : '#3b3080');
+    footGrad.addColorStop(1, isFlash ? '#888' : '#151040');
+    ctx.fillStyle = footGrad;
     ctx.fillRect(x - s * 0.65, y + s * 0.9, s * 0.4, s * 0.12);
     ctx.fillRect(x + s * 0.25, y + s * 0.9, s * 0.4, s * 0.12);
+    // Foot rim lighting — top edge
+    ctx.fillStyle = isFlash ? '#fff' : 'rgba(180,160,255,0.15)';
+    ctx.fillRect(x - s * 0.65, y + s * 0.9, s * 0.4, s * 0.02);
+    ctx.fillRect(x + s * 0.25, y + s * 0.9, s * 0.4, s * 0.02);
 
-    // Body — hexagonal armored chassis
-    ctx.fillStyle = isFlash ? '#fff' : '#4c1d95';
+    // Body — hexagonal armored chassis with gradient
+    // Outer hex — gradient from top-left to bottom-right
+    const hexGrad = ctx.createLinearGradient(x - s, y - s * 0.85, x + s, y + s * 0.85);
+    hexGrad.addColorStop(0, isFlash ? '#fff' : '#6d3ab8');
+    hexGrad.addColorStop(0.4, isFlash ? '#eee' : '#4c1d95');
+    hexGrad.addColorStop(1, isFlash ? '#bbb' : '#2a1060');
+    ctx.fillStyle = hexGrad;
     ctx.beginPath();
     for (let i = 0; i < 6; i++) {
       const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
@@ -779,8 +1262,38 @@ class Enemy {
     ctx.closePath();
     ctx.fill();
 
-    // Inner armor plates with panel lines
-    ctx.fillStyle = isFlash ? '#eee' : '#7c3aed';
+    // Hex bottom edge shadow
+    ctx.strokeStyle = isFlash ? '#999' : '#1a0d40';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    const a4 = (4 / 6) * Math.PI * 2 - Math.PI / 2;
+    const a3 = (3 / 6) * Math.PI * 2 - Math.PI / 2;
+    const a2 = (2 / 6) * Math.PI * 2 - Math.PI / 2;
+    ctx.moveTo(x + Math.cos(a2) * s * pulse, y + Math.sin(a2) * s * 0.85 * pulse);
+    ctx.lineTo(x + Math.cos(a3) * s * pulse, y + Math.sin(a3) * s * 0.85 * pulse);
+    ctx.lineTo(x + Math.cos(a4) * s * pulse, y + Math.sin(a4) * s * 0.85 * pulse);
+    ctx.stroke();
+
+    // Hex rim lighting — upper-left edges
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(180,160,255,0.3)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    const a0 = (0 / 6) * Math.PI * 2 - Math.PI / 2;
+    const a5 = (5 / 6) * Math.PI * 2 - Math.PI / 2;
+    const a0x = x + Math.cos(a0) * s * pulse, a0y = y + Math.sin(a0) * s * 0.85 * pulse;
+    const a5x = x + Math.cos(a5) * s * pulse, a5y = y + Math.sin(a5) * s * 0.85 * pulse;
+    const a4x = x + Math.cos(a4) * s * pulse, a4y = y + Math.sin(a4) * s * 0.85 * pulse;
+    ctx.moveTo(a4x, a4y);
+    ctx.lineTo(a5x, a5y);
+    ctx.lineTo(a0x, a0y);
+    ctx.stroke();
+
+    // Inner armor plates — gradient
+    const innerGrad = ctx.createLinearGradient(x - s * 0.7, y - s * 0.6, x + s * 0.7, y + s * 0.6);
+    innerGrad.addColorStop(0, isFlash ? '#fff' : '#9b6de8');
+    innerGrad.addColorStop(0.4, isFlash ? '#eee' : '#7c3aed');
+    innerGrad.addColorStop(1, isFlash ? '#bbb' : '#4a1da0');
+    ctx.fillStyle = innerGrad;
     ctx.beginPath();
     for (let i = 0; i < 6; i++) {
       const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
@@ -791,8 +1304,9 @@ class Enemy {
     }
     ctx.closePath();
     ctx.fill();
+
     // Panel lines
-    ctx.strokeStyle = isFlash ? '#ddd' : '#5b21b6';
+    ctx.strokeStyle = isFlash ? '#ccc' : '#5b21b6';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
     ctx.moveTo(x - s * 0.5, y);
@@ -801,44 +1315,131 @@ class Enemy {
     ctx.lineTo(x, y + s * 0.4);
     ctx.stroke();
 
+    // Body center specular
+    ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.08)';
+    ctx.beginPath();
+    ctx.ellipse(x - s * 0.15, y - s * 0.2, s * 0.2, s * 0.12, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+
     if (!this.dying) {
-      // Shoulder-mounted missile pods
-      ctx.fillStyle = isFlash ? '#ccc' : '#3b3275';
+      // Shoulder-mounted missile pods — gradient with metallic sheen
       // Left pylon
+      const pylonGradL = ctx.createLinearGradient(x - s * 1.1, 0, x - s * 0.8, 0);
+      pylonGradL.addColorStop(0, isFlash ? '#ccc' : '#2d2460');
+      pylonGradL.addColorStop(0.4, isFlash ? '#eee' : '#4e3da0');
+      pylonGradL.addColorStop(1, isFlash ? '#aaa' : '#2d2460');
+      ctx.fillStyle = pylonGradL;
       ctx.fillRect(x - s * 1.1, y - s * 0.5, s * 0.3, s * 0.6);
+      // Pylon edge shadow
+      ctx.fillStyle = isFlash ? '#999' : '#151040';
+      ctx.fillRect(x - s * 1.1, y + s * 0.07, s * 0.3, s * 0.03);
+      // Pylon rim light — top
+      ctx.fillStyle = isFlash ? '#fff' : 'rgba(180,160,255,0.2)';
+      ctx.fillRect(x - s * 1.1, y - s * 0.5, s * 0.3, s * 0.02);
+      // Missile tip
       ctx.fillStyle = isFlash ? '#eee' : '#a78bfa';
       ctx.beginPath();
       ctx.arc(x - s * 0.95, y - s * 0.5, s * 0.08, 0, Math.PI * 2);
       ctx.fill();
+      ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)';
+      ctx.beginPath();
+      ctx.arc(x - s * 0.97, y - s * 0.52, s * 0.03, 0, Math.PI * 2);
+      ctx.fill();
+
       // Right pylon
-      ctx.fillStyle = isFlash ? '#ccc' : '#3b3275';
+      const pylonGradR = ctx.createLinearGradient(x + s * 0.8, 0, x + s * 1.1, 0);
+      pylonGradR.addColorStop(0, isFlash ? '#ccc' : '#2d2460');
+      pylonGradR.addColorStop(0.5, isFlash ? '#eee' : '#4e3da0');
+      pylonGradR.addColorStop(1, isFlash ? '#aaa' : '#1e1850');
+      ctx.fillStyle = pylonGradR;
       ctx.fillRect(x + s * 0.8, y - s * 0.5, s * 0.3, s * 0.6);
+      // Pylon edge shadow
+      ctx.fillStyle = isFlash ? '#999' : '#151040';
+      ctx.fillRect(x + s * 0.8, y + s * 0.07, s * 0.3, s * 0.03);
+      // Pylon rim light — top
+      ctx.fillStyle = isFlash ? '#fff' : 'rgba(180,160,255,0.2)';
+      ctx.fillRect(x + s * 0.8, y - s * 0.5, s * 0.3, s * 0.02);
+      // Missile tip
       ctx.fillStyle = isFlash ? '#eee' : '#a78bfa';
       ctx.beginPath();
       ctx.arc(x + s * 0.95, y - s * 0.5, s * 0.08, 0, Math.PI * 2);
       ctx.fill();
+      ctx.fillStyle = isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)';
+      ctx.beginPath();
+      ctx.arc(x + s * 0.93, y - s * 0.52, s * 0.03, 0, Math.PI * 2);
+      ctx.fill();
 
-      // 3 cannon barrels (bottom)
-      ctx.fillStyle = isFlash ? '#bbb' : '#64748b';
+      // 3 cannon barrels — metallic sheen gradient
+      const barrelGradC = ctx.createLinearGradient(x - s * 0.08, 0, x + s * 0.08, 0);
+      barrelGradC.addColorStop(0, isFlash ? '#bbb' : '#475569');
+      barrelGradC.addColorStop(0.4, isFlash ? '#eee' : '#94a3b8');
+      barrelGradC.addColorStop(1, isFlash ? '#999' : '#334155');
+      ctx.fillStyle = barrelGradC;
       ctx.fillRect(x - s * 0.08, y + s * 0.4, s * 0.16, s * 0.55);
+
+      const barrelGradL = ctx.createLinearGradient(x - s * 0.4, 0, x - s * 0.28, 0);
+      barrelGradL.addColorStop(0, isFlash ? '#bbb' : '#475569');
+      barrelGradL.addColorStop(0.4, isFlash ? '#ddd' : '#8293a8');
+      barrelGradL.addColorStop(1, isFlash ? '#999' : '#334155');
+      ctx.fillStyle = barrelGradL;
       ctx.fillRect(x - s * 0.4, y + s * 0.35, s * 0.12, s * 0.45);
+
+      const barrelGradR = ctx.createLinearGradient(x + s * 0.28, 0, x + s * 0.4, 0);
+      barrelGradR.addColorStop(0, isFlash ? '#bbb' : '#475569');
+      barrelGradR.addColorStop(0.5, isFlash ? '#ddd' : '#8293a8');
+      barrelGradR.addColorStop(1, isFlash ? '#999' : '#334155');
+      ctx.fillStyle = barrelGradR;
       ctx.fillRect(x + s * 0.28, y + s * 0.35, s * 0.12, s * 0.45);
-      // Muzzle tips
+
+      // Barrel edge shadows
+      ctx.fillStyle = isFlash ? '#888' : '#1e293b';
+      ctx.fillRect(x + s * 0.06, y + s * 0.4, s * 0.02, s * 0.55);
+      ctx.fillRect(x - s * 0.29, y + s * 0.35, s * 0.01, s * 0.45);
+      ctx.fillRect(x + s * 0.39, y + s * 0.35, s * 0.01, s * 0.45);
+
+      // Muzzle tips (glowing)
+      ctx.fillStyle = 'rgba(167,139,250,0.3)';
+      ctx.beginPath();
+      ctx.arc(x, y + s * 0.95, s * 0.14, 0, Math.PI * 2);
+      ctx.fill();
       ctx.fillStyle = '#a78bfa';
       ctx.beginPath();
       ctx.arc(x, y + s * 0.95, s * 0.08, 0, Math.PI * 2);
       ctx.fill();
+
+      ctx.fillStyle = 'rgba(167,139,250,0.25)';
+      ctx.beginPath();
+      ctx.arc(x - s * 0.34, y + s * 0.8, s * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#a78bfa';
       ctx.beginPath();
       ctx.arc(x - s * 0.34, y + s * 0.8, s * 0.06, 0, Math.PI * 2);
       ctx.fill();
+
+      ctx.fillStyle = 'rgba(167,139,250,0.25)';
+      ctx.beginPath();
+      ctx.arc(x + s * 0.34, y + s * 0.8, s * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#a78bfa';
       ctx.beginPath();
       ctx.arc(x + s * 0.34, y + s * 0.8, s * 0.06, 0, Math.PI * 2);
       ctx.fill();
 
-      // HUD visor (rectangular cockpit window)
+      // HUD visor — emissive glass gradient
       const eyePulse = 0.8 + Math.sin(this.animTimer * 3) * 0.2;
-      ctx.fillStyle = `rgba(196,181,253,${0.5 + eyePulse * 0.3})`;
+      // Visor glow behind
+      ctx.fillStyle = `rgba(167,139,250,${0.15 + eyePulse * 0.1})`;
+      ctx.fillRect(x - s * 0.4, y - s * 0.3, s * 0.8, s * 0.25);
+      // Main visor
+      const visorGrad = ctx.createLinearGradient(x - s * 0.35, y - s * 0.25, x + s * 0.35, y - s * 0.1);
+      visorGrad.addColorStop(0, `rgba(210,200,255,${0.6 + eyePulse * 0.3})`);
+      visorGrad.addColorStop(0.5, `rgba(196,181,253,${0.5 + eyePulse * 0.3})`);
+      visorGrad.addColorStop(1, `rgba(140,120,230,${0.4 + eyePulse * 0.2})`);
+      ctx.fillStyle = visorGrad;
       ctx.fillRect(x - s * 0.35, y - s * 0.25, s * 0.7, s * 0.15);
+      // Visor specular
+      ctx.fillStyle = `rgba(255,255,255,${0.15 + eyePulse * 0.1})`;
+      ctx.fillRect(x - s * 0.3, y - s * 0.24, s * 0.25, s * 0.04);
       // Visor scanline
       ctx.fillStyle = `rgba(255,255,255,${0.2 + eyePulse * 0.15})`;
       const scanY = y - s * 0.25 + (Math.sin(this.animTimer * 2) * 0.5 + 0.5) * s * 0.12;

@@ -70,6 +70,14 @@ class Road {
     return edges.left + t * edges.width;
   }
 
+  // Inverse: visual/screen X → game-space X at given Y
+  unprojectX(visualX, y) {
+    const edges = this.getVisualEdges(y);
+    if (edges.width < 1) return this.centerX;
+    const t = (visualX - edges.left) / edges.width;
+    return this.roadLeft + t * this.roadWidth;
+  }
+
   // Random X in flat game-space road (for spawning)
   getRandomX(margin = 30) {
     return this.roadLeft + margin + Math.random() * (this.roadWidth - margin * 2);

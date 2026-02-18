@@ -528,7 +528,8 @@ class EndlessScene {
   }
 
   handleDrag(x) {
-    this.squad.moveTo(x);
+    const gameX = this.road.unprojectX(x, this.squad.y);
+    this.squad.moveTo(gameX);
   }
 }
 
