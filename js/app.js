@@ -32,6 +32,12 @@ class Game {
     this.setupCanvas();
     this.setupInput();
     this.init3D();
+    // Sync 3D renderer size with canvas (setupCanvas ran before init3D)
+    if (this.renderer3d) {
+      const cssW = parseFloat(this.canvas.style.width);
+      const cssH = parseFloat(this.canvas.style.height);
+      if (cssW && cssH) this.renderer3d.resize(Math.floor(cssW), Math.floor(cssH));
+    }
     this.loadI18n().then(() => {
       this.showMenu();
       this.start();

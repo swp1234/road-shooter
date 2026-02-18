@@ -23,14 +23,14 @@ class Renderer3D {
 
     // --- Scene ---
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0x87CEEB, 25, 45);
+    this.scene.fog = new THREE.Fog(0x87CEEB, 18, 38);
 
     // --- Camera ---
     const w = container.clientWidth || CONFIG.CANVAS_WIDTH;
     const h = container.clientHeight || CONFIG.CANVAS_HEIGHT;
-    this.camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 200);
-    this.camera.position.set(0, 15, 8);
-    this.camera.lookAt(0, 0, -12);
+    this.camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 200);
+    this.camera.position.set(0, 6, 3);
+    this.camera.lookAt(0, 0, -6);
 
     // --- Lighting ---
     this._setupLights();
@@ -97,7 +97,7 @@ class Renderer3D {
     }
 
     // Camera shake
-    const baseX = 0, baseY = 15, baseZ = 8;
+    const baseX = 0, baseY = 6, baseZ = 3;
     const sx = (state.shakeX || 0) * this.SCALE * 0.5;
     const sy = (state.shakeY || 0) * this.SCALE * 0.5;
     this.camera.position.set(baseX + sx, baseY + sy, baseZ);
@@ -221,18 +221,18 @@ class Renderer3D {
     const gl = this.ROAD_LEN + 20;
     const halfRoad = this.ROAD_W_3D / 2;
 
-    // Left ground
+    // Left ground (overlap road edge by 0.2 to prevent seam)
     const leftGeo = new THREE.PlaneGeometry(gw, gl);
     const leftMesh = new THREE.Mesh(leftGeo, groundMat);
     leftMesh.rotation.x = -Math.PI / 2;
-    leftMesh.position.set(-halfRoad - gw / 2, -0.02, -this.ROAD_LEN / 2 + 5);
+    leftMesh.position.set(-halfRoad - gw / 2 + 0.2, -0.03, -this.ROAD_LEN / 2 + 5);
     leftMesh.receiveShadow = true;
     this.scene.add(leftMesh);
 
-    // Right ground
+    // Right ground (overlap road edge by 0.2)
     const rightMesh = new THREE.Mesh(leftGeo, groundMat);
     rightMesh.rotation.x = -Math.PI / 2;
-    rightMesh.position.set(halfRoad + gw / 2, -0.02, -this.ROAD_LEN / 2 + 5);
+    rightMesh.position.set(halfRoad + gw / 2 - 0.2, -0.03, -this.ROAD_LEN / 2 + 5);
     rightMesh.receiveShadow = true;
     this.scene.add(rightMesh);
   }
@@ -268,7 +268,7 @@ class Renderer3D {
   _buildBulletPool() {
     const playerMat = new THREE.MeshBasicMaterial({ color: 0x00E5FF });
     const enemyMat = new THREE.MeshBasicMaterial({ color: 0xFF3333 });
-    const geo = new THREE.SphereGeometry(0.08, 6, 4);
+    const geo = new THREE.SphereGeometry(0.12, 6, 4);
 
     for (let i = 0; i < this._bulletPoolSize; i++) {
       const mesh = new THREE.Mesh(geo, playerMat.clone());
@@ -458,7 +458,7 @@ class Renderer3D {
     const mat = new THREE.MeshLambertMaterial({ color });
 
     // Size factor from config
-    const sizeFactor = (enemy.size || 14) * 0.04;
+    const sizeFactor = (enemy.size || 14) * 0.07;
 
     // Body
     const bodyR = 0.2;
@@ -578,7 +578,7 @@ class Renderer3D {
   _createBossMesh(boss) {
     const group = new THREE.Group();
     const type = boss.type;
-    const bossScale = (boss.size || 40) * 0.04 * 1.5; // 3-4x character scale
+    const bossScale = (boss.size || 40) * 0.05; // ~2x character scale
 
     switch (type) {
       case 'zombieTitan': {
@@ -768,19 +768,19 @@ class Renderer3D {
     let mesh;
     if (cfg.isBuff) {
       // Power-ups: diamond / octahedron
-      const geo = new THREE.IcosahedronGeometry(0.35, 0);
+      const geo = new THREE.IcosahedronGeometry(0.15, 0);
       mesh = new THREE.Mesh(geo, mat);
     } else {
       // Squad growth items: cubes or spheres based on type
       if (item.type === 'scoutToken' || item.type === 'mercenary') {
-        const geo = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+        const geo = new THREE.BoxGeometry(0.18, 0.18, 0.18);
         mesh = new THREE.Mesh(geo, mat);
       } else if (item.type === 'clonePod') {
-        const geo = new THREE.SphereGeometry(0.3, 8, 6);
+        const geo = new THREE.SphereGeometry(0.12, 8, 6);
         mesh = new THREE.Mesh(geo, mat);
       } else {
         // rallyFlag, conscription, etc.
-        const geo = new THREE.IcosahedronGeometry(0.3, 0);
+        const geo = new THREE.IcosahedronGeometry(0.12, 0);
         mesh = new THREE.Mesh(geo, mat);
       }
     }
@@ -794,12 +794,12 @@ class Renderer3D {
       transparent: true,
       opacity: 0.15
     });
-    const auraGeo = new THREE.SphereGeometry(0.5, 8, 6);
+    const auraGeo = new THREE.SphereGeometry(0.22, 8, 6);
     const aura = new THREE.Mesh(auraGeo, auraMat);
     group.add(aura);
 
     group.userData = {
-      baseY: 0.6,
+      baseY: 0.3,
       animOffset: Math.random() * Math.PI * 2
     };
 
@@ -810,8 +810,8 @@ class Renderer3D {
     const group = new THREE.Group();
 
     // Gate dimensions in 3D
-    const gateH = 3;
-    const columnR = 0.2;
+    const gateH = 2.2;
+    const columnR = 0.15;
     const leftColor = new THREE.Color(gate.left.color);
     const rightColor = new THREE.Color(gate.right.color);
 
@@ -879,13 +879,13 @@ class Renderer3D {
 
     // Text labels (Sprite with CanvasTexture)
     const leftSprite = this._createTextSprite(gate.left.label, gate.left.color);
-    leftSprite.position.set(leftEdge3D / 2, gateH / 2 + 0.3, -0.1);
-    leftSprite.scale.set(2.5, 1.2, 1);
+    leftSprite.position.set(leftEdge3D / 2, gateH / 2 + 0.2, -0.15);
+    leftSprite.scale.set(3.2, 1.6, 1);
     group.add(leftSprite);
 
     const rightSprite = this._createTextSprite(gate.right.label, gate.right.color);
-    rightSprite.position.set(rightEdge3D / 2, gateH / 2 + 0.3, -0.1);
-    rightSprite.scale.set(2.5, 1.2, 1);
+    rightSprite.position.set(rightEdge3D / 2, gateH / 2 + 0.2, -0.15);
+    rightSprite.scale.set(3.2, 1.6, 1);
     group.add(rightSprite);
 
     group.userData = { baseY: 0 };
@@ -902,7 +902,11 @@ class Renderer3D {
     // Background with slight tint
     ctx.fillStyle = 'rgba(0,0,0,0.4)';
     ctx.beginPath();
-    ctx.roundRect(8, 8, 240, 112, 16);
+    if (ctx.roundRect) {
+      ctx.roundRect(8, 8, 240, 112, 16);
+    } else {
+      ctx.rect(8, 8, 240, 112);
+    }
     ctx.fill();
 
     // Text
