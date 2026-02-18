@@ -108,7 +108,7 @@ class CombatSystem {
   // Enemy fire at squad
   enemyFire(enemies, squadX, squadY) {
     for (const e of enemies) {
-      if (e.canFire()) {
+      if (e.active && !e.dying && e.canFire()) {
         e.fire();
         const dx = squadX - e.x;
         const dy = squadY - e.y;

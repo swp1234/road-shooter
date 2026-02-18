@@ -242,8 +242,9 @@ class RunScene {
     this.kills += hitResult.kills;
     this.gold += hitResult.gold;
 
-    // Enemy bullet hits
-    this.combat.checkEnemyBulletHits(this.squad, this.particles);
+    // Enemy bullet hits (shield absorbs in all segments)
+    const cLosses = this.combat.checkEnemyBulletHits(this.squad, this.particles);
+    if (cLosses > 0 && this.buffs.shield > 0) this.buffs.shield = Math.max(0, this.buffs.shield - cLosses);
 
     // Rusher collisions
     this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
@@ -313,7 +314,8 @@ class RunScene {
       this.kills += hitResult.kills;
       this.gold += hitResult.gold;
 
-      this.combat.checkEnemyBulletHits(this.squad, this.particles);
+      const bLosses = this.combat.checkEnemyBulletHits(this.squad, this.particles);
+      if (bLosses > 0 && this.buffs.shield > 0) this.buffs.shield = Math.max(0, this.buffs.shield - bLosses);
       this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
       this.checkDetonatorExplosions();
       this.combat.checkBossShockwave(this.boss, this.squad, this.particles);
@@ -704,7 +706,7 @@ class RunScene {
     ctx.translate(projX, obj.y);
     ctx.scale(scale, scale);
     ctx.translate(-obj.x, -obj.y);
-    obj.draw(ctx);
+    obj.draw(ctx, scale);
     ctx.restore();
   }
 

@@ -136,6 +136,7 @@ class EndlessScene {
         this.boss = new Boss(bossType, this.stageMul);
         this.transitionText = `${this.game.i18n('run_boss') || 'BOSS'} - ${this.boss.name}`;
         this.transitionTimer = 1.5;
+        this.waveTimer = 9999; // Prevent re-trigger
         Sound.stageIntro();
         return;
       }

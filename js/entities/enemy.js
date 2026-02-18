@@ -186,46 +186,51 @@ class Enemy {
     return false;
   }
 
-  draw(ctx) {
+  draw(ctx, scale) {
     if (!this.active) return;
-    const alpha = this.dying ? this.deathTimer / 0.2 : 1;
+    const alpha = this.dying ? Math.max(0, Math.min(1, this.deathTimer / 0.2)) : 1;
     ctx.globalAlpha = alpha;
     const isFlash = this.flashTimer > 0;
     // Visual size multiplier: render larger than collision hitbox for 3D detail visibility
     const s = this.type === 'elite' ? this.size * 1.3 : this.size * 2.2;
 
-    switch (this.type) {
-      case 'rusher':
-        this.drawRusher(ctx, s, isFlash);
-        break;
-      case 'shooter':
-        this.drawShooter(ctx, s, isFlash);
-        break;
-      case 'mortar':
-        this.drawMortar(ctx, s, isFlash);
-        break;
-      case 'detonator':
-        this.drawDetonator(ctx, s, isFlash);
-        break;
-      case 'thief':
-        this.drawThief(ctx, s, isFlash);
-        break;
-      case 'flanker':
-        this.drawFlanker(ctx, s, isFlash);
-        break;
-      case 'elite':
-        this.drawElite(ctx, s, isFlash);
-        break;
-      default:
-        ctx.fillStyle = isFlash ? '#fff' : this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
-        ctx.fill();
+    // Scale-aware rendering: use simplified silhouettes at distance
+    if (scale !== undefined && scale < 0.5) {
+      this.drawSimplified(ctx, s, isFlash);
+    } else {
+      switch (this.type) {
+        case 'rusher':
+          this.drawRusher(ctx, s, isFlash);
+          break;
+        case 'shooter':
+          this.drawShooter(ctx, s, isFlash);
+          break;
+        case 'mortar':
+          this.drawMortar(ctx, s, isFlash);
+          break;
+        case 'detonator':
+          this.drawDetonator(ctx, s, isFlash);
+          break;
+        case 'thief':
+          this.drawThief(ctx, s, isFlash);
+          break;
+        case 'flanker':
+          this.drawFlanker(ctx, s, isFlash);
+          break;
+        case 'elite':
+          this.drawElite(ctx, s, isFlash);
+          break;
+        default:
+          ctx.fillStyle = isFlash ? '#fff' : this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, s, 0, Math.PI * 2);
+          ctx.fill();
+      }
     }
 
     // HP bar for multi-HP enemies (elite draws its own)
     if (this.maxHp > 1 && !this.dying && this.type !== 'elite') {
-      const cs = this.size; // Use collision size for bar positioning
+      const cs = this.size;
       const barW = cs * 3;
       const barH = 3;
       const bx = this.x - barW / 2;
@@ -241,6 +246,151 @@ class Enemy {
     }
 
     ctx.globalAlpha = 1;
+  }
+
+  // Simplified rendering for distant enemies (scale < 0.5)
+  // Uses solid fills + key silhouette to stay recognizable at 8-15px on screen
+  drawSimplified(ctx, s, isFlash) {
+    const x = this.x;
+    const y = this.y;
+    const c = isFlash ? '#fff' : this.color;
+
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.8, s * 0.6, s * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    switch (this.type) {
+      case 'rusher': {
+        // Triangular hunched body + glowing eyes
+        ctx.fillStyle = isFlash ? '#fff' : '#b91c1c';
+        ctx.beginPath();
+        ctx.moveTo(x, y - s * 0.7);
+        ctx.lineTo(x - s * 0.5, y + s * 0.5);
+        ctx.lineTo(x + s * 0.5, y + s * 0.5);
+        ctx.closePath();
+        ctx.fill();
+        // Eyes
+        ctx.fillStyle = '#fbbf24';
+        const er = Math.max(s * 0.15, 3);
+        ctx.beginPath();
+        ctx.arc(x - s * 0.15, y - s * 0.2, er, 0, Math.PI * 2);
+        ctx.arc(x + s * 0.15, y - s * 0.2, er, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+      case 'shooter': {
+        // Rectangular turret body
+        ctx.fillStyle = isFlash ? '#fff' : '#92400e';
+        ctx.fillRect(x - s * 0.5, y - s * 0.3, s, s * 0.7);
+        // Turret dome
+        ctx.fillStyle = isFlash ? '#ddd' : '#f97316';
+        ctx.beginPath();
+        ctx.arc(x, y - s * 0.15, s * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        // Barrel
+        ctx.fillStyle = '#374151';
+        ctx.fillRect(x - s * 0.06, y - s * 0.6, s * 0.12, s * 0.45);
+        break;
+      }
+      case 'mortar': {
+        // Bigger rectangle + angled tube
+        ctx.fillStyle = isFlash ? '#fff' : '#78350f';
+        ctx.fillRect(x - s * 0.5, y - s * 0.3, s, s * 0.6);
+        ctx.fillStyle = isFlash ? '#ddd' : '#ea580c';
+        ctx.fillRect(x - s * 0.08, y - s * 0.7, s * 0.16, s * 0.5);
+        // Muzzle glow
+        ctx.fillStyle = 'rgba(234,88,12,0.6)';
+        ctx.beginPath();
+        ctx.arc(x, y - s * 0.7, s * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+      case 'detonator': {
+        // Round body + red vest
+        ctx.fillStyle = isFlash ? '#fff' : '#991b1b';
+        ctx.beginPath();
+        ctx.arc(x, y, s * 0.45, 0, Math.PI * 2);
+        ctx.fill();
+        // Danger stripes
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(x - s * 0.35, y - s * 0.05, s * 0.7, s * 0.1);
+        // Fuse indicator
+        if (this.fuseStarted) {
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(x, y - s * 0.5, s * 0.15, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        break;
+      }
+      case 'thief': {
+        // Dark diamond shape + purple eyes
+        ctx.fillStyle = isFlash ? '#fff' : '#111827';
+        ctx.beginPath();
+        ctx.moveTo(x, y - s * 0.6);
+        ctx.lineTo(x + s * 0.4, y);
+        ctx.lineTo(x, y + s * 0.5);
+        ctx.lineTo(x - s * 0.4, y);
+        ctx.closePath();
+        ctx.fill();
+        // Purple eye glow
+        ctx.fillStyle = '#a855f7';
+        const tr = Math.max(s * 0.12, 3);
+        ctx.beginPath();
+        ctx.arc(x - s * 0.12, y - s * 0.15, tr, 0, Math.PI * 2);
+        ctx.arc(x + s * 0.12, y - s * 0.15, tr, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+      case 'flanker': {
+        // X-shape drone
+        ctx.strokeStyle = isFlash ? '#fff' : '#991b1b';
+        ctx.lineWidth = s * 0.15;
+        ctx.beginPath();
+        ctx.moveTo(x - s * 0.5, y - s * 0.4);
+        ctx.lineTo(x + s * 0.5, y + s * 0.4);
+        ctx.moveTo(x + s * 0.5, y - s * 0.4);
+        ctx.lineTo(x - s * 0.5, y + s * 0.4);
+        ctx.stroke();
+        // Center pod
+        ctx.fillStyle = isFlash ? '#ddd' : '#dc2626';
+        ctx.beginPath();
+        ctx.arc(x, y, s * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+        // Lens
+        ctx.fillStyle = '#60a5fa';
+        ctx.beginPath();
+        ctx.arc(x, y, s * 0.1, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+      case 'elite': {
+        // Large armored figure
+        ctx.fillStyle = isFlash ? '#fff' : '#5b21b6';
+        ctx.beginPath();
+        ctx.moveTo(x, y - s * 0.7);
+        ctx.lineTo(x - s * 0.5, y - s * 0.2);
+        ctx.lineTo(x - s * 0.4, y + s * 0.6);
+        ctx.lineTo(x + s * 0.4, y + s * 0.6);
+        ctx.lineTo(x + s * 0.5, y - s * 0.2);
+        ctx.closePath();
+        ctx.fill();
+        // Visor
+        ctx.fillStyle = '#c084fc';
+        ctx.fillRect(x - s * 0.25, y - s * 0.45, s * 0.5, s * 0.12);
+        // Shield glow
+        if (this.shieldActive) {
+          ctx.strokeStyle = 'rgba(96,165,250,0.6)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(x, y, s * 0.65, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        break;
+      }
+    }
   }
 
   drawRusher(ctx, s, isFlash) {
