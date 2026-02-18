@@ -248,8 +248,8 @@ class RunScene {
       this.gateSpawnTimer = CONFIG.GATE_SPAWN_INTERVAL;
     }
 
-    // Spawn traps (occasionally)
-    if (Math.random() < 0.003 && this.stage > 2) {
+    // Spawn traps (stage 2+, more frequent)
+    if (Math.random() < 0.008 && this.stage >= 2) {
       this.spawnTrap();
     }
 
@@ -1002,6 +1002,19 @@ class RunScene {
       ctx.font = 'bold 22px Outfit';
       ctx.textAlign = 'center';
       ctx.fillText(this.comboText, cw / 2, ch * 0.45 - (1 - this.comboTimer) * 30);
+      ctx.globalAlpha = 1;
+    }
+
+    // Death sequence overlay (2D mode)
+    if (this.deathSequence && !this.finished) {
+      const pct = 1 - (this.deathTimer / 1.0);
+      ctx.fillStyle = `rgba(239,68,68,${pct * 0.4})`;
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 28px Syne';
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = Math.min(1, pct * 2);
+      ctx.fillText(this.game.i18n('run_gameover') || 'GAME OVER', cw / 2, ch / 2);
       ctx.globalAlpha = 1;
     }
   }

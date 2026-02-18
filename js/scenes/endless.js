@@ -884,6 +884,19 @@ class EndlessScene {
       ctx.fillText(this.comboText, CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.4 - (1 - this.comboTimer) * 30);
       ctx.globalAlpha = 1;
     }
+
+    // Death sequence overlay (2D mode)
+    if (this.deathSequence && !this.finished) {
+      const pct = 1 - (this.deathTimer / 1.0);
+      ctx.fillStyle = `rgba(239,68,68,${pct * 0.4})`;
+      ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 28px Syne';
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = Math.min(1, pct * 2);
+      ctx.fillText(this.game.i18n('run_gameover') || 'GAME OVER', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2);
+      ctx.globalAlpha = 1;
+    }
   }
 
   drawTopBar(ctx) {
