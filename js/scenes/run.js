@@ -4,6 +4,10 @@ class RunScene {
     this.game = game;
     this.stage = stage;
     this.stageMul = 1 + (stage - 1) * CONFIG.DIFFICULTY_SCALE.enemyHpMul;
+    this.speedScale = 1 + (stage - 1) * (CONFIG.DIFFICULTY_SCALE.enemySpeedMul || 0);
+    this.spawnMul = Math.max(0.4, 1 - (stage - 1) * (CONFIG.DIFFICULTY_SCALE.spawnRateReduction || 0));
+    this.countAdd = (stage - 1) * CONFIG.DIFFICULTY_SCALE.enemyCountAdd;
+    this.itemMul = Math.max(0.5, 1 - (stage - 1) * CONFIG.DIFFICULTY_SCALE.itemReduction);
 
     // Systems
     this.road = new Road();
@@ -170,11 +174,11 @@ class RunScene {
   }
 
   updateRoadSegment(dt) {
-    // Spawn items
+    // Spawn items (reduced by stage scaling)
     this.itemSpawnTimer -= dt;
     if (this.itemSpawnTimer <= 0) {
       this.spawnItem();
-      this.itemSpawnTimer = CONFIG.ITEM_SPAWN_INTERVAL * (0.7 + Math.random() * 0.6);
+      this.itemSpawnTimer = CONFIG.ITEM_SPAWN_INTERVAL * (0.7 + Math.random() * 0.6) / this.itemMul;
     }
 
     // Spawn gates
@@ -189,11 +193,11 @@ class RunScene {
       this.spawnTrap();
     }
 
-    // Spawn light road enemies (always have something to shoot at)
+    // Spawn road enemies aggressively (scaled by stage)
     this.enemySpawnTimer -= dt;
     if (this.enemySpawnTimer <= 0) {
       this.spawnRoadEnemy();
-      this.enemySpawnTimer = 1.8 + Math.random() * 2.5; // Every 1.8-4.3s
+      this.enemySpawnTimer = (0.8 + Math.random() * 1.5) * this.spawnMul;
     }
 
     // Always run combat - squad should always be shooting
@@ -236,12 +240,13 @@ class RunScene {
   }
 
   updateCombatSegment(dt) {
-    // Spawn enemy waves
+    // Spawn enemy waves (more waves, faster pace)
     this.enemySpawnTimer -= dt;
-    if (this.enemySpawnTimer <= 0 && this.waveCount < 2) {
+    const maxWaves = 3 + Math.floor(this.stage / 2); // 3-5 waves (was 2)
+    if (this.enemySpawnTimer <= 0 && this.waveCount < maxWaves) {
       this.spawnWave();
       this.waveCount++;
-      this.enemySpawnTimer = 5; // Next wave in 5s
+      this.enemySpawnTimer = Math.max(1.5, 2.5 * this.spawnMul); // 1.5-2.5s (was 5s)
     }
 
     // Auto combat with buffs
@@ -440,26 +445,39 @@ class RunScene {
   }
 
   spawnWave() {
-    const baseCount = 3 + this.segment * 2 + Math.floor(this.stage / 3);
-    const count = baseCount + Math.floor(Math.random() * 3);
+    const baseCount = 5 + this.segment * 3 + this.countAdd;
+    const count = baseCount + Math.floor(Math.random() * 4);
     const available = this.getAvailableEnemyTypes();
     for (let i = 0; i < count; i++) {
       let type;
       const roll = Math.random();
-      if (roll < 0.5) {
-        type = 'rusher';
+      if (roll < 0.25) {
+        type = 'rusher'; // 25% rushers (was 50%)
+      } else if (roll < 0.40) {
+        type = 'shooter';
+      } else if (roll < 0.55 && this.stage >= 1) {
+        type = 'tank'; // guaranteed tank presence
       } else if (available.length > 0) {
         type = available[Math.floor(Math.random() * available.length)];
       } else {
         type = 'shooter';
       }
       const x = this.road.getRandomX(40);
-      const y = -20 - Math.random() * 100;
-      this.enemies.push(new Enemy(x, y, type, this.stageMul));
+      const y = -20 - Math.random() * 120;
+      const e = new Enemy(x, y, type, this.stageMul);
+      e.speed *= this.speedScale; // apply speed scaling
+      this.enemies.push(e);
     }
-    // Spawn elite in combat waves (stage 2+, 15% chance per wave)
-    if (this.stage >= 2 && Math.random() < 0.15) {
+    // Spawn elite in combat waves (stage 2+, 25% chance)
+    if (this.stage >= 2 && Math.random() < 0.25) {
       this.spawnElite();
+    }
+    // Spawn brute in later waves (stage 3+, 20% chance)
+    if (this.stage >= 3 && this.waveCount >= 2 && Math.random() < 0.20) {
+      const x = this.road.getRandomX(50);
+      const e = new Enemy(x, -40, 'brute', this.stageMul);
+      e.speed *= this.speedScale;
+      this.enemies.push(e);
     }
   }
 
@@ -473,17 +491,32 @@ class RunScene {
   }
 
   spawnRoadEnemy() {
-    // Light enemy presence during road segments
-    const count = 1 + Math.floor(Math.random() * 2) + Math.floor(this.segment / 2);
+    // Aggressive enemy presence during road segments
+    const count = 2 + Math.floor(Math.random() * 3) + Math.floor(this.segment / 2) + Math.floor(this.countAdd / 2);
+    const available = this.getAvailableEnemyTypes();
     for (let i = 0; i < count; i++) {
-      const type = Math.random() < 0.7 ? 'rusher' : 'shooter';
+      let type;
+      const roll = Math.random();
+      if (roll < 0.3) type = 'rusher';
+      else if (roll < 0.5) type = 'shooter';
+      else if (roll < 0.65 && this.stage >= 1) type = 'tank';
+      else if (available.length > 0) type = available[Math.floor(Math.random() * available.length)];
+      else type = 'shooter';
       const x = this.road.getRandomX(40);
-      const y = -20 - Math.random() * 60;
-      this.enemies.push(new Enemy(x, y, type, this.stageMul));
+      const y = -20 - Math.random() * 80;
+      const e = new Enemy(x, y, type, this.stageMul);
+      e.speed *= this.speedScale;
+      this.enemies.push(e);
     }
-    // Occasionally spawn elite during road (stage 3+, low chance)
-    if (this.stage >= 3 && Math.random() < 0.08) {
+    // Spawn elite/brute during road (stage 2+)
+    if (this.stage >= 2 && Math.random() < 0.12) {
       this.spawnElite();
+    }
+    if (this.stage >= 3 && Math.random() < 0.08) {
+      const x = this.road.getRandomX(50);
+      const e = new Enemy(x, -40, 'brute', this.stageMul);
+      e.speed *= this.speedScale;
+      this.enemies.push(e);
     }
   }
 

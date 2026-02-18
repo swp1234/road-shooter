@@ -307,7 +307,8 @@ class EndlessScene {
   }
 
   spawnEnemyWave() {
-    const count = 5 + this.wave * 2;
+    const speedScale = 1 + (this.wave - 1) * 0.04;
+    const count = 6 + this.wave * 3; // More enemies per wave
     const available = [];
     for (const [type, cfg] of Object.entries(CONFIG.ENEMIES)) {
       if (type === 'rusher') continue;
@@ -317,8 +318,11 @@ class EndlessScene {
 
     for (let i = 0; i < count; i++) {
       let type;
-      if (Math.random() < 0.4) {
+      const roll = Math.random();
+      if (roll < 0.2) {
         type = 'rusher';
+      } else if (roll < 0.35) {
+        type = 'tank';
       } else if (available.length > 0) {
         type = available[Math.floor(Math.random() * available.length)];
       } else {
@@ -326,7 +330,16 @@ class EndlessScene {
       }
       const x = this.road.getRandomX(40);
       const y = -20 - Math.random() * 150;
-      this.enemies.push(new Enemy(x, y, type, this.stageMul));
+      const e = new Enemy(x, y, type, this.stageMul);
+      e.speed *= speedScale;
+      this.enemies.push(e);
+    }
+    // Brute every 3rd wave (after wave 4)
+    if (this.wave >= 4 && this.wave % 3 === 0) {
+      const x = this.road.getRandomX(50);
+      const e = new Enemy(x, -40, 'brute', this.stageMul);
+      e.speed *= speedScale;
+      this.enemies.push(e);
     }
   }
 

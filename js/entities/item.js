@@ -8,7 +8,8 @@ class Item {
     this.bobTimer = Math.random() * Math.PI * 2;
     this.collected = false;
     this.collectTimer = 0;
-    this.size = CONFIG.ITEM_SIZE;
+    const cfg = CONFIG.ITEMS[type];
+    this.size = (cfg && cfg.isBuff) ? CONFIG.ITEM_SIZE * 1.4 : CONFIG.ITEM_SIZE;
     this.pulseTimer = Math.random() * Math.PI * 2;
     this.orbitAngle = Math.random() * Math.PI * 2;
   }
@@ -366,71 +367,123 @@ class Item {
   }
 
   drawPowerUp(ctx, y, ps, cfg) {
-    // Beveled hexagonal background — 3D badge effect
-    const hexR = ps * 0.7;
-    const hexPts = [];
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
-      hexPts.push({ x: this.x + Math.cos(a) * hexR, y: y + Math.sin(a) * hexR });
-    }
+    // Each power-up type gets a UNIQUE background shape for instant recognition
+    const r = ps * 0.75;
+    const x = this.x;
 
-    // Hex shadow (outer bevel — darker, shifted down-right)
-    ctx.fillStyle = 'rgba(0,0,0,0.45)';
-    ctx.beginPath();
-    for (let i = 0; i < 6; i++) {
-      const p = hexPts[i];
-      if (i === 0) ctx.moveTo(p.x + 1.5, p.y + 1.5);
-      else ctx.lineTo(p.x + 1.5, p.y + 1.5);
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    // Hex main face — gradient for depth
-    const hexGrad = ctx.createLinearGradient(this.x - hexR, y - hexR, this.x + hexR, y + hexR);
-    hexGrad.addColorStop(0, 'rgba(60,60,80,0.85)');
-    hexGrad.addColorStop(0.45, 'rgba(20,20,35,0.9)');
-    hexGrad.addColorStop(1, 'rgba(5,5,15,0.95)');
-    ctx.fillStyle = hexGrad;
-    ctx.beginPath();
-    for (let i = 0; i < 6; i++) {
-      if (i === 0) ctx.moveTo(hexPts[i].x, hexPts[i].y);
-      else ctx.lineTo(hexPts[i].x, hexPts[i].y);
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    // Inner hex highlight (top-left lit bevel)
-    const innerR = hexR * 0.88;
+    // Type-specific background shape
     ctx.save();
-    ctx.beginPath();
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
-      const px = this.x + Math.cos(a) * innerR;
-      const py = y + Math.sin(a) * innerR;
-      if (i === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
-    const innerGrad = ctx.createLinearGradient(this.x - innerR, y - innerR, this.x + innerR, y + innerR);
-    innerGrad.addColorStop(0, 'rgba(255,255,255,0.08)');
-    innerGrad.addColorStop(0.5, 'rgba(255,255,255,0)');
-    innerGrad.addColorStop(1, 'rgba(0,0,0,0.15)');
-    ctx.fillStyle = innerGrad;
-    ctx.fill();
-    ctx.restore();
-
-    // Colored glowing border
     ctx.shadowColor = cfg.color;
-    ctx.shadowBlur = 6;
-    ctx.strokeStyle = cfg.color;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    for (let i = 0; i < 6; i++) {
-      if (i === 0) ctx.moveTo(hexPts[i].x, hexPts[i].y);
-      else ctx.lineTo(hexPts[i].x, hexPts[i].y);
+    ctx.shadowBlur = 10;
+
+    switch (cfg.buffType) {
+      case 'dmg': {
+        // Upward chevron / arrow shape (RED)
+        const bgGrad = ctx.createLinearGradient(x, y - r, x, y + r);
+        bgGrad.addColorStop(0, 'rgba(244,63,94,0.25)');
+        bgGrad.addColorStop(1, 'rgba(159,18,57,0.15)');
+        ctx.fillStyle = bgGrad;
+        ctx.beginPath();
+        ctx.moveTo(x, y - r);
+        ctx.lineTo(x + r * 0.8, y);
+        ctx.lineTo(x + r * 0.4, y);
+        ctx.lineTo(x + r * 0.4, y + r * 0.7);
+        ctx.lineTo(x - r * 0.4, y + r * 0.7);
+        ctx.lineTo(x - r * 0.4, y);
+        ctx.lineTo(x - r * 0.8, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = cfg.color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        break;
+      }
+      case 'shield': {
+        // Shield / kite shape (BLUE)
+        const bgGrad = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
+        bgGrad.addColorStop(0, 'rgba(96,165,250,0.3)');
+        bgGrad.addColorStop(1, 'rgba(30,58,138,0.15)');
+        ctx.fillStyle = bgGrad;
+        ctx.beginPath();
+        ctx.moveTo(x, y - r);
+        ctx.quadraticCurveTo(x + r * 0.9, y - r * 0.5, x + r * 0.7, y + r * 0.1);
+        ctx.quadraticCurveTo(x + r * 0.3, y + r * 0.8, x, y + r);
+        ctx.quadraticCurveTo(x - r * 0.3, y + r * 0.8, x - r * 0.7, y + r * 0.1);
+        ctx.quadraticCurveTo(x - r * 0.9, y - r * 0.5, x, y - r);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = cfg.color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        break;
+      }
+      case 'fireRate': {
+        // Star burst shape (YELLOW)
+        const bgGrad = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
+        bgGrad.addColorStop(0, 'rgba(234,179,8,0.3)');
+        bgGrad.addColorStop(1, 'rgba(146,64,14,0.1)');
+        ctx.fillStyle = bgGrad;
+        ctx.beginPath();
+        for (let i = 0; i < 8; i++) {
+          const a = (i / 8) * Math.PI * 2 - Math.PI / 2;
+          const rad = i % 2 === 0 ? r : r * 0.5;
+          const px = x + Math.cos(a) * rad;
+          const py = y + Math.sin(a) * rad;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = cfg.color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        break;
+      }
+      case 'magnet': {
+        // Diamond shape (PURPLE)
+        const bgGrad = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
+        bgGrad.addColorStop(0, 'rgba(168,85,247,0.3)');
+        bgGrad.addColorStop(1, 'rgba(88,28,135,0.1)');
+        ctx.fillStyle = bgGrad;
+        ctx.beginPath();
+        ctx.moveTo(x, y - r);
+        ctx.lineTo(x + r * 0.65, y);
+        ctx.lineTo(x, y + r);
+        ctx.lineTo(x - r * 0.65, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = cfg.color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        break;
+      }
+      case 'nuke': {
+        // Circle with warning stripes (ORANGE)
+        const bgGrad = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
+        bgGrad.addColorStop(0, 'rgba(255,107,53,0.35)');
+        bgGrad.addColorStop(1, 'rgba(102,26,0,0.15)');
+        ctx.fillStyle = bgGrad;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+        // Warning stripes
+        ctx.strokeStyle = 'rgba(255,107,53,0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x - r * 0.7, y - r * 0.7);
+        ctx.lineTo(x + r * 0.7, y + r * 0.7);
+        ctx.moveTo(x + r * 0.7, y - r * 0.7);
+        ctx.lineTo(x - r * 0.7, y + r * 0.7);
+        ctx.stroke();
+        ctx.strokeStyle = cfg.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.stroke();
+        break;
+      }
     }
-    ctx.closePath();
-    ctx.stroke();
+    ctx.restore();
     ctx.shadowBlur = 0;
 
     // Icon — per buff type with 3D treatment

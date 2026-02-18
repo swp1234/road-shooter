@@ -135,6 +135,34 @@ class Enemy {
         if (this.x < roadL + 10 || this.x > roadR - 10) this.flankerSide *= -1;
         if (this.fireTimer > 0) this.fireTimer -= dt;
         break;
+      case 'tank': {
+        // Slow, relentless advance toward squad
+        const tdx = squadX - this.x;
+        const tdy = squadY - this.y;
+        const tdist = Math.sqrt(tdx * tdx + tdy * tdy);
+        if (tdist > 0) {
+          this.x += (tdx / tdist) * this.speed * 0.4;
+          this.y += (tdy / tdist) * this.speed;
+        }
+        this.angle = Math.atan2(tdy, tdx);
+        break;
+      }
+      case 'brute': {
+        // Very large, slow approach — charges when close
+        const bdx = squadX - this.x;
+        const bdy = squadY - this.y;
+        const bdist = Math.sqrt(bdx * bdx + bdy * bdy);
+        const chargeRange = 180;
+        const spd = bdist < chargeRange ? this.speed * 2.5 : this.speed;
+        if (bdist > 0) {
+          this.x += (bdx / bdist) * spd * 0.3;
+          this.y += (bdy / bdist) * spd;
+        }
+        this.angle = Math.atan2(bdy, bdx);
+        // Brute does contact damage like rusher but survives
+        this.bruteContactTimer = (this.bruteContactTimer || 0) - dt;
+        break;
+      }
       case 'elite': {
         if (this.elitePhase === 0) {
           this.y += this.speed;
@@ -180,7 +208,7 @@ class Enemy {
     this.flashTimer = 0.1;
     if (this.hp <= 0) {
       this.dying = true;
-      this.deathTimer = this.type === 'elite' ? 0.5 : 0.2;
+      this.deathTimer = (this.type === 'elite' || this.type === 'brute') ? 0.5 : this.type === 'tank' ? 0.35 : 0.2;
       return true;
     }
     return false;
@@ -191,8 +219,11 @@ class Enemy {
     const alpha = this.dying ? Math.max(0, Math.min(1, this.deathTimer / 0.2)) : 1;
     ctx.globalAlpha = alpha;
     const isFlash = this.flashTimer > 0;
-    // Visual size multiplier: render larger than collision hitbox for 3D detail visibility
-    const s = this.type === 'elite' ? this.size * 1.3 : this.size * 2.2;
+    // Visual size multiplier
+    const s = this.type === 'elite' ? this.size * 1.3
+            : this.type === 'brute' ? this.size * 1.5
+            : this.type === 'tank' ? this.size * 1.8
+            : this.size * 2.2;
 
     // Scale-aware rendering: use simplified silhouettes at distance
     if (scale !== undefined && scale < 0.5) {
@@ -216,6 +247,12 @@ class Enemy {
           break;
         case 'flanker':
           this.drawFlanker(ctx, s, isFlash);
+          break;
+        case 'tank':
+          this.drawTank(ctx, s, isFlash);
+          break;
+        case 'brute':
+          this.drawBrute(ctx, s, isFlash);
           break;
         case 'elite':
           this.drawElite(ctx, s, isFlash);
@@ -364,6 +401,52 @@ class Enemy {
         ctx.beginPath();
         ctx.arc(x, y, s * 0.1, 0, Math.PI * 2);
         ctx.fill();
+        break;
+      }
+      case 'tank': {
+        // Armored box — wide, heavy
+        ctx.fillStyle = isFlash ? '#fff' : '#334155';
+        ctx.fillRect(x - s * 0.6, y - s * 0.4, s * 1.2, s * 0.8);
+        // Turret
+        ctx.fillStyle = isFlash ? '#ddd' : '#475569';
+        ctx.beginPath();
+        ctx.arc(x, y - s * 0.15, s * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        // Barrel
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x - s * 0.06, y - s * 0.7, s * 0.12, s * 0.55);
+        // Treads
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x - s * 0.65, y + s * 0.3, s * 0.25, s * 0.15);
+        ctx.fillRect(x + s * 0.4, y + s * 0.3, s * 0.25, s * 0.15);
+        break;
+      }
+      case 'brute': {
+        // Massive hulking figure
+        ctx.fillStyle = isFlash ? '#fff' : '#7f1d1d';
+        ctx.beginPath();
+        ctx.moveTo(x, y - s * 0.8);
+        ctx.lineTo(x - s * 0.7, y - s * 0.1);
+        ctx.lineTo(x - s * 0.55, y + s * 0.7);
+        ctx.lineTo(x + s * 0.55, y + s * 0.7);
+        ctx.lineTo(x + s * 0.7, y - s * 0.1);
+        ctx.closePath();
+        ctx.fill();
+        // Glowing eyes
+        ctx.fillStyle = '#fbbf24';
+        const br = Math.max(s * 0.12, 3);
+        ctx.beginPath();
+        ctx.arc(x - s * 0.2, y - s * 0.4, br, 0, Math.PI * 2);
+        ctx.arc(x + s * 0.2, y - s * 0.4, br, 0, Math.PI * 2);
+        ctx.fill();
+        // Rage indicator
+        if (this.hp < this.maxHp * 0.5) {
+          ctx.strokeStyle = 'rgba(239,68,68,0.7)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(x, y, s * 0.75, 0, Math.PI * 2);
+          ctx.stroke();
+        }
         break;
       }
       case 'elite': {
@@ -1310,6 +1393,213 @@ class Enemy {
       ctx.beginPath();
       ctx.arc(x, y + s * 0.6, s * 0.12, 0, Math.PI * 2);
       ctx.fill();
+    }
+  }
+
+  drawTank(ctx, s, isFlash) {
+    // Armored vehicle — wide rectangular hull with turret
+    const x = this.x;
+    const y = this.y;
+
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.7, s * 0.8, s * 0.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Treads
+    const treadGrad = ctx.createLinearGradient(0, y - s * 0.3, 0, y + s * 0.6);
+    treadGrad.addColorStop(0, isFlash ? '#ddd' : '#1e293b');
+    treadGrad.addColorStop(1, isFlash ? '#999' : '#0f172a');
+    ctx.fillStyle = treadGrad;
+    ctx.fillRect(x - s * 0.75, y - s * 0.25, s * 0.2, s * 0.85);
+    ctx.fillRect(x + s * 0.55, y - s * 0.25, s * 0.2, s * 0.85);
+    // Tread detail
+    ctx.strokeStyle = isFlash ? '#bbb' : '#334155';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 5; i++) {
+      const ty = y - s * 0.2 + i * s * 0.18;
+      ctx.beginPath();
+      ctx.moveTo(x - s * 0.75, ty);
+      ctx.lineTo(x - s * 0.55, ty);
+      ctx.moveTo(x + s * 0.55, ty);
+      ctx.lineTo(x + s * 0.75, ty);
+      ctx.stroke();
+    }
+
+    // Hull body
+    const hullGrad = ctx.createLinearGradient(x - s * 0.55, y - s * 0.4, x + s * 0.55, y + s * 0.5);
+    hullGrad.addColorStop(0, isFlash ? '#fff' : '#64748b');
+    hullGrad.addColorStop(0.4, isFlash ? '#eee' : '#475569');
+    hullGrad.addColorStop(1, isFlash ? '#bbb' : '#334155');
+    ctx.fillStyle = hullGrad;
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.55, y - s * 0.3);
+    ctx.lineTo(x - s * 0.45, y - s * 0.5);
+    ctx.lineTo(x + s * 0.45, y - s * 0.5);
+    ctx.lineTo(x + s * 0.55, y - s * 0.3);
+    ctx.lineTo(x + s * 0.55, y + s * 0.5);
+    ctx.lineTo(x - s * 0.55, y + s * 0.5);
+    ctx.closePath();
+    ctx.fill();
+    // Hull edge highlight
+    ctx.strokeStyle = isFlash ? '#fff' : 'rgba(148,163,184,0.3)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.55, y - s * 0.3);
+    ctx.lineTo(x - s * 0.45, y - s * 0.5);
+    ctx.lineTo(x + s * 0.45, y - s * 0.5);
+    ctx.stroke();
+
+    // Turret dome
+    const turretGrad = ctx.createRadialGradient(x - s * 0.1, y - s * 0.15, s * 0.05, x, y, s * 0.3);
+    turretGrad.addColorStop(0, isFlash ? '#fff' : '#94a3b8');
+    turretGrad.addColorStop(0.6, isFlash ? '#ddd' : '#64748b');
+    turretGrad.addColorStop(1, isFlash ? '#bbb' : '#334155');
+    ctx.fillStyle = turretGrad;
+    ctx.beginPath();
+    ctx.arc(x, y - s * 0.1, s * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cannon barrel
+    const barrelGrad = ctx.createLinearGradient(x - s * 0.08, 0, x + s * 0.08, 0);
+    barrelGrad.addColorStop(0, isFlash ? '#ccc' : '#475569');
+    barrelGrad.addColorStop(0.5, isFlash ? '#eee' : '#94a3b8');
+    barrelGrad.addColorStop(1, isFlash ? '#aaa' : '#334155');
+    ctx.fillStyle = barrelGrad;
+    ctx.fillRect(x - s * 0.08, y - s * 0.8, s * 0.16, s * 0.7);
+    // Muzzle
+    ctx.fillStyle = isFlash ? '#fff' : '#1e293b';
+    ctx.fillRect(x - s * 0.1, y - s * 0.82, s * 0.2, s * 0.06);
+
+    // Viewport slit (glowing)
+    const eyePulse = 0.6 + Math.sin(this.animTimer * 2) * 0.2;
+    ctx.fillStyle = `rgba(239,68,68,${eyePulse})`;
+    ctx.fillRect(x - s * 0.25, y + s * 0.05, s * 0.5, s * 0.06);
+    // Viewport glow
+    ctx.shadowColor = '#ef4444';
+    ctx.shadowBlur = 6;
+    ctx.fillRect(x - s * 0.2, y + s * 0.06, s * 0.4, s * 0.04);
+    ctx.shadowBlur = 0;
+
+    // HP bar
+    if (this.maxHp > 1 && !this.dying) {
+      const barW = s * 1.6;
+      const barH = 4;
+      const bx = x - barW / 2;
+      const by = y - s * 0.95;
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(bx - 1, by - 1, barW + 2, barH + 2);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(bx, by, barW, barH);
+      const pct = this.hp / this.maxHp;
+      ctx.fillStyle = pct > 0.5 ? '#ef4444' : pct > 0.25 ? '#f97316' : '#fbbf24';
+      ctx.fillRect(bx, by, barW * pct, barH);
+    }
+  }
+
+  drawBrute(ctx, s, isFlash) {
+    // Massive hulking beast — large, imposing, intimidating
+    const x = this.x;
+    const y = this.y;
+    const pulse = 1 + Math.sin(this.animTimer * 1.5) * 0.04;
+    const isCharging = this.speed > CONFIG.ENEMIES.brute.speed * 2;
+
+    // Ground shadow (large)
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.9, s * 0.9, s * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Charge aura (when enraged)
+    if (this.hp < this.maxHp * 0.5) {
+      const ragePulse = 0.15 + Math.sin(this.animTimer * 5) * 0.1;
+      ctx.strokeStyle = `rgba(239,68,68,${ragePulse})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(x, y, s * 1.1 * pulse, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Legs (thick, powerful)
+    const legGrad = ctx.createLinearGradient(0, y + s * 0.2, 0, y + s * 0.8);
+    legGrad.addColorStop(0, isFlash ? '#eee' : '#5c1010');
+    legGrad.addColorStop(1, isFlash ? '#999' : '#2a0808');
+    ctx.fillStyle = legGrad;
+    ctx.fillRect(x - s * 0.45, y + s * 0.2, s * 0.3, s * 0.65);
+    ctx.fillRect(x + s * 0.15, y + s * 0.2, s * 0.3, s * 0.65);
+
+    // Body (massive upper body)
+    const bodyGrad = ctx.createLinearGradient(x - s * 0.7, y - s * 0.8, x + s * 0.7, y + s * 0.3);
+    bodyGrad.addColorStop(0, isFlash ? '#fff' : '#991b1b');
+    bodyGrad.addColorStop(0.3, isFlash ? '#eee' : '#7f1d1d');
+    bodyGrad.addColorStop(1, isFlash ? '#bbb' : '#450a0a');
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.moveTo(x, y - s * 0.85 * pulse);
+    ctx.lineTo(x - s * 0.75 * pulse, y - s * 0.1);
+    ctx.lineTo(x - s * 0.6, y + s * 0.3);
+    ctx.lineTo(x + s * 0.6, y + s * 0.3);
+    ctx.lineTo(x + s * 0.75 * pulse, y - s * 0.1);
+    ctx.closePath();
+    ctx.fill();
+
+    // Armor plates
+    ctx.fillStyle = isFlash ? '#ddd' : '#6b2020';
+    ctx.fillRect(x - s * 0.5, y - s * 0.3, s * 1, s * 0.15);
+    ctx.fillRect(x - s * 0.4, y - s * 0.1, s * 0.8, s * 0.12);
+
+    // Arms (extending outward)
+    ctx.fillStyle = isFlash ? '#ddd' : '#7f1d1d';
+    ctx.fillRect(x - s * 0.9, y - s * 0.3, s * 0.25, s * 0.5);
+    ctx.fillRect(x + s * 0.65, y - s * 0.3, s * 0.25, s * 0.5);
+    // Fists
+    ctx.fillStyle = isFlash ? '#ccc' : '#450a0a';
+    ctx.beginPath();
+    ctx.arc(x - s * 0.78, y + s * 0.25, s * 0.15, 0, Math.PI * 2);
+    ctx.arc(x + s * 0.78, y + s * 0.25, s * 0.15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Head (small compared to body = more intimidating)
+    const headGrad = ctx.createRadialGradient(x - s * 0.05, y - s * 0.65, s * 0.03, x, y - s * 0.55, s * 0.2);
+    headGrad.addColorStop(0, isFlash ? '#fff' : '#b91c1c');
+    headGrad.addColorStop(1, isFlash ? '#bbb' : '#450a0a');
+    ctx.fillStyle = headGrad;
+    ctx.beginPath();
+    ctx.arc(x, y - s * 0.55, s * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Glowing eyes
+    const eyePulse = 0.7 + Math.sin(this.animTimer * 4) * 0.3;
+    ctx.fillStyle = `rgba(251,191,36,${eyePulse})`;
+    ctx.shadowColor = '#fbbf24';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(x - s * 0.1, y - s * 0.58, s * 0.06, 0, Math.PI * 2);
+    ctx.arc(x + s * 0.1, y - s * 0.58, s * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // HP bar (prominent — this is a target players need to focus)
+    if (this.maxHp > 1 && !this.dying) {
+      const barW = s * 2;
+      const barH = 5;
+      const bx = x - barW / 2;
+      const by = y - s * 1.0;
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.fillRect(bx - 1, by - 1, barW + 2, barH + 2);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(bx, by, barW, barH);
+      const pct = this.hp / this.maxHp;
+      const hpGrad = ctx.createLinearGradient(bx, by, bx + barW * pct, by);
+      hpGrad.addColorStop(0, '#ef4444');
+      hpGrad.addColorStop(1, pct > 0.5 ? '#dc2626' : '#f97316');
+      ctx.fillStyle = hpGrad;
+      ctx.fillRect(bx, by, barW * pct, barH);
+      // HP bar border
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(bx, by, barW, barH);
     }
   }
 

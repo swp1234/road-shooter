@@ -32,10 +32,19 @@ class Gate {
         this.left = { label: '+15', op: 'add', value: 15, color: CONFIG.COLORS.gate_left };
         this.right = { label: 'x1.5', op: 'multiply', value: 1.5, color: CONFIG.COLORS.gate_right };
         break;
-      case 'weapons':
-        this.left = { label: 'SNIPER +3', op: 'addType', charType: 'sniper', value: 3, color: '#8b5cf6' };
-        this.right = { label: 'BOMBER +2', op: 'addType', charType: 'bomber', value: 2, color: '#f97316' };
+      case 'weapons': {
+        // Randomly pick 2 of 4 special weapon types
+        const wpnPool = [
+          { label: 'SNIPER +3', charType: 'sniper', value: 3, color: '#8b5cf6' },
+          { label: 'BOMBER +2', charType: 'bomber', value: 2, color: '#f97316' },
+          { label: 'SHOTGUN +3', charType: 'shotgunner', value: 3, color: '#dc2626' },
+          { label: 'LASER +2', charType: 'laser', value: 2, color: '#06b6d4' }
+        ];
+        const shuffled = wpnPool.sort(() => Math.random() - 0.5);
+        this.left = { label: shuffled[0].label, op: 'addType', charType: shuffled[0].charType, value: shuffled[0].value, color: shuffled[0].color };
+        this.right = { label: shuffled[1].label, op: 'addType', charType: shuffled[1].charType, value: shuffled[1].value, color: shuffled[1].color };
         break;
+      }
       case 'power':
         this.left = { label: 'DMG +30%', op: 'buff', isBuff: true, buffType: 'dmg', value: 0.3, duration: 10, color: '#f43f5e' };
         this.right = { label: 'SHIELD +5', op: 'buff', isBuff: true, buffType: 'shield', value: 5, color: '#60a5fa' };

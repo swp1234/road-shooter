@@ -75,7 +75,7 @@ class Squad {
   }
 
   update(dt) {
-    const lerp = 0.12 * (this.speedMul || 1);
+    const lerp = 0.32 * (this.speedMul || 1);
     this.x += (this.targetX - this.x) * lerp;
     this.shieldPulse += dt * 2;
     this.updateFormation();
@@ -94,7 +94,7 @@ class Squad {
     if (count === 0) return;
 
     alive.sort((a, b) => {
-      const order = { tanker: 0, bomber: 1, rifleman: 2, sniper: 3 };
+      const order = { tanker: 0, shotgunner: 1, bomber: 2, rifleman: 3, laser: 4, sniper: 5 };
       return (order[a.type] || 2) - (order[b.type] || 2);
     });
 

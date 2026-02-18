@@ -1,6 +1,6 @@
 // Road Shooter - Bullet/Projectile System (Enhanced Visuals)
 class Bullet {
-  constructor(x, y, vx, vy, dmg, isEnemy = false, aoe = 0) {
+  constructor(x, y, vx, vy, dmg, isEnemy = false, aoe = 0, pierce = false) {
     this.x = x;
     this.y = y;
     this.vx = vx;
@@ -8,8 +8,10 @@ class Bullet {
     this.dmg = dmg;
     this.isEnemy = isEnemy;
     this.aoe = aoe;
+    this.pierce = pierce;
+    this.pierceHits = 0; // track how many enemies pierced
     this.active = true;
-    this.size = CONFIG.BULLET_SIZE;
+    this.size = pierce ? CONFIG.BULLET_SIZE * 1.5 : CONFIG.BULLET_SIZE;
     // Trail
     this.prevX = x;
     this.prevY = y;
@@ -56,18 +58,21 @@ class Bullet {
       const ny = dist > 0 ? dy / dist : -1;
 
       // Trail glow
-      ctx.shadowColor = this.aoe > 0 ? '#f97316' : '#00e5ff';
-      ctx.shadowBlur = 4;
+      const isLaser = this.pierce;
+      const isShotgun = !this.aoe && !isLaser && this.size < CONFIG.BULLET_SIZE;
+      const glowColor = isLaser ? '#06b6d4' : this.aoe > 0 ? '#f97316' : '#00e5ff';
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = isLaser ? 8 : 4;
 
-      ctx.strokeStyle = this.aoe > 0 ? 'rgba(249,115,22,0.5)' : 'rgba(0,229,255,0.5)';
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = isLaser ? 'rgba(6,182,212,0.7)' : this.aoe > 0 ? 'rgba(249,115,22,0.5)' : 'rgba(0,229,255,0.5)';
+      ctx.lineWidth = isLaser ? 3 : 1.5;
       ctx.beginPath();
       ctx.moveTo(this.x - nx * trailLen, this.y - ny * trailLen);
       ctx.lineTo(this.x, this.y);
       ctx.stroke();
 
       // Bullet head
-      ctx.fillStyle = this.aoe > 0 ? '#f97316' : '#fbbf24';
+      ctx.fillStyle = isLaser ? '#06b6d4' : this.aoe > 0 ? '#f97316' : '#fbbf24';
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
       ctx.fill();
@@ -90,18 +95,19 @@ class BulletPool {
     this.maxSize = maxSize;
   }
 
-  spawn(x, y, vx, vy, dmg, isEnemy = false, aoe = 0) {
+  spawn(x, y, vx, vy, dmg, isEnemy = false, aoe = 0, pierce = false) {
     let bullet;
     if (this.pool.length > 0) {
       bullet = this.pool.pop();
       bullet.x = x; bullet.y = y;
       bullet.vx = vx; bullet.vy = vy;
       bullet.dmg = dmg; bullet.isEnemy = isEnemy;
-      bullet.aoe = aoe; bullet.active = true;
-      bullet.size = CONFIG.BULLET_SIZE;
+      bullet.aoe = aoe; bullet.pierce = pierce;
+      bullet.pierceHits = 0; bullet.active = true;
+      bullet.size = pierce ? CONFIG.BULLET_SIZE * 1.5 : CONFIG.BULLET_SIZE;
       bullet.prevX = x; bullet.prevY = y;
     } else {
-      bullet = new Bullet(x, y, vx, vy, dmg, isEnemy, aoe);
+      bullet = new Bullet(x, y, vx, vy, dmg, isEnemy, aoe, pierce);
     }
     this.active.push(bullet);
     return bullet;

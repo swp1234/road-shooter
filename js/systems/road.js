@@ -58,9 +58,9 @@ class Road {
     return { left: this.centerX - w / 2, right: this.centerX + w / 2, width: w };
   }
 
-  // Get draw scale for entity at y (0.3 at horizon → 1.0 at bottom)
+  // Get draw scale for entity at y (0.2 at horizon → 1.0 at bottom)
   getScale(y) {
-    return 0.3 + this.getDepth(y) * 0.7;
+    return 0.2 + this.getDepth(y) * 0.8;
   }
 
   // Project flat game-space X to visual perspective X

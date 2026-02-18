@@ -38,18 +38,17 @@ class CombatSystem {
 
         if (nearest) {
           char.fire();
-          if (rapidFire) char.fireTimer *= 0.5; // Half cooldown
+          if (rapidFire) char.fireTimer *= 0.5;
 
-          // Lead prediction: aim where the enemy WILL be
+          // Lead prediction
           let tx = nearest.x;
           let ty = nearest.y;
           const e = nearest.entity;
           if (e && !nearest.isBoss && e.speed) {
             const rawDist = Math.sqrt((tx - char.x) ** 2 + (ty - char.y) ** 2);
             const flightTime = rawDist / speed;
-            // Predict based on enemy movement direction
-            if (e.type === 'rusher' || e.type === 'detonator') {
-              const edx = char.x - tx; // rushers move toward squad
+            if (e.type === 'rusher' || e.type === 'detonator' || e.type === 'tank' || e.type === 'brute') {
+              const edx = char.x - tx;
               const edy = char.y - ty;
               const eDist = Math.sqrt(edx * edx + edy * edy) || 1;
               tx += (edx / eDist) * e.speed * flightTime * 0.6;
@@ -57,12 +56,10 @@ class CombatSystem {
             } else if (e.type === 'flanker') {
               tx += (e.flankerSide || 1) * e.speed * 0.7 * flightTime * 0.7;
             } else if (e.type === 'shooter') {
-              // Shooter drifts down slowly and tracks squad X
               ty += e.speed * 0.5 * flightTime * 0.7;
               const drift = char.x > e.x + 5 ? 0.5 : char.x < e.x - 5 ? -0.5 : 0;
               tx += drift * flightTime * 0.5;
             } else if (e.type === 'thief') {
-              // Thief moves toward steal target or downward
               if (e.stealTarget && e.stealTarget.active) {
                 const stx = e.stealTarget.x - e.x;
                 const sty = e.stealTarget.y - e.y;
@@ -73,7 +70,6 @@ class CombatSystem {
                 ty += e.speed * flightTime * 0.5;
               }
             } else {
-              // mortar, elite: general downward prediction
               ty += e.speed * flightTime * 0.6;
             }
           }
@@ -83,9 +79,27 @@ class CombatSystem {
           const dist = Math.sqrt(dx * dx + dy * dy) || 1;
           const vx = (dx / dist) * speed;
           const vy = (dy / dist) * speed;
-          this.bulletPool.spawn(char.x, char.y - 3, vx, vy, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
-          if (rapidFire) {
-            this.bulletPool.spawn(char.x + 2, char.y - 3, vx, vy, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
+          const bulletDmg = Math.ceil(char.config.dmg * dmgMul);
+
+          // Shotgunner: fires spread of 5 bullets
+          if (char.config.spread) {
+            const baseAngle = Math.atan2(dy, dx);
+            const spreadCount = char.config.spread;
+            for (let s = 0; s < spreadCount; s++) {
+              const a = baseAngle + (s - (spreadCount - 1) / 2) * 0.15;
+              this.bulletPool.spawn(char.x, char.y - 3, Math.cos(a) * speed, Math.sin(a) * speed, Math.ceil(bulletDmg * 0.6), false, 0);
+            }
+          }
+          // Laser: piercing bullet (marked)
+          else if (char.config.pierce) {
+            this.bulletPool.spawn(char.x, char.y - 3, vx, vy, bulletDmg, false, 0, true);
+          }
+          // Normal fire
+          else {
+            this.bulletPool.spawn(char.x, char.y - 3, vx, vy, bulletDmg, false, char.config.aoe || 0);
+            if (rapidFire) {
+              this.bulletPool.spawn(char.x + 2, char.y - 3, vx, vy, bulletDmg, false, char.config.aoe || 0);
+            }
           }
           if (Math.random() < 0.15) Sound.shoot();
         } else {
@@ -174,7 +188,13 @@ class CombatSystem {
         const hitR = e.size + b.size + 2;
         if (dx * dx + dy * dy < hitR * hitR) {
           const killed = e.takeDamage(b.dmg);
-          b.active = false;
+          // Pierce bullets go through enemies (up to 4 hits)
+          if (b.pierce) {
+            b.pierceHits++;
+            if (b.pierceHits >= 4) b.active = false;
+          } else {
+            b.active = false;
+          }
           if (killed) {
             kills++;
             gold += e.reward;
@@ -183,7 +203,7 @@ class CombatSystem {
           } else {
             Sound.enemyHit();
           }
-          // AOE splash damage to nearby enemies
+          // AOE splash damage
           if (b.aoe > 0) {
             for (const e2 of enemies) {
               if (e2 === e || !e2.active || e2.dying) continue;
@@ -201,7 +221,7 @@ class CombatSystem {
             }
             particles.emit(b.x, b.y, '#f97316', 6, 4, 0.3, 3);
           }
-          break;
+          if (!b.pierce) break; // Non-pierce stops at first hit
         }
       }
     }
@@ -243,27 +263,47 @@ class CombatSystem {
     return { losses, shieldUsed };
   }
 
-  // Check rusher collision with squad
+  // Check contact collisions (rusher dies on contact, tank/brute survive)
   checkRusherCollisions(enemies, squad, particles) {
     let losses = 0;
     for (const e of enemies) {
-      if (!e.active || e.dying || e.type !== 'rusher') continue;
+      if (!e.active || e.dying) continue;
+      const isContact = e.type === 'rusher' || e.type === 'tank' || e.type === 'brute';
+      if (!isContact) continue;
       const alive = squad.alive;
       for (const char of alive) {
         if (char.dying) continue;
         const dx = e.x - char.x;
         const dy = e.y - char.y;
-        if (dx * dx + dy * dy < (e.size + 6) * (e.size + 6)) {
-          const died = char.takeDamage(e.dmg);
-          e.takeDamage(999); // Rusher dies on contact
-          if (died) {
-            losses++;
-            particles.emitDeath(char.x, char.y);
+        const hitDist = e.type === 'brute' ? (e.size + 10) : (e.size + 6);
+        if (dx * dx + dy * dy < hitDist * hitDist) {
+          if (e.type === 'rusher') {
+            const died = char.takeDamage(e.dmg);
+            e.takeDamage(999);
+            particles.emitDeath(e.x, e.y);
+            if (died) { losses++; particles.emitDeath(char.x, char.y); }
+          } else if (e.type === 'tank') {
+            // Tank: damage on cooldown (0.5s between hits)
+            if (!e.contactCooldown || e.contactCooldown <= 0) {
+              const died = char.takeDamage(e.dmg);
+              e.takeDamage(2);
+              e.contactCooldown = 0.5;
+              if (died) { losses++; particles.emitDeath(char.x, char.y); }
+            }
+          } else if (e.type === 'brute') {
+            // Brute: heavy damage on cooldown (0.4s between hits)
+            if (!e.bruteContactTimer || e.bruteContactTimer <= 0) {
+              const died = char.takeDamage(e.dmg);
+              e.bruteContactTimer = 0.4;
+              if (died) { losses++; particles.emitDeath(char.x, char.y); }
+            }
           }
-          particles.emitDeath(e.x, e.y);
           break;
         }
       }
+      // Decrement contact cooldowns (dt-based via 1/60 approximation)
+      if (e.contactCooldown > 0) e.contactCooldown -= 1/60;
+      if (e.bruteContactTimer > 0) e.bruteContactTimer -= 1/60;
     }
     return losses;
   }

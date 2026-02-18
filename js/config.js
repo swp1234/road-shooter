@@ -8,32 +8,34 @@ const CONFIG = {
   // Run Structure
   ROAD_SEGMENTS: 5,
   COMBAT_SEGMENTS: 5,
-  ROAD_DURATION: 12, // seconds
-  COMBAT_DURATION: 10,
-  BOSS_DURATION: 25,
+  ROAD_DURATION: 10, // seconds (was 12)
+  COMBAT_DURATION: 8, // seconds (was 10)
+  BOSS_DURATION: 30,
 
   // Road
-  ROAD_WIDTH_RATIO: 0.7, // road width as % of canvas
-  SCROLL_SPEED: 2, // pixels per frame
+  ROAD_WIDTH_RATIO: 0.75, // road width as % of canvas (was 0.7)
+  SCROLL_SPEED: 2.5, // pixels per frame (was 2 — faster pace)
   LANE_COUNT: 5,
 
   // Squad
-  START_SQUAD: 1,
+  START_SQUAD: 3, // start with 3 (was 1 — too lonely)
   SOFT_CAP: 200,
   HARD_CAP: 999,
   SQUAD_MOVE_SPEED: 8,
 
   // Character Types
   CHAR_TYPES: {
-    rifleman: { dmg: 10, range: 150, hp: 1, fireRate: 1.0, color: '#10b981', size: 4 },
-    tanker:   { dmg: 5,  range: 50,  hp: 3, fireRate: 0.6, color: '#3b82f6', size: 6 },
-    sniper:   { dmg: 30, range: 300, hp: 1, fireRate: 0.4, color: '#8b5cf6', size: 4 },
-    bomber:   { dmg: 20, range: 120, hp: 1, fireRate: 0.3, color: '#f97316', size: 4, aoe: 40 }
+    rifleman:   { dmg: 10, range: 150, hp: 1, fireRate: 1.0, color: '#10b981', size: 4 },
+    tanker:     { dmg: 5,  range: 50,  hp: 3, fireRate: 0.6, color: '#3b82f6', size: 6 },
+    sniper:     { dmg: 30, range: 300, hp: 1, fireRate: 0.4, color: '#8b5cf6', size: 4 },
+    bomber:     { dmg: 20, range: 120, hp: 1, fireRate: 0.3, color: '#f97316', size: 4, aoe: 40 },
+    shotgunner: { dmg: 6,  range: 90,  hp: 1, fireRate: 0.45, color: '#dc2626', size: 5, spread: 5 },
+    laser:      { dmg: 18, range: 350, hp: 1, fireRate: 0.2, color: '#06b6d4', size: 4, pierce: true }
   },
 
   // Perspective
-  HORIZON_RATIO: 0.2,
-  ROAD_TOP_RATIO: 0.22, // road narrows to this fraction at horizon
+  HORIZON_RATIO: 0.10, // pushed higher (was 0.2) — more road visible
+  ROAD_TOP_RATIO: 0.18, // less extreme narrowing (was 0.22)
 
   // Items
   ITEM_SIZE: 16,
@@ -59,13 +61,15 @@ const CONFIG = {
 
   // Enemies
   ENEMIES: {
-    rusher:    { hp: 1,  speed: 3,   dmg: 1, color: '#ef4444', size: 14, shape: 'triangle', reward: 2 },
-    shooter:   { hp: 3,  speed: 1,   dmg: 1, color: '#f97316', size: 14, shape: 'rect',     reward: 5,  fireRate: 2.0 },
-    mortar:    { hp: 4,  speed: 0.5, dmg: 2, color: '#ea580c', size: 16, shape: 'circle',   reward: 8,  fireRate: 0.5, minStage: 5 },
-    detonator: { hp: 2,  speed: 2.5, dmg: 5, color: '#dc2626', size: 12, shape: 'circle',   reward: 6,  minStage: 10 },
+    rusher:    { hp: 1,  speed: 3.5, dmg: 1, color: '#ef4444', size: 14, shape: 'triangle', reward: 2 },
+    shooter:   { hp: 4,  speed: 1.2, dmg: 1, color: '#f97316', size: 14, shape: 'rect',     reward: 5,  fireRate: 1.8 },
+    tank:      { hp: 15, speed: 0.8, dmg: 2, color: '#475569', size: 26, shape: 'tank',     reward: 12, minStage: 1 },
+    brute:     { hp: 45, speed: 0.4, dmg: 5, color: '#7f1d1d', size: 36, shape: 'brute',    reward: 25, minStage: 3 },
+    mortar:    { hp: 5,  speed: 0.6, dmg: 2, color: '#ea580c', size: 16, shape: 'circle',   reward: 8,  fireRate: 0.5, minStage: 4 },
+    detonator: { hp: 3,  speed: 2.8, dmg: 5, color: '#dc2626', size: 12, shape: 'circle',   reward: 6,  minStage: 6 },
     thief:     { hp: 2,  speed: 4,   dmg: 0, color: '#1f2937', size: 12, shape: 'triangle', reward: 10, minStage: 7 },
-    flanker:   { hp: 3,  speed: 2.5, dmg: 1, color: '#991b1b', size: 14, shape: 'diamond',  reward: 7,  fireRate: 1.5, minStage: 12 },
-    elite:     { hp: 25, speed: 0.3, dmg: 3, color: '#7c3aed', size: 42, shape: 'elite',    reward: 30, fireRate: 1.0, minStage: 2 }
+    flanker:   { hp: 4,  speed: 2.8, dmg: 1, color: '#991b1b', size: 14, shape: 'diamond',  reward: 7,  fireRate: 1.3, minStage: 5 },
+    elite:     { hp: 30, speed: 0.3, dmg: 3, color: '#7c3aed', size: 42, shape: 'elite',    reward: 30, fireRate: 1.0, minStage: 2 }
   },
 
   // Upgrades
@@ -146,8 +150,10 @@ const CONFIG = {
 
   // Difficulty scaling per stage
   DIFFICULTY_SCALE: {
-    enemyHpMul: 0.1,    // +10% per stage
-    enemyCountAdd: 1,    // +1 per stage
-    itemReduction: 0.02  // -2% per stage
+    enemyHpMul: 0.15,     // +15% HP per stage (was 0.1)
+    enemyCountAdd: 2,      // +2 enemies per stage
+    enemySpeedMul: 0.05,   // +5% speed per stage (NEW)
+    itemReduction: 0.03,   // -3% item frequency per stage
+    spawnRateReduction: 0.08 // -8% spawn interval per stage (faster spawns)
   }
 };

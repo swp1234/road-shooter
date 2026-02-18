@@ -24,8 +24,8 @@ class Character {
       if (this.deathTimer <= 0) this.active = false;
       return;
     }
-    this.x += (this.targetX - this.x) * 0.15;
-    this.y += (this.targetY - this.y) * 0.15;
+    this.x += (this.targetX - this.x) * 0.35;
+    this.y += (this.targetY - this.y) * 0.35;
     if (this.fireTimer > 0) this.fireTimer -= dt;
     if (this.flashTimer > 0) this.flashTimer -= dt;
     if (this.muzzleFlash > 0) this.muzzleFlash -= dt;
@@ -75,6 +75,12 @@ class Character {
         break;
       case 'bomber':
         this.drawBomber(ctx, s, baseColor);
+        break;
+      case 'shotgunner':
+        this.drawShotgunner(ctx, s, baseColor);
+        break;
+      case 'laser':
+        this.drawLaser(ctx, s, baseColor);
         break;
     }
 
@@ -844,5 +850,127 @@ class Character {
     ctx.beginPath();
     ctx.ellipse(x - helmR * 0.3, y - s * 0.78, helmR * 0.18, helmR * 0.08, -0.3, 0, Math.PI * 2);
     ctx.fill();
+  }
+
+  drawShotgunner(ctx, s, color) {
+    // Red soldier with wide double-barrel shotgun
+    const x = this.x;
+    const y = this.y;
+    const flash = color === '#ffffff';
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.9, s * 0.6, s * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Boots
+    ctx.fillStyle = flash ? '#ccc' : '#1a0505';
+    ctx.fillRect(x - s * 0.3, y + s * 0.5, s * 0.2, s * 0.35);
+    ctx.fillRect(x + s * 0.1, y + s * 0.5, s * 0.2, s * 0.35);
+
+    // Body (stocky)
+    const bodyGrad = ctx.createLinearGradient(x - s * 0.45, y - s * 0.3, x + s * 0.45, y + s * 0.5);
+    bodyGrad.addColorStop(0, flash ? '#fff' : '#ef4444');
+    bodyGrad.addColorStop(0.5, flash ? '#eee' : '#dc2626');
+    bodyGrad.addColorStop(1, flash ? '#bbb' : '#991b1b');
+    ctx.fillStyle = bodyGrad;
+    ctx.fillRect(x - s * 0.45, y - s * 0.3, s * 0.9, s * 0.8);
+
+    // Belt with shells
+    ctx.fillStyle = flash ? '#aaa' : '#451a03';
+    ctx.fillRect(x - s * 0.45, y + s * 0.1, s * 0.9, s * 0.12);
+    // Shell details
+    ctx.fillStyle = flash ? '#ddd' : '#fbbf24';
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.arc(x - s * 0.3 + i * s * 0.2, y + s * 0.16, s * 0.04, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Double barrel shotgun (wide)
+    ctx.fillStyle = flash ? '#bbb' : '#374151';
+    ctx.fillRect(x - s * 0.12, y - s * 1.4, s * 0.1, s * 1.1);
+    ctx.fillRect(x + s * 0.02, y - s * 1.4, s * 0.1, s * 1.1);
+    // Barrel ends
+    ctx.fillStyle = flash ? '#999' : '#1f2937';
+    ctx.beginPath();
+    ctx.arc(x - s * 0.07, y - s * 1.4, s * 0.06, 0, Math.PI * 2);
+    ctx.arc(x + s * 0.07, y - s * 1.4, s * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Head
+    const headGrad = ctx.createRadialGradient(x - s * 0.05, y - s * 0.45, s * 0.02, x, y - s * 0.35, s * 0.25);
+    headGrad.addColorStop(0, flash ? '#fff' : '#fecaca');
+    headGrad.addColorStop(1, flash ? '#bbb' : '#b91c1c');
+    ctx.fillStyle = headGrad;
+    ctx.beginPath();
+    ctx.arc(x, y - s * 0.35, s * 0.25, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Bandana
+    ctx.fillStyle = flash ? '#ddd' : '#7f1d1d';
+    ctx.fillRect(x - s * 0.25, y - s * 0.45, s * 0.5, s * 0.12);
+  }
+
+  drawLaser(ctx, s, color) {
+    // Cyan tech soldier with laser cannon
+    const x = this.x;
+    const y = this.y;
+    const flash = color === '#ffffff';
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.9, s * 0.5, s * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Boots (tech)
+    ctx.fillStyle = flash ? '#ccc' : '#164e63';
+    ctx.fillRect(x - s * 0.25, y + s * 0.55, s * 0.18, s * 0.3);
+    ctx.fillRect(x + s * 0.07, y + s * 0.55, s * 0.18, s * 0.3);
+
+    // Body (sleek)
+    const bodyGrad = ctx.createLinearGradient(x - s * 0.4, y - s * 0.3, x + s * 0.4, y + s * 0.5);
+    bodyGrad.addColorStop(0, flash ? '#fff' : '#22d3ee');
+    bodyGrad.addColorStop(0.4, flash ? '#eee' : '#06b6d4');
+    bodyGrad.addColorStop(1, flash ? '#bbb' : '#0891b2');
+    ctx.fillStyle = bodyGrad;
+    ctx.fillRect(x - s * 0.35, y - s * 0.25, s * 0.7, s * 0.8);
+
+    // Energy lines on armor
+    ctx.strokeStyle = flash ? '#fff' : 'rgba(103,232,249,0.6)';
+    ctx.lineWidth = s * 0.03;
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.3, y - s * 0.1);
+    ctx.lineTo(x + s * 0.3, y - s * 0.1);
+    ctx.moveTo(x, y - s * 0.2);
+    ctx.lineTo(x, y + s * 0.4);
+    ctx.stroke();
+
+    // Laser cannon (thick glowing barrel)
+    ctx.fillStyle = flash ? '#bbb' : '#155e75';
+    ctx.fillRect(x - s * 0.1, y - s * 2.0, s * 0.2, s * 1.7);
+    // Energy core in barrel
+    const corePulse = 0.5 + Math.sin(Date.now() / 100) * 0.3;
+    ctx.fillStyle = `rgba(103,232,249,${corePulse})`;
+    ctx.fillRect(x - s * 0.06, y - s * 1.8, s * 0.12, s * 1.2);
+    // Muzzle glow
+    ctx.shadowColor = '#06b6d4';
+    ctx.shadowBlur = 6;
+    ctx.fillStyle = flash ? '#fff' : '#67e8f9';
+    ctx.beginPath();
+    ctx.arc(x, y - s * 2.0, s * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Head (visor)
+    ctx.fillStyle = flash ? '#eee' : '#0e7490';
+    ctx.beginPath();
+    ctx.arc(x, y - s * 0.35, s * 0.22, 0, Math.PI * 2);
+    ctx.fill();
+    // Visor
+    ctx.fillStyle = flash ? '#fff' : '#67e8f9';
+    ctx.fillRect(x - s * 0.18, y - s * 0.4, s * 0.36, s * 0.08);
   }
 }
