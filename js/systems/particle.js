@@ -44,22 +44,79 @@ class Particle {
   }
 }
 
+// Floating damage/text numbers
+class FloatingText {
+  constructor(x, y, text, color, size = 14) {
+    this.x = x + (Math.random() - 0.5) * 12;
+    this.y = y;
+    this.text = text;
+    this.color = color;
+    this.size = size;
+    this.life = 0.7;
+    this.maxLife = 0.7;
+    this.vy = -2;
+    this.active = true;
+  }
+
+  update(dt) {
+    this.y += this.vy;
+    this.vy *= 0.97;
+    this.life -= dt;
+    if (this.life <= 0) this.active = false;
+  }
+
+  draw(ctx) {
+    if (!this.active) return;
+    const t = 1 - this.life / this.maxLife;
+    const alpha = t < 0.3 ? 1 : 1 - (t - 0.3) / 0.7;
+    const scale = t < 0.15 ? 0.6 + t / 0.15 * 0.4 : 1;
+    ctx.globalAlpha = alpha;
+    ctx.font = `bold ${Math.round(this.size * scale)}px Outfit`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillText(this.text, this.x + 1, this.y + 1);
+    ctx.fillStyle = this.color;
+    ctx.fillText(this.text, this.x, this.y);
+    ctx.globalAlpha = 1;
+  }
+}
+
 class ParticleSystem {
-  constructor(maxParticles = 250) {
+  constructor(maxParticles = 400) {
     this.particles = [];
+    this.texts = [];
     this.max = maxParticles;
   }
 
   emit(x, y, color, count = 5, spread = 3, life = 0.5, size = 3) {
     for (let i = 0; i < count; i++) {
       if (this.particles.length >= this.max) {
-        // Remove oldest
         this.particles.shift();
       }
       const vx = (Math.random() - 0.5) * spread * 2;
       const vy = (Math.random() - 0.5) * spread * 2;
       this.particles.push(new Particle(x, y, vx, vy, color, life, size));
     }
+  }
+
+  // Floating damage number
+  emitDamage(x, y, dmg, isCrit = false) {
+    const color = isCrit ? '#fbbf24' : '#fff';
+    const size = isCrit ? 18 : Math.min(20, 11 + dmg / 4);
+    const text = isCrit ? `${dmg}!` : `${dmg}`;
+    this.texts.push(new FloatingText(x, y - 5, text, color, size));
+    if (this.texts.length > 40) this.texts.shift();
+  }
+
+  // Floating text (combo, wave clear, etc.)
+  emitText(x, y, text, color = '#fff', size = 16) {
+    this.texts.push(new FloatingText(x, y, text, color, size));
+    if (this.texts.length > 40) this.texts.shift();
+  }
+
+  // Bullet hit spark
+  emitHitSpark(x, y) {
+    this.emit(x, y, '#fff', 2, 2, 0.12, 1.5);
   }
 
   // Special effects
@@ -88,8 +145,10 @@ class ParticleSystem {
     }
   }
 
-  emitNumber(x, y, text, color = '#fff') {
-    // Floating number effect handled by items themselves
+  // Shield absorb burst
+  emitShieldBreak(x, y) {
+    this.emit(x, y, '#60a5fa', 10, 5, 0.4, 3);
+    this.emitText(x, y - 10, 'BLOCKED', '#60a5fa', 12);
   }
 
   update(dt) {
@@ -99,13 +158,21 @@ class ParticleSystem {
         this.particles.splice(i, 1);
       }
     }
+    for (let i = this.texts.length - 1; i >= 0; i--) {
+      this.texts[i].update(dt);
+      if (!this.texts[i].active) {
+        this.texts.splice(i, 1);
+      }
+    }
   }
 
   draw(ctx) {
     for (const p of this.particles) p.draw(ctx);
+    for (const t of this.texts) t.draw(ctx);
   }
 
   clear() {
     this.particles.length = 0;
+    this.texts.length = 0;
   }
 }

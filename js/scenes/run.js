@@ -60,6 +60,19 @@ class RunScene {
     this.comboTimer = 0;
     this.dangerAlpha = 0;
 
+    // Kill combo system
+    this.killCombo = 0;
+    this.killComboTimer = 0;
+    this.killComboDecay = 2.5; // seconds to reset combo
+    this.bestCombo = 0;
+
+    // Wave clear celebration
+    this.waveClearTimer = 0;
+    this.waveClearText = '';
+
+    // Hit freeze (stagger on big kills)
+    this.hitFreezeTimer = 0;
+
     // Buffs (power-up timers)
     this.buffs = { dmg: 0, shield: 0, fireRate: 0, magnet: 0 };
 
@@ -107,12 +120,28 @@ class RunScene {
   update(dt) {
     if (this.paused || this.finished) return;
 
+    // Hit freeze stagger (brief pause on big kills for impact feel)
+    if (this.hitFreezeTimer > 0) {
+      this.hitFreezeTimer -= dt;
+      this.particles.update(dt); // particles still animate during freeze
+      return;
+    }
+
     this.totalTimer += dt;
 
     // Transition (no gameplay pause)
     if (this.transitionTimer > 0) {
       this.transitionTimer -= dt;
     }
+
+    // Kill combo decay
+    if (this.killComboTimer > 0) {
+      this.killComboTimer -= dt;
+      if (this.killComboTimer <= 0) this.killCombo = 0;
+    }
+
+    // Wave clear timer
+    if (this.waveClearTimer > 0) this.waveClearTimer -= dt;
 
     // Update buffs
     if (this.buffs.dmg > 0) this.buffs.dmg -= dt;
@@ -208,6 +237,7 @@ class RunScene {
     const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
     this.kills += hitResult.kills;
     this.gold += hitResult.gold;
+    this.processKills(hitResult.kills);
     const roadHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
     this.buffs.shield = Math.max(0, this.buffs.shield - roadHit.shieldUsed);
     this.combat.checkRusherCollisions(this.enemies, this.squad, this.particles);
@@ -259,6 +289,7 @@ class RunScene {
     const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
     this.kills += hitResult.kills;
     this.gold += hitResult.gold;
+    this.processKills(hitResult.kills);
 
     // Enemy bullet hits (shield absorbs)
     const combatHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
@@ -275,6 +306,14 @@ class RunScene {
 
     // Advance when timer expires and enemies clear
     const aliveEnemies = this.enemies.filter(e => e.active && !e.dying).length;
+    // Wave clear celebration
+    if (aliveEnemies === 0 && this.enemies.length > 0 && this.waveCount > 0 && this.waveClearTimer <= 0) {
+      this.waveClearTimer = 1.5;
+      this.waveClearText = `WAVE ${this.waveCount} CLEAR!`;
+      this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.3, this.waveClearText, '#fbbf24', 20);
+      Sound.waveClear();
+      this.game.shake(3, 0.15);
+    }
     if (this.segmentTimer <= 0 && aliveEnemies === 0) {
       this.nextSegment();
     }
@@ -331,6 +370,7 @@ class RunScene {
       const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles);
       this.kills += hitResult.kills;
       this.gold += hitResult.gold;
+      this.processKills(hitResult.kills);
 
       const bossHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
       this.buffs.shield = Math.max(0, this.buffs.shield - bossHit.shieldUsed);
@@ -696,6 +736,38 @@ class RunScene {
     }
   }
 
+  processKills(killCount) {
+    if (killCount <= 0) return;
+    this.killCombo += killCount;
+    this.killComboTimer = this.killComboDecay;
+    this.bestCombo = Math.max(this.bestCombo, this.killCombo);
+
+    // Screen shake scales with kills
+    if (killCount >= 3) {
+      this.game.shake(3, 0.15);
+      Sound.comboKill(this.killCombo);
+    } else if (killCount >= 1) {
+      this.game.shake(1, 0.08);
+    }
+
+    // Combo milestone announcements
+    if (this.killCombo >= 5 && this.killCombo % 5 === 0) {
+      const cw = CONFIG.CANVAS_WIDTH;
+      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.35, `${this.killCombo}x COMBO!`, '#fbbf24', 22);
+      Sound.comboKill(this.killCombo);
+      this.game.shake(4, 0.2);
+      // Bonus gold for combos
+      const bonus = Math.floor(this.killCombo / 5) * 5;
+      this.gold += bonus;
+      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.4, `+${bonus} GOLD`, '#fbbf24', 14);
+    }
+
+    // Hit freeze on multi-kills for impact feel
+    if (killCount >= 4) {
+      this.hitFreezeTimer = 0.04;
+    }
+  }
+
   showCombo(text) {
     this.comboText = text;
     this.comboTimer = 1;
@@ -718,6 +790,7 @@ class RunScene {
       kills: this.kills,
       gold: this.gold,
       maxSquad: this.maxSquad,
+      bestCombo: this.bestCombo,
       bossDefeated: this.bossDefeated,
       starCoins: this.bossDefeated ? Math.floor(Math.random() * 3) + 1 : 0,
       stars,
@@ -1053,6 +1126,22 @@ class RunScene {
     ctx.fillStyle = '#ef4444';
     ctx.font = '11px Outfit';
     ctx.fillText(`${this.kills} ${this.game.i18n('hud_kills_suffix') || 'kills'}`, cw - 10, 38);
+
+    // Kill combo indicator (bottom-left)
+    if (this.killCombo >= 3) {
+      const comboAlpha = Math.min(1, this.killComboTimer / 0.5);
+      ctx.globalAlpha = comboAlpha;
+      const pulse = 1 + Math.sin(Date.now() / 80) * 0.05;
+      const comboSize = Math.min(18, 12 + this.killCombo / 5);
+      ctx.font = `bold ${Math.round(comboSize * pulse)}px Outfit`;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = this.killCombo >= 20 ? '#ef4444' : this.killCombo >= 10 ? '#f97316' : '#fbbf24';
+      ctx.fillText(`${this.killCombo}x`, 10, CONFIG.CANVAS_HEIGHT - 24);
+      ctx.font = '9px Outfit';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('COMBO', 10, CONFIG.CANVAS_HEIGHT - 12);
+      ctx.globalAlpha = 1;
+    }
 
     // Squad count (bottom-right above bar)
     ctx.fillStyle = '#10b981';

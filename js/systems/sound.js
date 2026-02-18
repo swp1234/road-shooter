@@ -124,6 +124,23 @@ class SoundSystem {
     setTimeout(() => this.tone(200, 0.3, 'sawtooth', 0.25), 200);
     setTimeout(() => this.tone(120, 0.5, 'sawtooth', 0.2), 400);
   }
+
+  waveClear() {
+    this.tone(600, 0.1, 'sine', 0.25);
+    setTimeout(() => this.tone(800, 0.12, 'sine', 0.3), 80);
+    setTimeout(() => this.tone(1000, 0.15, 'sine', 0.25), 160);
+  }
+
+  comboKill(streak) {
+    const pitch = Math.min(1200, 400 + streak * 40);
+    this.tone(pitch, 0.06, 'sine', 0.2);
+  }
+
+  bigKill() {
+    this.noise(0.15, 0.35);
+    this.tone(120, 0.2, 'sawtooth', 0.35);
+    this.tone(180, 0.15, 'square', 0.2);
+  }
 }
 
 // Singleton

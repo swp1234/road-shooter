@@ -79,12 +79,17 @@ class ResultScene {
       { label: this.game.i18n('result_gold') || 'Gold', value: this.counters.gold, color: CONFIG.COLORS.gold },
     ];
 
+    if (this.result.bestCombo > 0) {
+      stats.push({ label: this.game.i18n('result_best_combo') || 'Best Combo', value: `${this.result.bestCombo}x`, color: '#fbbf24' });
+    }
+
     if (this.result.bossDefeated) {
       stats.push({ label: this.game.i18n('result_boss') || 'Boss Defeated!', value: `+${this.result.starCoins} \u2B50`, color: '#a855f7' });
     }
 
+    const rowH = stats.length > 4 ? 40 : 50;
     stats.forEach((stat, i) => {
-      const sy = panelY + 35 + i * 50;
+      const sy = panelY + 30 + i * rowH;
       ctx.fillStyle = '#94a3b8';
       ctx.font = '14px Outfit';
       ctx.textAlign = 'left';

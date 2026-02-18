@@ -169,7 +169,8 @@ class CombatSystem {
         if (dx * dx + dy * dy < boss.size * boss.size) {
           const killed = boss.takeDamage(b.dmg);
           b.active = false;
-          particles.emit(b.x, b.y, '#fbbf24', 2, 2, 0.2, 2);
+          particles.emitHitSpark(b.x, b.y);
+          particles.emitDamage(b.x, b.y, b.dmg);
           Sound.bossHit();
           if (killed) {
             particles.emitBossDeath(boss.x, boss.y);
@@ -195,6 +196,8 @@ class CombatSystem {
           } else {
             b.active = false;
           }
+          particles.emitHitSpark(b.x, b.y);
+          particles.emitDamage(b.x, b.y, b.dmg);
           if (killed) {
             kills++;
             gold += e.reward;

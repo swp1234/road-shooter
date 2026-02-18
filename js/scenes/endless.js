@@ -52,6 +52,15 @@ class EndlessScene {
     this.comboTimer = 0;
     this.dangerAlpha = 0;
 
+    // Kill combo system
+    this.killCombo = 0;
+    this.killComboTimer = 0;
+    this.killComboDecay = 2.5;
+    this.bestCombo = 0;
+
+    // Hit freeze
+    this.hitFreezeTimer = 0;
+
     // Transition
     this.transitionText = this.game.i18n('endless_start') || 'ENDLESS MODE';
     this.transitionTimer = 2;
@@ -60,6 +69,13 @@ class EndlessScene {
 
   update(dt) {
     if (this.finished) return;
+
+    // Hit freeze stagger
+    if (this.hitFreezeTimer > 0) {
+      this.hitFreezeTimer -= dt;
+      this.particles.update(dt);
+      return;
+    }
 
     this.totalTimer += dt;
 
@@ -74,6 +90,12 @@ class EndlessScene {
 
     // Combo text fade
     if (this.comboTimer > 0) this.comboTimer -= dt;
+
+    // Kill combo decay
+    if (this.killComboTimer > 0) {
+      this.killComboTimer -= dt;
+      if (this.killComboTimer <= 0) this.killCombo = 0;
+    }
 
     // Danger indicator
     const squadPct = this.squad.size / Math.max(this.startSquad, 10);
@@ -179,6 +201,7 @@ class EndlessScene {
     const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
     this.kills += hitResult.kills;
     this.gold += hitResult.gold;
+    this.processKills(hitResult.kills);
 
     const waveHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
     this.buffs.shield = Math.max(0, this.buffs.shield - waveHit.shieldUsed);
@@ -192,6 +215,10 @@ class EndlessScene {
       if (alive === 0) {
         this.waveCooldown = false;
         this.waveTimer = 2;
+        // Wave clear celebration
+        this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.3, `WAVE ${this.wave} CLEAR!`, '#fbbf24', 20);
+        Sound.waveClear();
+        this.game.shake(3, 0.15);
       }
     }
   }
@@ -281,6 +308,7 @@ class EndlessScene {
     const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles);
     this.kills += hitResult.kills;
     this.gold += hitResult.gold;
+    this.processKills(hitResult.kills);
 
     const bossHit = this.combat.checkEnemyBulletHits(this.squad, this.particles, this.buffs.shield);
     this.buffs.shield = Math.max(0, this.buffs.shield - bossHit.shieldUsed);
@@ -475,6 +503,34 @@ class EndlessScene {
     }
   }
 
+  processKills(killCount) {
+    if (killCount <= 0) return;
+    this.killCombo += killCount;
+    this.killComboTimer = this.killComboDecay;
+    this.bestCombo = Math.max(this.bestCombo, this.killCombo);
+
+    if (killCount >= 3) {
+      this.game.shake(3, 0.15);
+      Sound.comboKill(this.killCombo);
+    } else if (killCount >= 1) {
+      this.game.shake(1, 0.08);
+    }
+
+    if (this.killCombo >= 5 && this.killCombo % 5 === 0) {
+      const cw = CONFIG.CANVAS_WIDTH;
+      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.35, `${this.killCombo}x COMBO!`, '#fbbf24', 22);
+      Sound.comboKill(this.killCombo);
+      this.game.shake(4, 0.2);
+      const bonus = Math.floor(this.killCombo / 5) * 5;
+      this.gold += bonus;
+      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.4, `+${bonus} GOLD`, '#fbbf24', 14);
+    }
+
+    if (killCount >= 4) {
+      this.hitFreezeTimer = 0.04;
+    }
+  }
+
   showCombo(text) {
     this.comboText = text;
     this.comboTimer = 1;
@@ -583,6 +639,22 @@ class EndlessScene {
     ctx.fillStyle = '#ef4444';
     ctx.font = '11px Outfit';
     ctx.fillText(`${this.kills} ${this.game.i18n('hud_kills_suffix') || 'kills'}`, cw - 10, 38);
+
+    // Kill combo indicator (bottom-left)
+    if (this.killCombo >= 3) {
+      const comboAlpha = Math.min(1, this.killComboTimer / 0.5);
+      ctx.globalAlpha = comboAlpha;
+      const pulse = 1 + Math.sin(Date.now() / 80) * 0.05;
+      const comboSize = Math.min(18, 12 + this.killCombo / 5);
+      ctx.font = `bold ${Math.round(comboSize * pulse)}px Outfit`;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = this.killCombo >= 20 ? '#ef4444' : this.killCombo >= 10 ? '#f97316' : '#fbbf24';
+      ctx.fillText(`${this.killCombo}x`, 10, ch - 24);
+      ctx.font = '9px Outfit';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('COMBO', 10, ch - 12);
+      ctx.globalAlpha = 1;
+    }
 
     // Squad count
     ctx.fillStyle = '#10b981';
@@ -812,6 +884,22 @@ class EndlessScene {
     ctx.fillStyle = '#ef4444';
     ctx.font = '11px Outfit';
     ctx.fillText(`${this.kills} ${this.game.i18n('hud_kills_suffix') || 'kills'}`, cw - 10, 38);
+
+    // Kill combo indicator (bottom-left)
+    if (this.killCombo >= 3) {
+      const comboAlpha = Math.min(1, this.killComboTimer / 0.5);
+      ctx.globalAlpha = comboAlpha;
+      const pulse = 1 + Math.sin(Date.now() / 80) * 0.05;
+      const comboSize = Math.min(18, 12 + this.killCombo / 5);
+      ctx.font = `bold ${Math.round(comboSize * pulse)}px Outfit`;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = this.killCombo >= 20 ? '#ef4444' : this.killCombo >= 10 ? '#f97316' : '#fbbf24';
+      ctx.fillText(`${this.killCombo}x`, 10, CONFIG.CANVAS_HEIGHT - 24);
+      ctx.font = '9px Outfit';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('COMBO', 10, CONFIG.CANVAS_HEIGHT - 12);
+      ctx.globalAlpha = 1;
+    }
 
     // Squad count
     ctx.fillStyle = '#10b981';

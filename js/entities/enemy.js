@@ -265,6 +265,16 @@ class Enemy {
       }
     }
 
+    // White flash overlay on hit (draws on top of enemy sprite)
+    if (isFlash && !this.dying) {
+      ctx.globalAlpha = 0.6;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, s * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = alpha;
+    }
+
     // HP bar for multi-HP enemies (elite draws its own)
     if (this.maxHp > 1 && !this.dying && this.type !== 'elite') {
       const cs = this.size;
