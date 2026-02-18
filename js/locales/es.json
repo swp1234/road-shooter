@@ -35,5 +35,11 @@
   "endless_wave_reached": "Oleada Alcanzada",
   "endless_bosses": "Jefes Derrotados",
   "hud_best": "Mejor",
-  "upgrade_level": "Nv."
+  "upgrade_level": "Nv.",
+  "result_best_combo": "Mejor Combo",
+  "stat_runs": "partidas",
+  "stat_bosses": "jefes",
+  "hud_blocked": "¡BLOQUEADO!",
+  "hud_combo": "COMBO",
+  "hud_wave_clear": "¡OLEADA SUPERADA!"
 }

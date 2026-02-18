@@ -35,5 +35,11 @@
   "endless_wave_reached": "Gelombang Tercapai",
   "endless_bosses": "Bos Dikalahkan",
   "hud_best": "Terbaik",
-  "upgrade_level": "Lv."
+  "upgrade_level": "Lv.",
+  "result_best_combo": "Kombo Terbaik",
+  "stat_runs": "permainan",
+  "stat_bosses": "bos",
+  "hud_blocked": "TERBLOKIR!",
+  "hud_combo": "KOMBO",
+  "hud_wave_clear": "GELOMBANG BERSIH!"
 }

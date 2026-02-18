@@ -319,7 +319,7 @@ class RunScene {
     // Wave clear celebration
     if (aliveEnemies === 0 && this.enemies.length > 0 && this.waveCount > 0 && this.waveClearTimer <= 0) {
       this.waveClearTimer = 1.5;
-      this.waveClearText = `WAVE ${this.waveCount} CLEAR!`;
+      this.waveClearText = `${this.game.i18n('hud_wave') || 'Wave'} ${this.waveCount} ${this.game.i18n('hud_wave_clear') || 'CLEAR!'}`;
       this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.3, this.waveClearText, '#fbbf24', 20);
       Sound.waveClear();
       this.game.shake(3, 0.15);
@@ -765,13 +765,13 @@ class RunScene {
     // Combo milestone announcements
     if (this.killCombo >= 5 && this.killCombo % 5 === 0) {
       const cw = CONFIG.CANVAS_WIDTH;
-      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.35, `${this.killCombo}x COMBO!`, '#fbbf24', 22);
+      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.35, `${this.killCombo}x ${this.game.i18n('hud_combo') || 'COMBO'}!`, '#fbbf24', 22);
       Sound.comboKill(this.killCombo);
       this.game.shake(4, 0.2);
       // Bonus gold for combos
       const bonus = Math.floor(this.killCombo / 5) * 5;
       this.gold += bonus;
-      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.4, `+${bonus} GOLD`, '#fbbf24', 14);
+      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.4, `+${bonus} ${this.game.i18n('hud_gold') || 'GOLD'}`, '#fbbf24', 14);
     }
 
     // Hit freeze on multi-kills for impact feel
@@ -1162,7 +1162,7 @@ class RunScene {
       ctx.fillText(`${this.killCombo}x`, 10, CONFIG.CANVAS_HEIGHT - 24);
       ctx.font = '9px Outfit';
       ctx.fillStyle = '#94a3b8';
-      ctx.fillText('COMBO', 10, CONFIG.CANVAS_HEIGHT - 12);
+      ctx.fillText(this.game.i18n('hud_combo') || 'COMBO', 10, CONFIG.CANVAS_HEIGHT - 12);
       ctx.globalAlpha = 1;
     }
 

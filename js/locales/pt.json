@@ -35,5 +35,11 @@
   "endless_wave_reached": "Onda Alcançada",
   "endless_bosses": "Chefes Derrotados",
   "hud_best": "Melhor",
-  "upgrade_level": "Nv."
+  "upgrade_level": "Nv.",
+  "result_best_combo": "Melhor Combo",
+  "stat_runs": "partidas",
+  "stat_bosses": "chefes",
+  "hud_blocked": "BLOQUEADO!",
+  "hud_combo": "COMBO",
+  "hud_wave_clear": "ONDA LIMPA!"
 }

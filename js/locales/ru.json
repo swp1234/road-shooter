@@ -35,5 +35,11 @@
   "endless_wave_reached": "Достигнутая Волна",
   "endless_bosses": "Боссов Побеждено",
   "hud_best": "Лучший",
-  "upgrade_level": "Ур."
+  "upgrade_level": "Ур.",
+  "result_best_combo": "Лучшее комбо",
+  "stat_runs": "забегов",
+  "stat_bosses": "боссов",
+  "hud_blocked": "БЛОК!",
+  "hud_combo": "КОМБО",
+  "hud_wave_clear": "ВОЛНА ПРОЙДЕНА!"
 }

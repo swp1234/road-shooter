@@ -35,5 +35,11 @@
   "endless_wave_reached": "Wave Reached",
   "endless_bosses": "Bosses Defeated",
   "hud_best": "Best",
-  "upgrade_level": "Lv."
+  "upgrade_level": "Lv.",
+  "result_best_combo": "Best Combo",
+  "stat_runs": "runs",
+  "stat_bosses": "bosses",
+  "hud_blocked": "BLOCKED",
+  "hud_combo": "COMBO",
+  "hud_wave_clear": "WAVE CLEAR!"
 }

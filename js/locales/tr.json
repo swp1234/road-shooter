@@ -35,5 +35,11 @@
   "endless_wave_reached": "Ulaşılan Dalga",
   "endless_bosses": "Yenilen Patron",
   "hud_best": "En İyi",
-  "upgrade_level": "Sv."
+  "upgrade_level": "Sv.",
+  "result_best_combo": "En İyi Kombo",
+  "stat_runs": "oyun",
+  "stat_bosses": "patron",
+  "hud_blocked": "ENGELLENDİ!",
+  "hud_combo": "KOMBO",
+  "hud_wave_clear": "DALGA TEMİZLENDİ!"
 }

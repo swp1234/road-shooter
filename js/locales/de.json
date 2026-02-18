@@ -35,5 +35,11 @@
   "endless_wave_reached": "Erreichte Welle",
   "endless_bosses": "Bosse Besiegt",
   "hud_best": "Beste",
-  "upgrade_level": "Lv."
+  "upgrade_level": "Lv.",
+  "result_best_combo": "Bestes Combo",
+  "stat_runs": "Spiele",
+  "stat_bosses": "Bosse",
+  "hud_blocked": "GEBLOCKT!",
+  "hud_combo": "KOMBO",
+  "hud_wave_clear": "WELLE GESCHAFFT!"
 }

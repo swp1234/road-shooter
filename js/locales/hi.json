@@ -35,5 +35,11 @@
   "endless_wave_reached": "पहुँची लहर",
   "endless_bosses": "बॉस हराए",
   "hud_best": "सर्वश्रेष्ठ",
-  "upgrade_level": "स्तर"
+  "upgrade_level": "स्तर",
+  "result_best_combo": "सर्वश्रेष्ठ कॉम्बो",
+  "stat_runs": "रन",
+  "stat_bosses": "बॉस",
+  "hud_blocked": "ब्लॉक!",
+  "hud_combo": "कॉम्बो",
+  "hud_wave_clear": "वेव क्लियर!"
 }

@@ -218,7 +218,7 @@ class EndlessScene {
         this.waveCooldown = false;
         this.waveTimer = 2;
         // Wave clear celebration
-        this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.3, `WAVE ${this.wave} CLEAR!`, '#fbbf24', 20);
+        this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.3, `${this.game.i18n('hud_wave') || 'Wave'} ${this.wave} ${this.game.i18n('hud_wave_clear') || 'CLEAR!'}`, '#fbbf24', 20);
         Sound.waveClear();
         this.game.shake(3, 0.15);
       }
@@ -522,12 +522,12 @@ class EndlessScene {
 
     if (this.killCombo >= 5 && this.killCombo % 5 === 0) {
       const cw = CONFIG.CANVAS_WIDTH;
-      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.35, `${this.killCombo}x COMBO!`, '#fbbf24', 22);
+      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.35, `${this.killCombo}x ${this.game.i18n('hud_combo') || 'COMBO'}!`, '#fbbf24', 22);
       Sound.comboKill(this.killCombo);
       this.game.shake(4, 0.2);
       const bonus = Math.floor(this.killCombo / 5) * 5;
       this.gold += bonus;
-      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.4, `+${bonus} GOLD`, '#fbbf24', 14);
+      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.4, `+${bonus} ${this.game.i18n('hud_gold') || 'GOLD'}`, '#fbbf24', 14);
     }
 
     if (killCount >= 4) {
@@ -656,7 +656,7 @@ class EndlessScene {
       ctx.fillText(`${this.killCombo}x`, 10, ch - 24);
       ctx.font = '9px Outfit';
       ctx.fillStyle = '#94a3b8';
-      ctx.fillText('COMBO', 10, ch - 12);
+      ctx.fillText(this.game.i18n('hud_combo') || 'COMBO', 10, ch - 12);
       ctx.globalAlpha = 1;
     }
 
@@ -901,7 +901,7 @@ class EndlessScene {
       ctx.fillText(`${this.killCombo}x`, 10, CONFIG.CANVAS_HEIGHT - 24);
       ctx.font = '9px Outfit';
       ctx.fillStyle = '#94a3b8';
-      ctx.fillText('COMBO', 10, CONFIG.CANVAS_HEIGHT - 12);
+      ctx.fillText(this.game.i18n('hud_combo') || 'COMBO', 10, CONFIG.CANVAS_HEIGHT - 12);
       ctx.globalAlpha = 1;
     }
 

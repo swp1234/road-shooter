@@ -35,5 +35,11 @@
   "endless_wave_reached": "到達ウェーブ",
   "endless_bosses": "ボス撃破",
   "hud_best": "ベスト",
-  "upgrade_level": "Lv."
+  "upgrade_level": "Lv.",
+  "result_best_combo": "最高コンボ",
+  "stat_runs": "回",
+  "stat_bosses": "ボス",
+  "hud_blocked": "ブロック!",
+  "hud_combo": "コンボ",
+  "hud_wave_clear": "ウェーブクリア!"
 }

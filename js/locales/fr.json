@@ -35,5 +35,11 @@
   "endless_wave_reached": "Vague Atteinte",
   "endless_bosses": "Boss Vaincus",
   "hud_best": "Meilleur",
-  "upgrade_level": "Nv."
+  "upgrade_level": "Nv.",
+  "result_best_combo": "Meilleur Combo",
+  "stat_runs": "parties",
+  "stat_bosses": "boss",
+  "hud_blocked": "BLOQUÉ!",
+  "hud_combo": "COMBO",
+  "hud_wave_clear": "VAGUE TERMINÉE!"
 }

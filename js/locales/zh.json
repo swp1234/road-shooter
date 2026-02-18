@@ -35,5 +35,11 @@
   "endless_wave_reached": "到达波次",
   "endless_bosses": "击败Boss",
   "hud_best": "最佳",
-  "upgrade_level": "Lv."
+  "upgrade_level": "Lv.",
+  "result_best_combo": "最佳连击",
+  "stat_runs": "次",
+  "stat_bosses": "Boss",
+  "hud_blocked": "格挡!",
+  "hud_combo": "连击",
+  "hud_wave_clear": "波次清除!"
 }
