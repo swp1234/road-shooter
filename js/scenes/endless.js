@@ -622,6 +622,9 @@ class EndlessScene {
       ctx.fillRect(0, 0, cw, ch);
     }
 
+    // Particles (floating effects, damage numbers)
+    this.particles.draw(ctx);
+
     // --- Transition text ---
     if (this.transitionTimer > 0) {
       const alpha = this.transitionTimer > 1 ? 1 : this.transitionTimer;
