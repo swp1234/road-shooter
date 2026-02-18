@@ -710,6 +710,23 @@ class RunScene {
     }, cleared ? 1500 : 500);
   }
 
+  // Return all game entity references for the 3D renderer
+  get3DState() {
+    return {
+      squad: this.squad,
+      enemies: this.enemies,
+      boss: this.boss,
+      items: this.items,
+      gates: this.gates,
+      bulletPool: this.combat.bulletPool,
+      road: this.road,
+      buffs: this.buffs || { dmg: 0, shield: 0, fireRate: 0, magnet: 0 },
+      segment: this.segmentType,  // 'road', 'combat', 'boss'
+      particles: this.particles,
+      traps: this.traps
+    };
+  }
+
   // Depth-scaled draw helper with X projection
   drawScaled(ctx, obj) {
     const scale = this.road.getScale(obj.y);
@@ -724,6 +741,12 @@ class RunScene {
   }
 
   draw(ctx) {
+    // If 3D renderer is active, only draw HUD overlay on transparent canvas
+    if (this.game.renderer3d) {
+      this.drawHUD(ctx);
+      return;
+    }
+
     const cw = CONFIG.CANVAS_WIDTH;
     const ch = CONFIG.CANVAS_HEIGHT;
 
@@ -804,8 +827,8 @@ class RunScene {
     // Particles (on top, no scaling — they're effects)
     this.particles.draw(ctx);
 
-    // HUD
-    this.drawHUD(ctx);
+    // HUD top bar
+    this.drawTopBar(ctx);
 
     // Buff indicators (below HUD)
     this.drawBuffBar(ctx);
@@ -840,6 +863,95 @@ class RunScene {
     }
   }
 
+  // Full HUD overlay for 3D mode — draws on transparent canvas, no background fill
+  drawHUD(ctx) {
+    const cw = CONFIG.CANVAS_WIDTH;
+    const ch = CONFIG.CANVAS_HEIGHT;
+
+    // Top bar (stage, gold, timer, kills)
+    this.drawTopBar(ctx);
+
+    // Buff indicators
+    this.drawBuffBar(ctx);
+
+    // Boss HP bar (if boss active)
+    if (this.boss && this.boss.active && !this.boss.dying) {
+      const bx = cw / 2 - 80;
+      const by = 76;
+      const bw = 160;
+      const bh = 10;
+      const hpPct = Math.max(0, this.boss.hp / this.boss.maxHp);
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(bx - 2, by - 2, bw + 4, bh + 4);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(bx, by, bw, bh);
+      const hpGrad = ctx.createLinearGradient(bx, by, bx + bw * hpPct, by);
+      hpGrad.addColorStop(0, '#ef4444');
+      hpGrad.addColorStop(1, '#dc2626');
+      ctx.fillStyle = hpGrad;
+      ctx.fillRect(bx, by, bw * hpPct, bh);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 9px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText(this.boss.name || 'BOSS', cw / 2, by - 4);
+    }
+
+    // Quicksand slow indicator
+    if (this.quicksandTimer > 0) {
+      ctx.fillStyle = 'rgba(194,165,105,0.3)';
+      ctx.fillRect(0, ch - 40, cw, 30);
+      ctx.fillStyle = '#c2a569';
+      ctx.font = 'bold 11px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText('SLOWED', cw / 2, ch - 22);
+    }
+
+    // Danger overlay
+    if (this.dangerAlpha > 0) {
+      ctx.fillStyle = `rgba(239,68,68,${this.dangerAlpha})`;
+      ctx.fillRect(0, 0, cw, ch);
+    }
+
+    // Particles (floating damage numbers, effects)
+    this.particles.draw(ctx);
+
+    // Transition text (subtle top banner)
+    if (this.transitionTimer > 0) {
+      const alpha = Math.min(1, this.transitionTimer * 2);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fillRect(0, 48, cw, 28);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 13px Syne';
+      ctx.textAlign = 'center';
+      ctx.fillText(this.transitionText, cw / 2, 66);
+      ctx.globalAlpha = 1;
+    }
+
+    // Combo text (floating "+Gold", damage numbers)
+    if (this.comboTimer > 0) {
+      ctx.globalAlpha = this.comboTimer;
+      ctx.fillStyle = CONFIG.COLORS.primary;
+      ctx.font = 'bold 22px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText(this.comboText, cw / 2, ch * 0.45 - (1 - this.comboTimer) * 30);
+      ctx.globalAlpha = 1;
+    }
+
+    // Game over overlay (if finished)
+    if (this.finished) {
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 24px Syne';
+      ctx.textAlign = 'center';
+      ctx.fillText(
+        this.bossDefeated ? (this.game.i18n('run_victory') || 'VICTORY!') : (this.game.i18n('run_gameover') || 'GAME OVER'),
+        cw / 2, ch / 2
+      );
+    }
+  }
+
   drawBuffBar(ctx) {
     const cw = CONFIG.CANVAS_WIDTH;
     let x = 8;
@@ -866,7 +978,7 @@ class RunScene {
     draw('MAGNET', '#a855f7', this.buffs.magnet);
   }
 
-  drawHUD(ctx) {
+  drawTopBar(ctx) {
     const cw = CONFIG.CANVAS_WIDTH;
 
     // Top bar background

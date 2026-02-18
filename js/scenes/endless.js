@@ -513,7 +513,156 @@ class EndlessScene {
     ctx.restore();
   }
 
+  // Returns all game entity references for 3D renderer
+  get3DState() {
+    return {
+      squad: this.squad,
+      enemies: this.enemies,
+      boss: this.boss,
+      items: this.items,
+      gates: [],
+      bulletPool: this.combat.bulletPool,
+      road: this.road,
+      buffs: this.buffs || { dmg: 0, shield: 0, fireRate: 0, magnet: 0 },
+      segment: 'endless'
+    };
+  }
+
+  // Draws ONLY HUD overlay on transparent canvas (for 3D mode)
+  // No background, no road, no world entities — just UI elements
+  drawHUD(ctx) {
+    const cw = CONFIG.CANVAS_WIDTH;
+    const ch = CONFIG.CANVAS_HEIGHT;
+
+    // --- Top bar (semi-transparent for 3D readability) ---
+    ctx.fillStyle = 'rgba(5,5,16,0.6)';
+    ctx.fillRect(0, 0, cw, 50);
+
+    // ENDLESS label
+    ctx.fillStyle = '#a78bfa';
+    ctx.font = 'bold 14px Outfit';
+    ctx.textAlign = 'left';
+    ctx.fillText(this.game.i18n('hud_endless') || 'ENDLESS', 10, 20);
+
+    // Wave
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px Outfit';
+    ctx.fillText(`${this.game.i18n('hud_wave') || 'Wave'} ${this.wave}`, 10, 38);
+
+    // Gold
+    ctx.fillStyle = CONFIG.COLORS.gold;
+    ctx.font = 'bold 14px Outfit';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${this.gold}`, cw / 2, 20);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px Outfit';
+    ctx.fillText(this.game.i18n('hud_gold') || 'GOLD', cw / 2, 35);
+
+    // Timer
+    const mins = Math.floor(this.totalTimer / 60);
+    const secs = Math.floor(this.totalTimer % 60);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '14px Outfit';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${mins}:${secs.toString().padStart(2, '0')}`, cw - 10, 20);
+
+    // Kills
+    ctx.fillStyle = '#ef4444';
+    ctx.font = '11px Outfit';
+    ctx.fillText(`${this.kills} ${this.game.i18n('hud_kills_suffix') || 'kills'}`, cw - 10, 38);
+
+    // Squad count
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 13px Outfit';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${this.squad.size}`, cw - 8, ch - 14);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '9px Outfit';
+    ctx.fillText(this.game.i18n('hud_squad') || 'SQUAD', cw - 8, ch - 26);
+
+    // Squad bar
+    const barY = ch - 6;
+    const pct = Math.min(this.squad.size / CONFIG.SOFT_CAP, 1);
+    ctx.fillStyle = 'rgba(30,41,59,0.7)';
+    ctx.fillRect(0, barY, cw, 6);
+    const gradient = ctx.createLinearGradient(0, barY, cw * pct, barY);
+    gradient.addColorStop(0, '#a78bfa');
+    gradient.addColorStop(1, '#7c3aed');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, barY, cw * pct, 6);
+
+    // --- Buff bar ---
+    this.drawBuffBar(ctx);
+
+    // --- Boss HP bar ---
+    if (this.boss && this.boss.active && !this.boss.dying) {
+      const bossBarW = cw * 0.6;
+      const bossBarH = 8;
+      const bossBarX = (cw - bossBarW) / 2;
+      const bossBarY = 56;
+      const bossHpPct = Math.max(0, this.boss.hp / this.boss.maxHp);
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(bossBarX - 1, bossBarY - 1, bossBarW + 2, bossBarH + 2);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(bossBarX, bossBarY, bossBarW, bossBarH);
+      const bossGrad = ctx.createLinearGradient(bossBarX, bossBarY, bossBarX + bossBarW * bossHpPct, bossBarY);
+      bossGrad.addColorStop(0, '#ef4444');
+      bossGrad.addColorStop(1, '#dc2626');
+      ctx.fillStyle = bossGrad;
+      ctx.fillRect(bossBarX, bossBarY, bossBarW * bossHpPct, bossBarH);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 9px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText(this.boss.name || 'BOSS', cw / 2, bossBarY + bossBarH + 12);
+    }
+
+    // --- Danger overlay ---
+    if (this.dangerAlpha > 0) {
+      ctx.fillStyle = `rgba(239,68,68,${this.dangerAlpha})`;
+      ctx.fillRect(0, 0, cw, ch);
+    }
+
+    // --- Transition text ---
+    if (this.transitionTimer > 0) {
+      const alpha = this.transitionTimer > 1 ? 1 : this.transitionTimer;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.fillStyle = '#a78bfa';
+      ctx.font = 'bold 28px Syne';
+      ctx.textAlign = 'center';
+      ctx.fillText(this.transitionText, cw / 2, ch / 2);
+      ctx.globalAlpha = 1;
+    }
+
+    // --- Combo / floating text ---
+    if (this.comboTimer > 0) {
+      ctx.globalAlpha = this.comboTimer;
+      ctx.fillStyle = '#a78bfa';
+      ctx.font = 'bold 24px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText(this.comboText, cw / 2, ch * 0.4 - (1 - this.comboTimer) * 30);
+      ctx.globalAlpha = 1;
+    }
+
+    // --- Wave cooldown timer ---
+    if (!this.waveCooldown && !this.bossWave && this.waveTimer > 0 && this.waveTimer < 5 && this.transitionTimer <= 0) {
+      ctx.fillStyle = '#a78bfa';
+      ctx.font = 'bold 20px Outfit';
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = 0.7;
+      ctx.fillText(Math.ceil(this.waveTimer).toString(), cw / 2, ch * 0.25);
+      ctx.globalAlpha = 1;
+    }
+  }
+
   draw(ctx) {
+    // If 3D renderer is active, only draw HUD
+    if (this.game.renderer3d) {
+      this.drawHUD(ctx);
+      return;
+    }
+
     const cw = CONFIG.CANVAS_WIDTH;
     this.road.draw(ctx);
 
@@ -575,7 +724,7 @@ class EndlessScene {
     // Particles (no scaling — effects)
     this.particles.draw(ctx);
 
-    this.drawHUD(ctx);
+    this.drawTopBar(ctx);
     this.drawBuffBar(ctx);
 
     // Danger overlay
@@ -608,7 +757,7 @@ class EndlessScene {
     }
   }
 
-  drawHUD(ctx) {
+  drawTopBar(ctx) {
     const cw = CONFIG.CANVAS_WIDTH;
 
     // Top bar

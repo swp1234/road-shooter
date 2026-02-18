@@ -19,6 +19,9 @@ class Game {
     this.translations = {};
     this.lang = this.saveData.settings.language || 'ko';
 
+    // 3D Renderer
+    this.renderer3d = null;
+
     // Input
     this.isDragging = false;
     this.dragStartX = 0;
@@ -28,6 +31,7 @@ class Game {
 
     this.setupCanvas();
     this.setupInput();
+    this.init3D();
     this.loadI18n().then(() => {
       this.showMenu();
       this.start();
@@ -63,6 +67,11 @@ class Game {
       // Input: screen coords → game coords
       this.scaleX = gameW / cssW;
       this.scaleY = gameH / cssH;
+
+      // Resize 3D renderer to match
+      if (this.renderer3d) {
+        this.renderer3d.resize(Math.floor(cssW), Math.floor(cssH));
+      }
     };
     resize();
     window.addEventListener('resize', resize);
@@ -129,6 +138,27 @@ class Game {
     });
   }
 
+  init3D() {
+    if (typeof THREE === 'undefined' || typeof Renderer3D === 'undefined') return;
+    try {
+      const container = document.getElementById('game-container');
+      this.renderer3d = new Renderer3D(container);
+      // Position WebGL canvas behind the 2D overlay, centered to match flex layout
+      const dom = this.renderer3d.domElement;
+      dom.style.position = 'absolute';
+      dom.style.top = '50%';
+      dom.style.left = '50%';
+      dom.style.transform = 'translate(-50%, -50%)';
+      dom.style.zIndex = '0';
+      // 2D canvas on top for HUD overlay
+      this.canvas.style.position = 'relative';
+      this.canvas.style.zIndex = '1';
+    } catch (e) {
+      console.warn('3D renderer init failed, falling back to 2D:', e);
+      this.renderer3d = null;
+    }
+  }
+
   async loadI18n() {
     try {
       const resp = await fetch(`js/locales/${this.lang}.json`);
@@ -165,15 +195,34 @@ class Game {
       this.shakeY = 0;
     }
 
-    // Clear at native resolution
-    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    const is3DScene = this.renderer3d && this.scene &&
+      (this.scene instanceof RunScene || this.scene instanceof EndlessScene);
 
-    // Apply scale + shake: game coordinates (400x700) → high-res pixel buffer
-    const sx = this.shakeX * this.renderScale;
-    const sy = this.shakeY * this.renderScale;
-    this.ctx.setTransform(this.renderScale, 0, 0, this.renderScale, sx, sy);
-    if (this.scene) this.scene.draw(this.ctx);
+    if (is3DScene && this.scene.get3DState) {
+      // 3D world rendering
+      const state = this.scene.get3DState();
+      state.shakeX = this.shakeX;
+      state.shakeY = this.shakeY;
+      this.renderer3d.render(state);
+      this.renderer3d.domElement.style.display = 'block';
+
+      // 2D HUD overlay (transparent background)
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      const sx = this.shakeX * this.renderScale;
+      const sy = this.shakeY * this.renderScale;
+      this.ctx.setTransform(this.renderScale, 0, 0, this.renderScale, sx, sy);
+      if (this.scene.drawHUD) this.scene.drawHUD(this.ctx);
+    } else {
+      // Full 2D rendering (menu, result, upgrade)
+      if (this.renderer3d) this.renderer3d.domElement.style.display = 'none';
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      const sx = this.shakeX * this.renderScale;
+      const sy = this.shakeY * this.renderScale;
+      this.ctx.setTransform(this.renderScale, 0, 0, this.renderScale, sx, sy);
+      if (this.scene) this.scene.draw(this.ctx);
+    }
 
     requestAnimationFrame((t) => this.loop(t));
   }
