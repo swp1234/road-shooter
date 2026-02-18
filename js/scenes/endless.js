@@ -15,7 +15,9 @@ class EndlessScene {
     this.squad = new Squad(startSize, hpBonus);
 
     // Upgrade multipliers
-    this.dmgMul = 1 + (ups.baseDamage || 0) * CONFIG.UPGRADES.baseDamage.perLevel;
+    this._baseDmgMul = 1 + (ups.baseDamage || 0) * CONFIG.UPGRADES.baseDamage.perLevel;
+    this.dmgMul = this._baseDmgMul;
+    this.waveDmgBonus = 0;
     this.goldMul = 1 + (ups.goldBonus || 0) * CONFIG.UPGRADES.goldBonus.perLevel;
     this.speedMul = 1 + (ups.moveSpeed || 0) * CONFIG.UPGRADES.moveSpeed.perLevel;
     this.magnetMul = 1 + (ups.magnetRange || 0) * CONFIG.UPGRADES.magnetRange.perLevel;
@@ -61,6 +63,10 @@ class EndlessScene {
     // Hit freeze
     this.hitFreezeTimer = 0;
 
+    // Death sequence
+    this.deathSequence = false;
+    this.deathTimer = 0;
+
     // Transition
     this.transitionText = this.game.i18n('endless_start') || 'ENDLESS MODE';
     this.transitionTimer = 2;
@@ -105,11 +111,23 @@ class EndlessScene {
     this.squad.update(dt);
     this.maxSquad = Math.max(this.maxSquad, this.squad.size);
 
-    // Game over check
-    if (this.squad.size <= 0) {
-      this.game.slowMotion(0.4);
-      this.game.shake(8, 0.4);
-      this.endRun();
+    // Game over (with death burst effect)
+    if (this.squad.size <= 0 && !this.deathSequence) {
+      this.deathSequence = true;
+      this.deathTimer = 1.0;
+      this.game.slowMotion(0.6);
+      this.game.shake(10, 0.5);
+      this.particles.emit(this.squad.x, this.squad.y, '#ef4444', 30, 8, 0.8, 6);
+      this.particles.emit(this.squad.x, this.squad.y, '#fbbf24', 15, 5, 0.6, 4);
+      Sound.explosion();
+    }
+    if (this.deathSequence) {
+      this.deathTimer -= dt;
+      if (this.deathTimer <= 0) {
+        this.endRun();
+        return;
+      }
+      this.particles.update(dt);
       return;
     }
 
@@ -217,10 +235,14 @@ class EndlessScene {
       if (alive === 0) {
         this.waveCooldown = false;
         this.waveTimer = 2;
-        // Wave clear celebration
+        // Wave clear celebration + mid-run dmg bonus
         this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.3, `${this.game.i18n('hud_wave') || 'Wave'} ${this.wave} ${this.game.i18n('hud_wave_clear') || 'CLEAR!'}`, '#fbbf24', 20);
         Sound.waveClear();
         this.game.shake(3, 0.15);
+        // Mid-run progression: +8% dmg per wave cleared
+        this.waveDmgBonus = (this.waveDmgBonus || 0) + 0.08;
+        this.dmgMul = this._baseDmgMul * (1 + this.waveDmgBonus);
+        this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.36, `DMG +${Math.round(this.waveDmgBonus * 100)}%`, '#10b981', 12);
       }
     }
   }
@@ -340,7 +362,7 @@ class EndlessScene {
 
   spawnEnemyWave() {
     const speedScale = 1 + (this.wave - 1) * 0.04;
-    const count = 6 + this.wave * 3; // More enemies per wave
+    const count = 6 + this.wave * 2; // enemies per wave
     const available = [];
     for (const [type, cfg] of Object.entries(CONFIG.ENEMIES)) {
       if (type === 'rusher') continue;
@@ -432,7 +454,7 @@ class EndlessScene {
       case 'nuke':
         for (const e of this.enemies) {
           if (e.active && !e.dying) {
-            e.takeDamage(999);
+            e.takeDamage(250);
             this.kills++;
             this.gold += e.reward;
             this.particles.emitDeath(e.x, e.y);

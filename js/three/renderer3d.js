@@ -47,6 +47,7 @@ class Renderer3D {
     this._bossEntity = null;
     this._itemMeshes = new Map();
     this._gateMeshes = new Map();
+    this._trapMeshes = new Map();
 
     // --- Bullet pool ---
     this._bulletPoolSize = 200;
@@ -89,6 +90,7 @@ class Renderer3D {
     this._syncItems(state.items);
     this._syncGates(state.gates);
     this._syncBullets(state.bulletPool);
+    if (state.traps) this._syncTraps(state.traps);
     this._syncEffects(state);
 
     // Animate road scroll
@@ -117,11 +119,13 @@ class Renderer3D {
     for (const [, m] of this._enemyMeshes) this.scene.remove(m);
     for (const [, m] of this._itemMeshes) this.scene.remove(m);
     for (const [, m] of this._gateMeshes) this.scene.remove(m);
+    for (const [, m] of this._trapMeshes) this.scene.remove(m);
     if (this._bossMesh) this.scene.remove(this._bossMesh);
     this._charMeshes.clear();
     this._enemyMeshes.clear();
     this._itemMeshes.clear();
     this._gateMeshes.clear();
+    this._trapMeshes.clear();
     this._bossMesh = null;
     this._bossEntity = null;
 
@@ -448,6 +452,8 @@ class Renderer3D {
     const colors = {
       rusher:    0xFF3333,
       shooter:   0xFF6633,
+      tank:      0x475569,
+      brute:     0x7F1D1D,
       mortar:    0xCC4400,
       detonator: 0xFF0000,
       thief:     0x333333,
@@ -536,6 +542,61 @@ class Renderer3D {
         disc.position.y = bodyH + headR * 2 + 0.08;
         disc.userData.isPropeller = true;
         group.add(disc);
+        break;
+      }
+
+      case 'tank': {
+        // Bulky armored body with wide shoulders and cannon
+        const tankScale = 1.5;
+        body.scale.set(tankScale * 1.3, tankScale, tankScale * 1.3);
+        body.position.y = bodyH * tankScale / 2;
+        head.scale.setScalar(tankScale * 0.9);
+        head.position.y = bodyH * tankScale + headR * tankScale * 0.5;
+        // Shoulder armor plates
+        const armorGeo = new THREE.BoxGeometry(0.18, 0.12, 0.25);
+        const armorMat = new THREE.MeshLambertMaterial({ color: 0x64748B });
+        const lArmor = new THREE.Mesh(armorGeo, armorMat);
+        lArmor.position.set(-0.28 * tankScale, bodyH * tankScale * 0.75, 0);
+        group.add(lArmor);
+        const rArmor = new THREE.Mesh(armorGeo, armorMat);
+        rArmor.position.set(0.28 * tankScale, bodyH * tankScale * 0.75, 0);
+        group.add(rArmor);
+        // Cannon barrel
+        const cannonGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.5, 6);
+        const cannonMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
+        const cannon = new THREE.Mesh(cannonGeo, cannonMat);
+        cannon.position.set(0.2 * tankScale, bodyH * tankScale * 0.5, -0.3);
+        cannon.rotation.x = -0.4;
+        group.add(cannon);
+        break;
+      }
+
+      case 'brute': {
+        // Massive hulking body with spiked fists
+        const bruteScale = 2.5;
+        body.scale.set(bruteScale * 1.5, bruteScale * 1.2, bruteScale * 1.4);
+        body.position.y = bodyH * bruteScale * 0.6;
+        head.scale.setScalar(bruteScale * 0.8);
+        head.position.y = bodyH * bruteScale * 1.2 + headR * bruteScale * 0.4;
+        // Massive fists
+        const fistGeo = new THREE.SphereGeometry(0.15, 6, 5);
+        const fistMat = new THREE.MeshLambertMaterial({ color: 0x991B1B });
+        const lFist = new THREE.Mesh(fistGeo, fistMat);
+        lFist.position.set(-0.4 * bruteScale, bodyH * bruteScale * 0.3, -0.2);
+        lFist.scale.setScalar(bruteScale * 0.8);
+        group.add(lFist);
+        const rFist = new THREE.Mesh(fistGeo, fistMat);
+        rFist.position.set(0.4 * bruteScale, bodyH * bruteScale * 0.3, -0.2);
+        rFist.scale.setScalar(bruteScale * 0.8);
+        group.add(rFist);
+        // Spikes on back
+        const spikeGeo = new THREE.ConeGeometry(0.06, 0.2, 4);
+        const spikeMat = new THREE.MeshLambertMaterial({ color: 0xDC2626 });
+        for (let i = 0; i < 3; i++) {
+          const spike = new THREE.Mesh(spikeGeo, spikeMat);
+          spike.position.set((i - 1) * 0.15 * bruteScale, bodyH * bruteScale * 1.1, 0.15);
+          group.add(spike);
+        }
         break;
       }
 
@@ -1297,6 +1358,117 @@ class Renderer3D {
         this._gateMeshes.delete(entity);
       }
     }
+  }
+
+  _syncTraps(traps) {
+    if (!traps) return;
+    const seen = new Set();
+
+    for (const trap of traps) {
+      if (!trap.active) continue;
+      seen.add(trap);
+
+      let mesh = this._trapMeshes.get(trap);
+      if (!mesh) {
+        mesh = this._createTrapMesh(trap);
+        this._trapMeshes.set(trap, mesh);
+        this.scene.add(mesh);
+      }
+
+      const pos = this.gameToWorld(trap.x, trap.y);
+      mesh.position.x = pos.x;
+      mesh.position.z = pos.z;
+      mesh.position.y = 0.01; // just above ground
+
+      // Triggered: fade + expand
+      if (trap.triggered) {
+        mesh.scale.setScalar(1.5);
+        mesh.traverse(child => {
+          if (child.isMesh && child.material) {
+            child.material.opacity = Math.max(0, (child.material._baseOpacity || 0.6) * 0.3);
+          }
+        });
+      } else {
+        // Subtle pulsing glow
+        const pulse = 1 + 0.08 * Math.sin(this._elapsed * 4 + trap.x);
+        mesh.scale.setScalar(pulse);
+      }
+    }
+
+    // Remove stale
+    for (const [entity, mesh] of this._trapMeshes) {
+      if (!seen.has(entity)) {
+        this.scene.remove(mesh);
+        this._trapMeshes.delete(entity);
+      }
+    }
+  }
+
+  _createTrapMesh(trap) {
+    const group = new THREE.Group();
+    const type = trap.type || 'mine';
+
+    if (type === 'mine') {
+      // Red glowing disc with spikes
+      const baseGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.08, 12);
+      const baseMat = new THREE.MeshLambertMaterial({
+        color: 0xCC2222,
+        transparent: true,
+        opacity: 0.8
+      });
+      baseMat._baseOpacity = 0.8;
+      const base = new THREE.Mesh(baseGeo, baseMat);
+      base.position.y = 0.04;
+      group.add(base);
+
+      // Center dome
+      const domeGeo = new THREE.SphereGeometry(0.15, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2);
+      const domeMat = new THREE.MeshBasicMaterial({ color: 0xFF4444 });
+      const dome = new THREE.Mesh(domeGeo, domeMat);
+      dome.position.y = 0.08;
+      group.add(dome);
+
+      // Warning glow ring
+      const ringGeo = new THREE.RingGeometry(0.45, 0.55, 16);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0xFF0000,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.DoubleSide
+      });
+      ringMat._baseOpacity = 0.3;
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.y = 0.02;
+      group.add(ring);
+    } else {
+      // Quicksand: brown swirling disc
+      const sandGeo = new THREE.CylinderGeometry(0.6, 0.5, 0.04, 16);
+      const sandMat = new THREE.MeshLambertMaterial({
+        color: 0xC2A569,
+        transparent: true,
+        opacity: 0.7
+      });
+      sandMat._baseOpacity = 0.7;
+      const sand = new THREE.Mesh(sandGeo, sandMat);
+      sand.position.y = 0.02;
+      group.add(sand);
+
+      // Inner swirl
+      const swirlGeo = new THREE.CylinderGeometry(0.3, 0.25, 0.03, 12);
+      const swirlMat = new THREE.MeshLambertMaterial({
+        color: 0x8B7355,
+        transparent: true,
+        opacity: 0.6
+      });
+      swirlMat._baseOpacity = 0.6;
+      const swirl = new THREE.Mesh(swirlGeo, swirlMat);
+      swirl.position.y = 0.05;
+      swirl.userData.isSwirl = true;
+      group.add(swirl);
+    }
+
+    return group;
   }
 
   _syncBullets(bulletPool) {

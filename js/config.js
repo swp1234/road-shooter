@@ -26,7 +26,7 @@ const CONFIG = {
   // Character Types
   CHAR_TYPES: {
     rifleman:   { dmg: 10, range: 150, hp: 1, fireRate: 1.0, color: '#10b981', size: 4 },
-    tanker:     { dmg: 5,  range: 50,  hp: 3, fireRate: 0.6, color: '#3b82f6', size: 6 },
+    tanker:     { dmg: 7,  range: 50,  hp: 3, fireRate: 0.7, color: '#3b82f6', size: 6 },
     sniper:     { dmg: 30, range: 300, hp: 1, fireRate: 0.4, color: '#8b5cf6', size: 4 },
     bomber:     { dmg: 20, range: 120, hp: 1, fireRate: 0.3, color: '#f97316', size: 4, aoe: 40 },
     shotgunner: { dmg: 6,  range: 90,  hp: 1, fireRate: 0.45, color: '#dc2626', size: 5, spread: 5 },
@@ -52,7 +52,7 @@ const CONFIG = {
     shieldBuff:  { value: 5,   color: '#60a5fa', label: 'SHIELD', isBuff: true, buffType: 'shield', weight: 6 },
     rapidFire:   { value: 2,   color: '#eab308', label: 'RAPID',  isBuff: true, buffType: 'fireRate', duration: 8, weight: 7 },
     magnetPulse: { value: 80,  color: '#a855f7', label: 'MAGNET', isBuff: true, buffType: 'magnet', duration: 6, weight: 5 },
-    nuke:        { value: 999, color: '#ff6b35', label: 'NUKE!',  isBuff: true, buffType: 'nuke', weight: 2 }
+    nuke:        { value: 250, color: '#ff6b35', label: 'NUKE!',  isBuff: true, buffType: 'nuke', weight: 2 }
   },
 
   // Gates
@@ -66,8 +66,8 @@ const CONFIG = {
     tank:      { hp: 15, speed: 0.8, dmg: 2, color: '#475569', size: 26, shape: 'tank',     reward: 12, minStage: 1 },
     brute:     { hp: 45, speed: 0.4, dmg: 5, color: '#7f1d1d', size: 36, shape: 'brute',    reward: 25, minStage: 3 },
     mortar:    { hp: 5,  speed: 0.6, dmg: 2, color: '#ea580c', size: 16, shape: 'circle',   reward: 8,  fireRate: 0.5, minStage: 4 },
-    detonator: { hp: 3,  speed: 2.8, dmg: 5, color: '#dc2626', size: 12, shape: 'circle',   reward: 6,  minStage: 6 },
-    thief:     { hp: 2,  speed: 4,   dmg: 0, color: '#1f2937', size: 12, shape: 'triangle', reward: 10, minStage: 7 },
+    detonator: { hp: 3,  speed: 2.8, dmg: 5, color: '#dc2626', size: 12, shape: 'circle',   reward: 6,  minStage: 4 },
+    thief:     { hp: 2,  speed: 4,   dmg: 1, color: '#1f2937', size: 12, shape: 'triangle', reward: 10, minStage: 7 },
     flanker:   { hp: 4,  speed: 2.8, dmg: 1, color: '#991b1b', size: 14, shape: 'diamond',  reward: 7,  fireRate: 1.3, minStage: 5 },
     elite:     { hp: 30, speed: 0.3, dmg: 3, color: '#7c3aed', size: 42, shape: 'elite',    reward: 30, fireRate: 1.0, minStage: 2 }
   },
@@ -75,8 +75,8 @@ const CONFIG = {
   // Upgrades
   UPGRADES: {
     startSquad:  { max: 4, baseCost: 500,  costMul: 3,   effect: '+1 starting soldier', perLevel: 1 },
-    baseDamage:  { max: 10, baseCost: 200,  costMul: 1.8, effect: '+10% damage', perLevel: 0.10 },
-    baseHP:      { max: 5,  baseCost: 300,  costMul: 2.2, effect: '+1 squad HP', perLevel: 1 },
+    baseDamage:  { max: 10, baseCost: 200,  costMul: 1.6, effect: '+15% damage', perLevel: 0.15 },
+    baseHP:      { max: 5,  baseCost: 300,  costMul: 1.8, effect: '+1 squad HP', perLevel: 1 },
     moveSpeed:   { max: 5,  baseCost: 200,  costMul: 1.5, effect: '+5% move speed', perLevel: 0.05 },
     magnetRange: { max: 5,  baseCost: 150,  costMul: 1.5, effect: '+10% pickup range', perLevel: 0.10 },
     goldBonus:   { max: 10, baseCost: 300,  costMul: 1.6, effect: '+10% gold', perLevel: 0.10 }
@@ -150,10 +150,10 @@ const CONFIG = {
 
   // Difficulty scaling per stage
   DIFFICULTY_SCALE: {
-    enemyHpMul: 0.15,     // +15% HP per stage (was 0.1)
+    enemyHpMul: 0.15,     // +15% HP per stage
     enemyCountAdd: 2,      // +2 enemies per stage
-    enemySpeedMul: 0.05,   // +5% speed per stage (NEW)
-    itemReduction: 0.03,   // -3% item frequency per stage
+    enemySpeedMul: 0.05,   // +5% speed per stage
+    itemReduction: 0.01,   // -1% item frequency per stage (was 3% — too punishing)
     spawnRateReduction: 0.08 // -8% spawn interval per stage (faster spawns)
   }
 };

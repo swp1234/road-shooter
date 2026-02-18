@@ -21,7 +21,9 @@ class RunScene {
     this.squad = new Squad(startSize, hpBonus);
 
     // Upgrade multipliers
-    this.dmgMul = 1 + (ups.baseDamage || 0) * CONFIG.UPGRADES.baseDamage.perLevel;
+    this._baseDmgMul = 1 + (ups.baseDamage || 0) * CONFIG.UPGRADES.baseDamage.perLevel;
+    this.dmgMul = this._baseDmgMul;
+    this.waveDmgBonus = 0;
     this.goldMul = 1 + (ups.goldBonus || 0) * CONFIG.UPGRADES.goldBonus.perLevel;
     this.speedMul = 1 + (ups.moveSpeed || 0) * CONFIG.UPGRADES.moveSpeed.perLevel;
     this.magnetMul = 1 + (ups.magnetRange || 0) * CONFIG.UPGRADES.magnetRange.perLevel;
@@ -73,6 +75,10 @@ class RunScene {
     // Hit freeze (stagger on big kills)
     this.hitFreezeTimer = 0;
 
+    // Death sequence
+    this.deathSequence = false;
+    this.deathTimer = 0;
+
     // Buffs (power-up timers)
     this.buffs = { dmg: 0, shield: 0, fireRate: 0, magnet: 0 };
 
@@ -106,7 +112,8 @@ class RunScene {
         this.segmentTimer = CONFIG.BOSS_DURATION;
         const rot = CONFIG.BOSS_ROTATION;
         const bossType = rot[(this.stage - 1) % rot.length];
-        this.boss = new Boss(bossType, this.stageMul);
+        const bossMul = 1 + (this.stage - 1) * 0.25; // Bosses scale harder than mobs
+        this.boss = new Boss(bossType, bossMul);
         this.showSegmentIntro(`${this.game.i18n('run_boss') || 'BOSS'}`);
         this.enemies = [];
       } else {
@@ -181,11 +188,25 @@ class RunScene {
     this.squad.update(dt);
     this.maxSquad = Math.max(this.maxSquad, this.squad.size);
 
-    // Check game over
-    if (this.squad.size <= 0) {
-      this.game.slowMotion(0.4);
-      this.game.shake(8, 0.4);
-      this.endRun(false);
+    // Check game over (with death burst effect)
+    if (this.squad.size <= 0 && !this.deathSequence) {
+      this.deathSequence = true;
+      this.deathTimer = 1.0; // 1 second death animation
+      this.game.slowMotion(0.6);
+      this.game.shake(10, 0.5);
+      // Death burst at squad position
+      this.particles.emit(this.squad.x, this.squad.y, '#ef4444', 30, 8, 0.8, 6);
+      this.particles.emit(this.squad.x, this.squad.y, '#fbbf24', 15, 5, 0.6, 4);
+      Sound.explosion();
+    }
+    if (this.deathSequence) {
+      this.deathTimer -= dt;
+      if (this.deathTimer <= 0) {
+        this.endRun(false);
+        return;
+      }
+      // Only update particles during death sequence
+      this.particles.update(dt);
       return;
     }
 
@@ -286,7 +307,7 @@ class RunScene {
     if (this.enemySpawnTimer <= 0 && this.waveCount < maxWaves) {
       this.spawnWave();
       this.waveCount++;
-      this.enemySpawnTimer = Math.max(1.5, 2.5 * this.spawnMul); // 1.5-2.5s (was 5s)
+      this.enemySpawnTimer = Math.max(2.5, 3.0 * this.spawnMul); // 2.5-3.0s spacing
     }
 
     // Auto combat with buffs
@@ -316,13 +337,17 @@ class RunScene {
 
     // Advance when timer expires and enemies clear
     const aliveEnemies = this.enemies.filter(e => e.active && !e.dying).length;
-    // Wave clear celebration
+    // Wave clear celebration + mid-run dmg bonus
     if (aliveEnemies === 0 && this.enemies.length > 0 && this.waveCount > 0 && this.waveClearTimer <= 0) {
       this.waveClearTimer = 1.5;
       this.waveClearText = `${this.game.i18n('hud_wave') || 'Wave'} ${this.waveCount} ${this.game.i18n('hud_wave_clear') || 'CLEAR!'}`;
       this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.3, this.waveClearText, '#fbbf24', 20);
       Sound.waveClear();
       this.game.shake(3, 0.15);
+      // Mid-run progression: +8% dmg per wave cleared
+      this.waveDmgBonus = (this.waveDmgBonus || 0) + 0.08;
+      this.dmgMul = this._baseDmgMul * (1 + this.waveDmgBonus);
+      this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.36, `DMG +${Math.round(this.waveDmgBonus * 100)}%`, '#10b981', 12);
     }
     if (this.segmentTimer <= 0 && aliveEnemies === 0) {
       this.nextSegment();
@@ -497,8 +522,8 @@ class RunScene {
   }
 
   spawnWave() {
-    const baseCount = 5 + this.segment * 3 + this.countAdd;
-    const count = baseCount + Math.floor(Math.random() * 4);
+    const baseCount = 5 + this.segment * 2 + this.countAdd;
+    const count = baseCount + Math.floor(Math.random() * 3);
     const available = this.getAvailableEnemyTypes();
     for (let i = 0; i < count; i++) {
       let type;
@@ -735,7 +760,7 @@ class RunScene {
       case 'nuke':
         for (const e of this.enemies) {
           if (e.active && !e.dying) {
-            e.takeDamage(999);
+            e.takeDamage(250);
             this.kills++;
             this.gold += e.reward;
             this.particles.emitDeath(e.x, e.y);
