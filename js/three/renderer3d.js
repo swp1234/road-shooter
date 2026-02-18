@@ -23,13 +23,13 @@ class Renderer3D {
 
     // --- Scene ---
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0x87CEEB, 18, 38);
+    this.scene.fog = new THREE.Fog(0x87CEEB, 25, 45);
 
     // --- Camera ---
     const w = container.clientWidth || CONFIG.CANVAS_WIDTH;
     const h = container.clientHeight || CONFIG.CANVAS_HEIGHT;
     this.camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 200);
-    this.camera.position.set(0, 6, 3);
+    this.camera.position.set(0, 8, 5);
     this.camera.lookAt(0, 0, -6);
 
     // --- Lighting ---
@@ -97,7 +97,7 @@ class Renderer3D {
     }
 
     // Camera shake
-    const baseX = 0, baseY = 6, baseZ = 3;
+    const baseX = 0, baseY = 8, baseZ = 5;
     const sx = (state.shakeX || 0) * this.SCALE * 0.5;
     const sy = (state.shakeY || 0) * this.SCALE * 0.5;
     this.camera.position.set(baseX + sx, baseY + sy, baseZ);
