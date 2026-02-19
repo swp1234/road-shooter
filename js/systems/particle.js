@@ -151,6 +151,24 @@ class ParticleSystem {
     this.emitText(x, y - 10, 'BLOCKED', '#60a5fa', 12);
   }
 
+  // Muzzle flash on bullet fire
+  emitMuzzleFlash(x, y) {
+    this.emit(x, y, '#ffe566', 3, 2.5, 0.07, 1.2);
+    this.emit(x, y, '#fff', 1, 1.5, 0.05, 0.8);
+  }
+
+  // Enemy death with color by type
+  emitEnemyDeath(x, y, type) {
+    const colors = {
+      rusher: '#f87171', shooter: '#60a5fa', tank: '#a78bfa',
+      elite: '#f59e0b', flanker: '#34d399', thief: '#e879f9',
+      detonator: '#ff6b35', brute: '#dc2626', sniper: '#38bdf8'
+    };
+    const color = colors[type] || '#ef4444';
+    this.emit(x, y, color, 8, 4, 0.38, 2.5);
+    this.emit(x, y, '#fff', 2, 2, 0.15, 1.5);
+  }
+
   update(dt) {
     for (let i = this.particles.length - 1; i >= 0; i--) {
       this.particles[i].update(dt);

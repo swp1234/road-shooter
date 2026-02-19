@@ -5,7 +5,7 @@ class CombatSystem {
   }
 
   // Squad auto-fire: at enemies if available, else straight forward
-  squadFire(squad, enemies, boss, dmgMul = 1, rapidFire = false) {
+  squadFire(squad, enemies, boss, dmgMul = 1, rapidFire = false, particles = null) {
     const firers = squad.getFirers();
     const targets = [];
 
@@ -38,6 +38,7 @@ class CombatSystem {
 
         if (nearest) {
           char.fire();
+          if (particles && Math.random() < 0.3) particles.emitMuzzleFlash(char.x, char.y - 3);
           if (rapidFire) char.fireTimer *= 0.6; // Rapid fire: 40% faster, not double bullets
 
           // Lead prediction
@@ -102,6 +103,7 @@ class CombatSystem {
         } else {
           // No target in range — fire straight forward with tighter spread
           char.fire();
+          if (particles && Math.random() < 0.3) particles.emitMuzzleFlash(char.x, char.y - 3);
           const spread = (Math.random() - 0.5) * 0.3;
           this.bulletPool.spawn(char.x, char.y - 3, spread, -speed, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
           if (Math.random() < 0.05) Sound.shoot();
@@ -109,6 +111,7 @@ class CombatSystem {
       } else {
         // No enemies at all — always fire forward
         char.fire();
+        if (particles && Math.random() < 0.3) particles.emitMuzzleFlash(char.x, char.y - 3);
         const spread = (Math.random() - 0.5) * 0.4;
         this.bulletPool.spawn(char.x, char.y - 3, spread, -speed, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
         if (Math.random() < 0.05) Sound.shoot();
@@ -198,7 +201,7 @@ class CombatSystem {
           if (killed) {
             kills++;
             gold += e.reward;
-            particles.emitDeath(e.x, e.y);
+            particles.emitEnemyDeath(e.x, e.y, e.type);
             Sound.enemyDeath();
           } else {
             Sound.enemyHit();
@@ -214,7 +217,7 @@ class CombatSystem {
                 if (splashKill) {
                   kills++;
                   gold += e2.reward;
-                  particles.emitDeath(e2.x, e2.y);
+                  particles.emitEnemyDeath(e2.x, e2.y, e2.type);
                   Sound.enemyDeath();
                 }
               }
@@ -280,7 +283,7 @@ class CombatSystem {
           if (e.type === 'rusher') {
             const died = char.takeDamage(e.dmg);
             e.takeDamage(999);
-            particles.emitDeath(e.x, e.y);
+            particles.emitEnemyDeath(e.x, e.y, e.type);
             if (died) { losses++; particles.emitDeath(char.x, char.y); }
           } else if (e.type === 'tank') {
             // Tank: damage on cooldown (0.5s between hits)

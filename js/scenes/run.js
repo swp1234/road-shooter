@@ -263,7 +263,7 @@ class RunScene {
     // Always run combat - squad should always be shooting
     const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
     const rapid = this.buffs.fireRate > 0;
-    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid);
+    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid, this.particles);
     this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
     const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
     this.kills += hitResult.kills;
@@ -313,7 +313,7 @@ class RunScene {
     // Auto combat with buffs
     const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
     const rapid = this.buffs.fireRate > 0;
-    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid);
+    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid, this.particles);
     this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
 
     // Check hits
@@ -399,7 +399,7 @@ class RunScene {
       // Combat with buffs
       const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
       const rapid = this.buffs.fireRate > 0;
-      this.combat.squadFire(this.squad, this.enemies, this.boss, dmg, rapid);
+      this.combat.squadFire(this.squad, this.enemies, this.boss, dmg, rapid, this.particles);
       this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
 
       const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles);
@@ -788,11 +788,19 @@ class RunScene {
     }
 
     // Combo milestone announcements
-    if (this.killCombo >= 5 && this.killCombo % 5 === 0) {
-      const cw = CONFIG.CANVAS_WIDTH;
-      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.35, `${this.killCombo}x ${this.game.i18n('hud_combo') || 'COMBO'}!`, '#fbbf24', 22);
+    const cw = CONFIG.CANVAS_WIDTH;
+    if (this.killCombo === 3) {
+      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.35, `3x ${this.game.i18n('hud_combo') || 'COMBO'}!`, '#fbbf24', 18);
+      Sound.comboKill(3);
+      this.game.shake(2, 0.12);
+    } else if (this.killCombo >= 5 && this.killCombo % 5 === 0) {
+      const isEpic = this.killCombo >= 25;
+      const isGreat = this.killCombo >= 10;
+      const comboColor = isEpic ? '#ef4444' : isGreat ? '#f97316' : '#fbbf24';
+      const comboSize = isEpic ? 28 : isGreat ? 24 : 22;
+      this.particles.emitText(cw / 2, CONFIG.CANVAS_HEIGHT * 0.35, `${this.killCombo}x ${this.game.i18n('hud_combo') || 'COMBO'}!`, comboColor, comboSize);
       Sound.comboKill(this.killCombo);
-      this.game.shake(4, 0.2);
+      this.game.shake(isEpic ? 6 : isGreat ? 5 : 4, isEpic ? 0.3 : 0.2);
       // Bonus gold for combos
       const bonus = Math.floor(this.killCombo / 5) * 5;
       this.gold += bonus;
@@ -1041,11 +1049,17 @@ class RunScene {
       ctx.fillRect(bx - 2, by - 2, bw + 4, bh + 4);
       ctx.fillStyle = '#1e293b';
       ctx.fillRect(bx, by, bw, bh);
+      const isLowHp = hpPct < 0.3;
+      const hpPulse = isLowHp ? 0.75 + Math.sin(Date.now() / 90) * 0.25 : 1;
       const hpGrad = ctx.createLinearGradient(bx, by, bx + bw * hpPct, by);
-      hpGrad.addColorStop(0, '#ef4444');
-      hpGrad.addColorStop(1, '#dc2626');
+      hpGrad.addColorStop(0, isLowHp ? '#ff1111' : '#ef4444');
+      hpGrad.addColorStop(1, isLowHp ? '#ff3300' : '#dc2626');
+      if (isLowHp) { ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 6 * hpPulse; }
+      ctx.globalAlpha = hpPulse;
       ctx.fillStyle = hpGrad;
       ctx.fillRect(bx, by, bw * hpPct, bh);
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 9px Outfit';
       ctx.textAlign = 'center';
@@ -1206,12 +1220,15 @@ class RunScene {
     if (this.killCombo >= 3) {
       const comboAlpha = Math.min(1, this.killComboTimer / 0.5);
       ctx.globalAlpha = comboAlpha;
-      const pulse = 1 + Math.sin(Date.now() / 80) * 0.05;
-      const comboSize = Math.min(18, 12 + this.killCombo / 5);
-      ctx.font = `bold ${Math.round(comboSize * pulse)}px Outfit`;
+      const comboColor = this.killCombo >= 25 ? '#ef4444' : this.killCombo >= 10 ? '#f97316' : '#fbbf24';
+      const pulse = 1 + Math.sin(Date.now() / 80) * (this.killCombo >= 10 ? 0.1 : 0.05);
+      const comboSize = Math.min(22, 12 + this.killCombo / 4);
       ctx.textAlign = 'left';
-      ctx.fillStyle = this.killCombo >= 20 ? '#ef4444' : this.killCombo >= 10 ? '#f97316' : '#fbbf24';
+      if (this.killCombo >= 10) { ctx.shadowColor = comboColor; ctx.shadowBlur = 8; }
+      ctx.fillStyle = comboColor;
+      ctx.font = `bold ${Math.round(comboSize * pulse)}px Outfit`;
       ctx.fillText(`${this.killCombo}x`, 10, CONFIG.CANVAS_HEIGHT - 24);
+      ctx.shadowBlur = 0;
       ctx.font = '9px Outfit';
       ctx.fillStyle = '#94a3b8';
       ctx.fillText(this.game.i18n('hud_combo') || 'COMBO', 10, CONFIG.CANVAS_HEIGHT - 12);
