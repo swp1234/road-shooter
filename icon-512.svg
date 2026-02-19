@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Dark background -->
+  <rect width="512" height="512" rx="80" fill="#0a0a0a"/>
+
+  <!-- Road -->
+  <rect x="0" y="310" width="512" height="110" fill="#1a1a1a"/>
+  <rect x="0" y="345" width="512" height="8" fill="#2a2a2a"/>
+  <!-- Road center dashes -->
+  <rect x="40"  y="361" width="80" height="6" fill="#ff4444" rx="3"/>
+  <rect x="180" y="361" width="80" height="6" fill="#ff4444" rx="3"/>
+  <rect x="320" y="361" width="80" height="6" fill="#ff4444" rx="3"/>
+  <rect x="460" y="361" width="52" height="6" fill="#ff4444" rx="3"/>
+
+  <!-- Tank body -->
+  <rect x="176" y="258" width="160" height="68" rx="12" fill="#3a5a3a"/>
+  <!-- Tank turret -->
+  <rect x="206" y="228" width="92" height="42" rx="8" fill="#2d452d"/>
+  <!-- Tank barrel -->
+  <rect x="278" y="239" width="108" height="14" rx="7" fill="#1a2e1a"/>
+  <!-- Tank tread -->
+  <rect x="158" y="310" width="196" height="22" rx="8" fill="#1a2e1a"/>
+  <!-- Tread wheels -->
+  <circle cx="206" cy="321" r="11" fill="#0d1a0d"/>
+  <circle cx="256" cy="321" r="11" fill="#0d1a0d"/>
+  <circle cx="306" cy="321" r="11" fill="#0d1a0d"/>
+  <!-- Tread detail lines -->
+  <line x1="184" y1="311" x2="184" y2="331" stroke="#2d452d" stroke-width="3"/>
+  <line x1="231" y1="311" x2="231" y2="331" stroke="#2d452d" stroke-width="3"/>
+  <line x1="281" y1="311" x2="281" y2="331" stroke="#2d452d" stroke-width="3"/>
+  <line x1="331" y1="311" x2="331" y2="331" stroke="#2d452d" stroke-width="3"/>
+
+  <!-- Crosshair (top-left area) -->
+  <circle cx="120" cy="140" r="72" fill="none" stroke="#ff4444" stroke-width="4" opacity="0.9"/>
+  <circle cx="120" cy="140" r="24" fill="none" stroke="#ff4444" stroke-width="3"/>
+  <circle cx="120" cy="140" r="5" fill="#ff4444"/>
+  <line x1="120" y1="58"  x2="120" y2="222" stroke="#ff4444" stroke-width="3"/>
+  <line x1="38"  y1="140" x2="202" y2="140" stroke="#ff4444" stroke-width="3"/>
+
+  <!-- Bullet trail / speed lines -->
+  <line x1="290" y1="246" x2="395" y2="120" stroke="#ff4444" stroke-width="2" opacity="0.5" stroke-dasharray="8,6"/>
+  <line x1="285" y1="246" x2="380" y2="100" stroke="#ffaa44" stroke-width="1.5" opacity="0.3" stroke-dasharray="6,8"/>
+
+  <!-- Explosion sparks top-right -->
+  <circle cx="395" cy="100" r="10" fill="#ff4444" opacity="0.9"/>
+  <circle cx="415" cy="82"  r="6"  fill="#ff6644" opacity="0.7"/>
+  <circle cx="375" cy="78"  r="5"  fill="#ffaa44" opacity="0.6"/>
+  <circle cx="418" cy="112" r="5"  fill="#ff6644" opacity="0.6"/>
+  <circle cx="412" cy="95"  r="3"  fill="#ffffff" opacity="0.5"/>
+
+  <!-- Stars / particles -->
+  <circle cx="80"  cy="60"  r="2" fill="#ffffff" opacity="0.5"/>
+  <circle cx="440" cy="55"  r="2" fill="#ffffff" opacity="0.4"/>
+  <circle cx="460" cy="200" r="2" fill="#ffffff" opacity="0.5"/>
+  <circle cx="50"  cy="220" r="2" fill="#ffffff" opacity="0.4"/>
+
+  <!-- App name -->
+  <text x="256" y="452" font-family="Arial Black, Arial, sans-serif" font-size="52" font-weight="900" fill="#ff4444" text-anchor="middle" letter-spacing="3">ROAD</text>
+  <text x="256" y="498" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#cccccc" text-anchor="middle" letter-spacing="4">SHOOTER</text>
+</svg>
