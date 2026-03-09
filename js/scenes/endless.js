@@ -607,7 +607,11 @@ class EndlessScene {
     this.game.shake(10, 0.4);
 
     setTimeout(() => {
-      this.game.showEndlessResult(result);
+      if (typeof GameAds !== 'undefined') {
+        GameAds.showInterstitial({ onComplete: () => this.game.showEndlessResult(result) });
+      } else {
+        this.game.showEndlessResult(result);
+      }
     }, 800);
   }
 
@@ -1154,11 +1158,35 @@ class EndlessResultScene {
       ctx.fillText(this.game.i18n('result_menu') || 'MENU', menuX + btnW / 2, retryY + btnH / 2 + 1);
       this.menuBtn = { x: menuX, y: retryY, w: btnW, h: btnH };
 
+      // 2x Gold rewarded ad button
+      this.rewardBtn = null;
+      if (typeof GameAds !== 'undefined' && GameAds.isAvailable() && !this.rewardClaimed) {
+        const rwW = cw - 60;
+        const rwH = 38;
+        const rwX = 30;
+        const rwY = retryY + btnH + 12;
+        const pulse = 0.85 + Math.sin(this.animTimer * 4) * 0.15;
+        ctx.globalAlpha = pulse;
+        ctx.fillStyle = '#d97706';
+        ctx.beginPath();
+        ctx.roundRect(rwX, rwY, rwW, rwH, 8);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 13px Outfit';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+          '\uD83C\uDFA5 ' + (this.game.i18n('ad_2x_gold') || 'Watch Ad for 2x Gold'),
+          cw / 2, rwY + rwH / 2 + 1
+        );
+        ctx.globalAlpha = 1;
+        this.rewardBtn = { x: rwX, y: rwY, w: rwW, h: rwH };
+      }
+
       // Upgrade
       const upgW = 140;
       const upgH = 36;
       const upgX = (cw - upgW) / 2;
-      const upgY = retryY + btnH + 16;
+      const upgY = retryY + btnH + (this.rewardBtn ? 58 : 16);
       ctx.fillStyle = '#334155';
       ctx.beginPath();
       ctx.roundRect(upgX, upgY, upgW, upgH, 8);
@@ -1193,6 +1221,26 @@ class EndlessResultScene {
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
         Sound.uiClick();
         this.game.showMenu();
+        return true;
+      }
+    }
+    if (this.rewardBtn) {
+      const b = this.rewardBtn;
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        Sound.uiClick();
+        GameAds.showRewarded({
+          onReward: () => {
+            const bonus = this.result.gold;
+            this.game.saveData.currency.gold += bonus;
+            if (this.game.saveData.stats.totalGoldEarned) {
+              this.game.saveData.stats.totalGoldEarned += bonus;
+            }
+            SaveManager.save(this.game.saveData);
+            this.rewardClaimed = true;
+            this.result.gold *= 2;
+          },
+          onSkip: () => {}
+        });
         return true;
       }
     }

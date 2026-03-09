@@ -45,6 +45,8 @@ class Game {
     this.loadI18n().then(() => {
       // Check achievements for existing save data on boot
       if (typeof Achievements !== 'undefined') Achievements.check(this.saveData);
+      // Init ads
+      if (typeof GameAds !== 'undefined') GameAds.init();
       this.showMenu();
       this.start();
     });
