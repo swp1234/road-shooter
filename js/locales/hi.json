@@ -42,5 +42,13 @@
   "stat_bosses": "बॉस",
   "hud_blocked": "ब्लॉक!",
   "hud_combo": "कॉम्बो",
-  "hud_wave_clear": "वेव क्लियर!"
+  "hud_wave_clear": "वेव क्लियर!",
+  "daily_title": "दैनिक चुनौती",
+  "daily_kills": "दुश्मनों को मारें",
+  "daily_squad": "अधिकतम दस्ता",
+  "daily_gold": "सोना इकट्ठा करें",
+  "daily_stage": "स्टेज पूरा करें",
+  "daily_endless": "अंतहीन लहरें",
+  "daily_done": "पूर्ण!",
+  "daily_complete": "दैनिक चुनौती पूरी!"
 }

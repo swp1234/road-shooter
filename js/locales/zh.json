@@ -42,5 +42,13 @@
   "stat_bosses": "Boss",
   "hud_blocked": "格挡!",
   "hud_combo": "连击",
-  "hud_wave_clear": "波次清除!"
+  "hud_wave_clear": "波次清除!",
+  "daily_title": "每日挑战",
+  "daily_kills": "击杀敌人",
+  "daily_squad": "最大部队",
+  "daily_gold": "获取金币",
+  "daily_stage": "通关关卡",
+  "daily_endless": "无尽波次",
+  "daily_done": "完成!",
+  "daily_complete": "每日挑战完成!"
 }

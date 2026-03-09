@@ -205,6 +205,11 @@ class MenuScene {
 
     this.upgradeBtn = { x: upgX, y: rowY, w: rowBtnW, h: rowBtnH };
 
+    // Daily challenge widget
+    if (typeof DailyChallenge !== 'undefined') {
+      DailyChallenge.drawOnMenu(ctx, this.game, ch * 0.58);
+    }
+
     // Gold display
     ctx.fillStyle = CONFIG.COLORS.gold;
     ctx.font = 'bold 12px Outfit';

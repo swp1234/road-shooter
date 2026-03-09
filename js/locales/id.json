@@ -42,5 +42,13 @@
   "stat_bosses": "bos",
   "hud_blocked": "TERBLOKIR!",
   "hud_combo": "KOMBO",
-  "hud_wave_clear": "GELOMBANG BERSIH!"
+  "hud_wave_clear": "GELOMBANG BERSIH!",
+  "daily_title": "TANTANGAN HARIAN",
+  "daily_kills": "Bunuh musuh",
+  "daily_squad": "Pasukan maks",
+  "daily_gold": "Kumpulkan emas",
+  "daily_stage": "Selesaikan tahap",
+  "daily_endless": "Gelombang tanpa akhir",
+  "daily_done": "SELESAI!",
+  "daily_complete": "TANTANGAN SELESAI!"
 }

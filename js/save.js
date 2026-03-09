@@ -5,6 +5,7 @@ const SaveManager = {
   getDefault() {
     return {
       version: 1,
+      daily: { day: 0, completed: false, progress: 0 },
       progress: { maxStage: 0, stars: {}, difficulty: 'normal', endlessHighWave: 0, endlessHighScore: 0 },
       upgrades: {
         startSquad: 0, baseDamage: 0, baseHP: 0,
@@ -49,6 +50,11 @@ const SaveManager = {
       const oldStars = data.progress.stars[stage] || 0;
       data.progress.stars[stage] = Math.max(oldStars, result.stars);
     }
+    // Update daily challenge progress
+    if (typeof DailyChallenge !== 'undefined') {
+      data._dailyReward = DailyChallenge.updateProgress(data, result);
+    }
+
     this.save(data);
     return data;
   }

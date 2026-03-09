@@ -42,5 +42,13 @@
   "stat_bosses": "chefes",
   "hud_blocked": "BLOQUEADO!",
   "hud_combo": "COMBO",
-  "hud_wave_clear": "ONDA LIMPA!"
+  "hud_wave_clear": "ONDA LIMPA!",
+  "daily_title": "DESAFIO DIARIO",
+  "daily_kills": "Eliminar inimigos",
+  "daily_squad": "Esquadrao maximo",
+  "daily_gold": "Coletar ouro",
+  "daily_stage": "Completar fase",
+  "daily_endless": "Ondas infinitas",
+  "daily_done": "FEITO!",
+  "daily_complete": "DESAFIO COMPLETO!"
 }

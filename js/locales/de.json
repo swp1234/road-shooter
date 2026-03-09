@@ -42,5 +42,13 @@
   "stat_bosses": "Bosse",
   "hud_blocked": "GEBLOCKT!",
   "hud_combo": "KOMBO",
-  "hud_wave_clear": "WELLE GESCHAFFT!"
+  "hud_wave_clear": "WELLE GESCHAFFT!",
+  "daily_title": "TAGLICHE HERAUSFORDERUNG",
+  "daily_kills": "Feinde besiegen",
+  "daily_squad": "Max. Trupp",
+  "daily_gold": "Gold sammeln",
+  "daily_stage": "Stufe abschliessen",
+  "daily_endless": "Endloswellen",
+  "daily_done": "FERTIG!",
+  "daily_complete": "TAGESHERAUSFORDERUNG GESCHAFFT!"
 }

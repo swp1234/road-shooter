@@ -42,5 +42,13 @@
   "stat_bosses": "boss",
   "hud_blocked": "BLOQUÉ!",
   "hud_combo": "COMBO",
-  "hud_wave_clear": "VAGUE TERMINÉE!"
+  "hud_wave_clear": "VAGUE TERMINÉE!",
+  "daily_title": "DEFI QUOTIDIEN",
+  "daily_kills": "Tuer des ennemis",
+  "daily_squad": "Escouade max",
+  "daily_gold": "Collecter de l'or",
+  "daily_stage": "Terminer le niveau",
+  "daily_endless": "Vagues infinies",
+  "daily_done": "FAIT!",
+  "daily_complete": "DEFI ACCOMPLI!"
 }

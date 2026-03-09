@@ -587,6 +587,13 @@ class EndlessScene {
     save.currency.gold += result.gold;
     save.progress.endlessHighWave = Math.max(save.progress.endlessHighWave || 0, result.wave);
     save.progress.endlessHighScore = Math.max(save.progress.endlessHighScore || 0, result.kills);
+
+    // Daily challenge progress
+    if (typeof DailyChallenge !== 'undefined') {
+      const endlessResult = { kills: result.kills, maxSquad: result.maxSquad, gold: result.gold, wave: result.wave };
+      save._dailyReward = DailyChallenge.updateProgress(save, endlessResult);
+    }
+
     SaveManager.save(save);
 
     Sound.gameOver();
@@ -1087,6 +1094,23 @@ class EndlessResultScene {
       ctx.textAlign = 'right';
       ctx.fillText(stat.value.toString(), cw - 50, sy);
     });
+
+    // Daily challenge completion banner
+    const dailyReward = this.game.saveData._dailyReward;
+    if (dailyReward && this.animTimer > 1.8) {
+      const bannerY = ch * 0.72;
+      ctx.fillStyle = 'rgba(16,185,129,0.2)';
+      ctx.beginPath();
+      ctx.roundRect(40, bannerY, cw - 80, 28, 6);
+      ctx.fill();
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 12px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${this.game.i18n('daily_complete') || 'DAILY COMPLETE!'} +${dailyReward.reward} Gold`, cw / 2, bannerY + 18);
+    }
 
     // Buttons
     if (this.shown) {

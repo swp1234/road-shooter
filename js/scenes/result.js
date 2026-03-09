@@ -101,6 +101,23 @@ class ResultScene {
       ctx.fillText(stat.value.toString(), cw - 50, sy);
     });
 
+    // Daily challenge completion banner
+    const dailyReward = this.game.saveData._dailyReward;
+    if (dailyReward && this.animTimer > 1.8) {
+      const bannerY = ch * 0.72;
+      ctx.fillStyle = 'rgba(16,185,129,0.2)';
+      ctx.beginPath();
+      ctx.roundRect(40, bannerY, cw - 80, 28, 6);
+      ctx.fill();
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 12px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${this.game.i18n('daily_complete') || 'DAILY COMPLETE!'} +${dailyReward.reward} Gold`, cw / 2, bannerY + 18);
+    }
+
     // Buttons
     if (this.shown) {
       // Retry button

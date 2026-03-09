@@ -42,5 +42,13 @@
   "stat_bosses": "боссов",
   "hud_blocked": "БЛОК!",
   "hud_combo": "КОМБО",
-  "hud_wave_clear": "ВОЛНА ПРОЙДЕНА!"
+  "hud_wave_clear": "ВОЛНА ПРОЙДЕНА!",
+  "daily_title": "ЕЖЕДНЕВНОЕ ЗАДАНИЕ",
+  "daily_kills": "Убить врагов",
+  "daily_squad": "Макс. отряд",
+  "daily_gold": "Собрать золото",
+  "daily_stage": "Пройти уровень",
+  "daily_endless": "Бесконечные волны",
+  "daily_done": "ГОТОВО!",
+  "daily_complete": "ЗАДАНИЕ ВЫПОЛНЕНО!"
 }

@@ -42,5 +42,13 @@
   "stat_bosses": "bosses",
   "hud_blocked": "BLOCKED",
   "hud_combo": "COMBO",
-  "hud_wave_clear": "WAVE CLEAR!"
+  "hud_wave_clear": "WAVE CLEAR!",
+  "daily_title": "DAILY CHALLENGE",
+  "daily_kills": "Kill enemies",
+  "daily_squad": "Max squad size",
+  "daily_gold": "Collect gold",
+  "daily_stage": "Clear stage",
+  "daily_endless": "Endless waves",
+  "daily_done": "DONE!",
+  "daily_complete": "DAILY COMPLETE!"
 }

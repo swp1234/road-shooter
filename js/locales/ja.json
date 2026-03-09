@@ -42,5 +42,13 @@
   "stat_bosses": "ボス",
   "hud_blocked": "ブロック!",
   "hud_combo": "コンボ",
-  "hud_wave_clear": "ウェーブクリア!"
+  "hud_wave_clear": "ウェーブクリア!",
+  "daily_title": "デイリーチャレンジ",
+  "daily_kills": "敵を倒す",
+  "daily_squad": "最大部隊数",
+  "daily_gold": "ゴールド獲得",
+  "daily_stage": "ステージクリア",
+  "daily_endless": "エンドレスウェーブ",
+  "daily_done": "完了!",
+  "daily_complete": "デイリー達成!"
 }

@@ -42,5 +42,13 @@
   "stat_bosses": "patron",
   "hud_blocked": "ENGELLENDİ!",
   "hud_combo": "KOMBO",
-  "hud_wave_clear": "DALGA TEMİZLENDİ!"
+  "hud_wave_clear": "DALGA TEMİZLENDİ!",
+  "daily_title": "GUNLUK GOREV",
+  "daily_kills": "Dusman oldur",
+  "daily_squad": "Maks. manga",
+  "daily_gold": "Altin topla",
+  "daily_stage": "Bolum tamamla",
+  "daily_endless": "Sonsuz dalgalar",
+  "daily_done": "TAMAM!",
+  "daily_complete": "GUNLUK GOREV TAMAMLANDI!"
 }

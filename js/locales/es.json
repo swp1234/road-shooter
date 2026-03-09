@@ -42,5 +42,13 @@
   "stat_bosses": "jefes",
   "hud_blocked": "¡BLOQUEADO!",
   "hud_combo": "COMBO",
-  "hud_wave_clear": "¡OLEADA SUPERADA!"
+  "hud_wave_clear": "¡OLEADA SUPERADA!",
+  "daily_title": "DESAFIO DIARIO",
+  "daily_kills": "Eliminar enemigos",
+  "daily_squad": "Escuadron maximo",
+  "daily_gold": "Recoger oro",
+  "daily_stage": "Completar nivel",
+  "daily_endless": "Oleadas sin fin",
+  "daily_done": "HECHO!",
+  "daily_complete": "DESAFIO COMPLETADO!"
 }
