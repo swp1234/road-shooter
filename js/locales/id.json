@@ -74,5 +74,19 @@
   "ach_endless_10": "Penyintas",
   "ach_endless_30": "Abadi",
   "ach_gold_10k": "Pengumpul Emas",
-  "ad_2x_gold": "Tonton iklan untuk 2x Emas"
+  "ad_2x_gold": "Tonton iklan untuk 2x Emas",
+  "skin_title": "SKIN",
+  "skin_default": "Standar",
+  "skin_desert": "Badai Gurun",
+  "skin_arctic": "Operasi Arktik",
+  "skin_neon": "Serangan Neon",
+  "skin_shadow": "Pasukan Bayangan",
+  "skin_gold": "Legiun Emas",
+  "skin_equipped": "DIPAKAI",
+  "skin_tap_equip": "Ketuk untuk pakai",
+  "skin_purchased": "DIBELI!",
+  "skin_no_gold": "Emas tidak cukup",
+  "skin_locked_ach": "Buka dengan 100 permainan",
+  "rank_title": "PAPAN PERINGKAT",
+  "rank_empty": "Belum ada catatan"
 }

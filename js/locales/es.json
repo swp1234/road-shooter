@@ -74,5 +74,19 @@
   "ach_endless_10": "Superviviente",
   "ach_endless_30": "Inmortal",
   "ach_gold_10k": "Acumulador de Oro",
-  "ad_2x_gold": "Ver anuncio por 2x Oro"
+  "ad_2x_gold": "Ver anuncio por 2x Oro",
+  "skin_title": "SKINS",
+  "skin_default": "Estándar",
+  "skin_desert": "Tormenta del Desierto",
+  "skin_arctic": "Operación Ártica",
+  "skin_neon": "Golpe Neón",
+  "skin_shadow": "Fuerza Sombra",
+  "skin_gold": "Legión Dorada",
+  "skin_equipped": "EQUIPADO",
+  "skin_tap_equip": "Toca para equipar",
+  "skin_purchased": "¡COMPRADO!",
+  "skin_no_gold": "Oro insuficiente",
+  "skin_locked_ach": "Desbloquea con 100 partidas",
+  "rank_title": "CLASIFICACIÓN",
+  "rank_empty": "Sin registros aún"
 }

@@ -74,5 +74,19 @@
   "ach_endless_10": "Sobrevivente",
   "ach_endless_30": "Imortal",
   "ach_gold_10k": "Acumulador de Ouro",
-  "ad_2x_gold": "Assistir anuncio por 2x Ouro"
+  "ad_2x_gold": "Assistir anuncio por 2x Ouro",
+  "skin_title": "SKINS",
+  "skin_default": "Padrão",
+  "skin_desert": "Tempestade no Deserto",
+  "skin_arctic": "Operação Ártica",
+  "skin_neon": "Ataque Neon",
+  "skin_shadow": "Força Sombria",
+  "skin_gold": "Legião Dourada",
+  "skin_equipped": "EQUIPADO",
+  "skin_tap_equip": "Toque para equipar",
+  "skin_purchased": "COMPRADO!",
+  "skin_no_gold": "Ouro insuficiente",
+  "skin_locked_ach": "Desbloqueie com 100 partidas",
+  "rank_title": "CLASSIFICAÇÃO",
+  "rank_empty": "Sem registros ainda"
 }

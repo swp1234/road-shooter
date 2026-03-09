@@ -850,6 +850,9 @@ class RunScene {
     // Save
     this.game.saveData = SaveManager.updateAfterRun(this.game.saveData, result);
 
+    // Add to ranking
+    if (typeof Ranking !== 'undefined') Ranking.addStageRun(result);
+
     // Sound + shake
     if (cleared) {
       Sound.victory();

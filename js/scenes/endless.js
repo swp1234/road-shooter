@@ -603,6 +603,9 @@ class EndlessScene {
 
     SaveManager.save(save);
 
+    // Add to ranking
+    if (typeof Ranking !== 'undefined') Ranking.addEndlessRun(result);
+
     Sound.gameOver();
     this.game.shake(10, 0.4);
 

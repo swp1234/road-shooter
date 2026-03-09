@@ -74,5 +74,19 @@
   "ach_endless_10": "생존자",
   "ach_endless_30": "불멸자",
   "ach_gold_10k": "골드 수집가",
-  "ad_2x_gold": "광고 보고 골드 2배"
+  "ad_2x_gold": "광고 보고 골드 2배",
+  "skin_title": "스킨",
+  "skin_default": "기본",
+  "skin_desert": "사막 폭풍",
+  "skin_arctic": "극지 작전",
+  "skin_neon": "네온 스트라이크",
+  "skin_shadow": "그림자 부대",
+  "skin_gold": "골드 군단",
+  "skin_equipped": "장착 중",
+  "skin_tap_equip": "탭하여 장착",
+  "skin_purchased": "구매 완료!",
+  "skin_no_gold": "골드가 부족합니다",
+  "skin_locked_ach": "100회 출격 시 해금",
+  "rank_title": "리더보드",
+  "rank_empty": "기록이 없습니다"
 }

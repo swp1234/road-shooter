@@ -74,5 +74,19 @@
   "ach_endless_10": "生存者",
   "ach_endless_30": "不死者",
   "ach_gold_10k": "金の収集家",
-  "ad_2x_gold": "広告を見てゴールド2倍"
+  "ad_2x_gold": "広告を見てゴールド2倍",
+  "skin_title": "スキン",
+  "skin_default": "スタンダード",
+  "skin_desert": "デザートストーム",
+  "skin_arctic": "アークティック作戦",
+  "skin_neon": "ネオンストライク",
+  "skin_shadow": "シャドウフォース",
+  "skin_gold": "ゴールドレギオン",
+  "skin_equipped": "装備中",
+  "skin_tap_equip": "タップで装備",
+  "skin_purchased": "購入完了！",
+  "skin_no_gold": "ゴールドが足りません",
+  "skin_locked_ach": "100回出撃で解除",
+  "rank_title": "ランキング",
+  "rank_empty": "記録なし"
 }

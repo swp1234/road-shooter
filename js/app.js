@@ -45,6 +45,11 @@ class Game {
     this.loadI18n().then(() => {
       // Check achievements for existing save data on boot
       if (typeof Achievements !== 'undefined') Achievements.check(this.saveData);
+      // Init skins + apply 3D filter
+      if (typeof SkinManager !== 'undefined') {
+        SkinManager.init(this.saveData);
+        this.applySkinFilter();
+      }
       // Init ads
       if (typeof GameAds !== 'undefined') GameAds.init();
       this.showMenu();
@@ -294,6 +299,21 @@ class Game {
 
   showAchievements() {
     this.scene = new AchievementScene(this);
+  }
+
+  showSkins() {
+    this.scene = new SkinScene(this);
+  }
+
+  applySkinFilter() {
+    if (this.renderer3d) {
+      const filter = SkinManager.getFilter();
+      this.renderer3d.domElement.style.filter = filter === 'none' ? '' : filter;
+    }
+  }
+
+  showRanking() {
+    this.scene = new RankScene(this);
   }
 
   startEndless() {

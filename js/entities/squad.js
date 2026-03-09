@@ -163,10 +163,13 @@ class Squad {
     ctx.ellipse(this.x, botY + 4, radiusX * 0.8, 4, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Draw all characters
+    // Draw all characters (with skin filter)
+    const skinFilter = typeof SkinManager !== 'undefined' ? SkinManager.getFilter() : 'none';
+    if (skinFilter !== 'none') ctx.filter = skinFilter;
     for (const char of alive) {
       char.draw(ctx, scale);
     }
+    if (skinFilter !== 'none') ctx.filter = 'none';
 
     // Squad count + rank with background pill
     const rank = this.getRank(count);

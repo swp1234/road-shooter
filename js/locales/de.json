@@ -74,5 +74,19 @@
   "ach_endless_10": "Uberlebender",
   "ach_endless_30": "Unsterblicher",
   "ach_gold_10k": "Gold-Sammler",
-  "ad_2x_gold": "Werbung fur 2x Gold"
+  "ad_2x_gold": "Werbung fur 2x Gold",
+  "skin_title": "SKINS",
+  "skin_default": "Standard",
+  "skin_desert": "Wüstensturm",
+  "skin_arctic": "Arktis-Einsatz",
+  "skin_neon": "Neon-Schlag",
+  "skin_shadow": "Schattentruppe",
+  "skin_gold": "Goldlegion",
+  "skin_equipped": "AUSGERÜSTET",
+  "skin_tap_equip": "Tippen zum Ausrüsten",
+  "skin_purchased": "GEKAUFT!",
+  "skin_no_gold": "Nicht genug Gold",
+  "skin_locked_ach": "Mit 100 Einsätzen freischalten",
+  "rank_title": "BESTENLISTE",
+  "rank_empty": "Noch keine Einträge"
 }

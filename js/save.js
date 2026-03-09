@@ -13,6 +13,7 @@ const SaveManager = {
       },
       currency: { gold: 0, starCoin: 0 },
       achievements: {},
+      skin: { equipped: 'default', owned: [] },
       stats: { totalRuns: 0, totalKills: 0, maxSquadSize: 0, bossesDefeated: 0, totalGoldEarned: 0 },
       settings: { sound: true, music: true, language: 'ko' }
     };

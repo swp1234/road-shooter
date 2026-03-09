@@ -74,5 +74,19 @@
   "ach_endless_10": "幸存者",
   "ach_endless_30": "不朽者",
   "ach_gold_10k": "黄金收藏家",
-  "ad_2x_gold": "看广告获得2倍金币"
+  "ad_2x_gold": "看广告获得2倍金币",
+  "skin_title": "皮肤",
+  "skin_default": "标准",
+  "skin_desert": "沙漠风暴",
+  "skin_arctic": "极地行动",
+  "skin_neon": "霓虹突击",
+  "skin_shadow": "暗影部队",
+  "skin_gold": "黄金军团",
+  "skin_equipped": "已装备",
+  "skin_tap_equip": "点击装备",
+  "skin_purchased": "购买成功！",
+  "skin_no_gold": "金币不足",
+  "skin_locked_ach": "出击100次解锁",
+  "rank_title": "排行榜",
+  "rank_empty": "暂无记录"
 }

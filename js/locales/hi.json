@@ -74,5 +74,19 @@
   "ach_endless_10": "जीवित बचा",
   "ach_endless_30": "अमर",
   "ach_gold_10k": "सोना संग्राहक",
-  "ad_2x_gold": "विज्ञापन देखें 2x सोना"
+  "ad_2x_gold": "विज्ञापन देखें 2x सोना",
+  "skin_title": "स्किन",
+  "skin_default": "मानक",
+  "skin_desert": "रेगिस्तानी तूफान",
+  "skin_arctic": "आर्कटिक ऑप्स",
+  "skin_neon": "नियॉन स्ट्राइक",
+  "skin_shadow": "शैडो फोर्स",
+  "skin_gold": "गोल्ड लीजन",
+  "skin_equipped": "सुसज्जित",
+  "skin_tap_equip": "लगाने के लिए टैप करें",
+  "skin_purchased": "खरीद पूर्ण!",
+  "skin_no_gold": "पर्याप्त गोल्ड नहीं",
+  "skin_locked_ach": "100 बार खेलकर अनलॉक",
+  "rank_title": "लीडरबोर्ड",
+  "rank_empty": "अभी तक कोई रिकॉर्ड नहीं"
 }

@@ -74,5 +74,19 @@
   "ach_endless_10": "Выживший",
   "ach_endless_30": "Бессмертный",
   "ach_gold_10k": "Золотой коллекционер",
-  "ad_2x_gold": "Реклама за 2x золота"
+  "ad_2x_gold": "Реклама за 2x золота",
+  "skin_title": "СКИНЫ",
+  "skin_default": "Стандарт",
+  "skin_desert": "Пустынный шторм",
+  "skin_arctic": "Арктические операции",
+  "skin_neon": "Неоновый удар",
+  "skin_shadow": "Теневой отряд",
+  "skin_gold": "Золотой легион",
+  "skin_equipped": "НАДЕТО",
+  "skin_tap_equip": "Нажмите для экипировки",
+  "skin_purchased": "КУПЛЕНО!",
+  "skin_no_gold": "Недостаточно золота",
+  "skin_locked_ach": "Откройте за 100 вылетов",
+  "rank_title": "ТАБЛИЦА ЛИДЕРОВ",
+  "rank_empty": "Пока нет записей"
 }

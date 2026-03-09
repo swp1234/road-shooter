@@ -245,6 +245,38 @@ class MenuScene {
       this.trophyBtn = { x: tX, y: tY, w: 52, h: 28 };
     }
 
+    // Skin button (top area, next to trophy)
+    if (typeof SkinManager !== 'undefined') {
+      const skX = 68;
+      const skY = 8;
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.beginPath();
+      ctx.roundRect(skX, skY, 36, 28, 6);
+      ctx.fill();
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('\uD83C\uDFA8', skX + 18, skY + 14);
+      ctx.textBaseline = 'alphabetic';
+      this.skinBtn = { x: skX, y: skY, w: 36, h: 28 };
+    }
+
+    // Ranking button (top area)
+    if (typeof Ranking !== 'undefined') {
+      const rkX = 112;
+      const rkY = 8;
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.beginPath();
+      ctx.roundRect(rkX, rkY, 36, 28, 6);
+      ctx.fill();
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('\uD83D\uDCCA', rkX + 18, rkY + 14);
+      ctx.textBaseline = 'alphabetic';
+      this.rankBtn = { x: rkX, y: rkY, w: 36, h: 28 };
+    }
+
     // Sound toggle (top-right)
     const sndX = cw - 36;
     const sndY = 8;
@@ -271,6 +303,26 @@ class MenuScene {
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
         Sound.uiClick();
         this.game.showAchievements();
+        return true;
+      }
+    }
+
+    // Skin button
+    if (this.skinBtn) {
+      const b = this.skinBtn;
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        Sound.uiClick();
+        this.game.showSkins();
+        return true;
+      }
+    }
+
+    // Ranking button
+    if (this.rankBtn) {
+      const b = this.rankBtn;
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        Sound.uiClick();
+        this.game.showRanking();
         return true;
       }
     }

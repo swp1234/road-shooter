@@ -74,5 +74,19 @@
   "ach_endless_10": "Hayatta Kalan",
   "ach_endless_30": "Olumsuz",
   "ach_gold_10k": "Altin Toplayici",
-  "ad_2x_gold": "Reklam izle 2x Altin"
+  "ad_2x_gold": "Reklam izle 2x Altin",
+  "skin_title": "KOSTÜMLER",
+  "skin_default": "Standart",
+  "skin_desert": "Çöl Fırtınası",
+  "skin_arctic": "Kutup Operasyonu",
+  "skin_neon": "Neon Saldırı",
+  "skin_shadow": "Gölge Gücü",
+  "skin_gold": "Altın Lejyon",
+  "skin_equipped": "GİYİLDİ",
+  "skin_tap_equip": "Giymek için dokun",
+  "skin_purchased": "SATIN ALINDI!",
+  "skin_no_gold": "Yeterli altın yok",
+  "skin_locked_ach": "100 oyunla aç",
+  "rank_title": "SKOR TABLOSU",
+  "rank_empty": "Henüz kayıt yok"
 }

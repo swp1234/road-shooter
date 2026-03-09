@@ -74,5 +74,19 @@
   "ach_endless_10": "Survivant",
   "ach_endless_30": "Immortel",
   "ach_gold_10k": "Collecteur d'Or",
-  "ad_2x_gold": "Regarder pub pour 2x Or"
+  "ad_2x_gold": "Regarder pub pour 2x Or",
+  "skin_title": "SKINS",
+  "skin_default": "Standard",
+  "skin_desert": "Tempête du Désert",
+  "skin_arctic": "Opération Arctique",
+  "skin_neon": "Frappe Néon",
+  "skin_shadow": "Force de l'Ombre",
+  "skin_gold": "Légion Dorée",
+  "skin_equipped": "ÉQUIPÉ",
+  "skin_tap_equip": "Toucher pour équiper",
+  "skin_purchased": "ACHETÉ !",
+  "skin_no_gold": "Pas assez d'or",
+  "skin_locked_ach": "Débloquer avec 100 parties",
+  "rank_title": "CLASSEMENT",
+  "rank_empty": "Aucun record pour le moment"
 }

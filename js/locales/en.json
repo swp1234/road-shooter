@@ -74,5 +74,19 @@
   "ach_endless_10": "Survivor",
   "ach_endless_30": "Immortal",
   "ach_gold_10k": "Gold Hoarder",
-  "ad_2x_gold": "Watch Ad for 2x Gold"
+  "ad_2x_gold": "Watch Ad for 2x Gold",
+  "skin_title": "SKINS",
+  "skin_default": "Standard",
+  "skin_desert": "Desert Storm",
+  "skin_arctic": "Arctic Ops",
+  "skin_neon": "Neon Strike",
+  "skin_shadow": "Shadow Force",
+  "skin_gold": "Gold Legion",
+  "skin_equipped": "EQUIPPED",
+  "skin_tap_equip": "Tap to equip",
+  "skin_purchased": "PURCHASED!",
+  "skin_no_gold": "Not enough gold",
+  "skin_locked_ach": "100 Runs to Unlock",
+  "rank_title": "LEADERBOARD",
+  "rank_empty": "No records yet"
 }
