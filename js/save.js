@@ -12,7 +12,8 @@ const SaveManager = {
         moveSpeed: 0, magnetRange: 0, goldBonus: 0
       },
       currency: { gold: 0, starCoin: 0 },
-      stats: { totalRuns: 0, totalKills: 0, maxSquadSize: 0, bossesDefeated: 0 },
+      achievements: {},
+      stats: { totalRuns: 0, totalKills: 0, maxSquadSize: 0, bossesDefeated: 0, totalGoldEarned: 0 },
       settings: { sound: true, music: true, language: 'ko' }
     };
   },
@@ -40,6 +41,8 @@ const SaveManager = {
     data.stats.totalKills += result.kills;
     data.stats.maxSquadSize = Math.max(data.stats.maxSquadSize, result.maxSquad);
     data.currency.gold += result.gold;
+    if (!data.stats.totalGoldEarned) data.stats.totalGoldEarned = 0;
+    data.stats.totalGoldEarned += result.gold;
     if (result.bossDefeated) {
       data.stats.bossesDefeated++;
       data.currency.starCoin += result.starCoins;
@@ -53,6 +56,11 @@ const SaveManager = {
     // Update daily challenge progress
     if (typeof DailyChallenge !== 'undefined') {
       data._dailyReward = DailyChallenge.updateProgress(data, result);
+    }
+
+    // Check achievements
+    if (typeof Achievements !== 'undefined') {
+      Achievements.check(data);
     }
 
     this.save(data);

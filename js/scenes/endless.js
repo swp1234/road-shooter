@@ -585,6 +585,8 @@ class EndlessScene {
     save.stats.maxSquadSize = Math.max(save.stats.maxSquadSize, result.maxSquad);
     save.stats.bossesDefeated += result.bossesDefeated;
     save.currency.gold += result.gold;
+    if (!save.stats.totalGoldEarned) save.stats.totalGoldEarned = 0;
+    save.stats.totalGoldEarned += result.gold;
     save.progress.endlessHighWave = Math.max(save.progress.endlessHighWave || 0, result.wave);
     save.progress.endlessHighScore = Math.max(save.progress.endlessHighScore || 0, result.kills);
 
@@ -592,6 +594,11 @@ class EndlessScene {
     if (typeof DailyChallenge !== 'undefined') {
       const endlessResult = { kills: result.kills, maxSquad: result.maxSquad, gold: result.gold, wave: result.wave };
       save._dailyReward = DailyChallenge.updateProgress(save, endlessResult);
+    }
+
+    // Check achievements
+    if (typeof Achievements !== 'undefined') {
+      Achievements.check(save);
     }
 
     SaveManager.save(save);
@@ -791,6 +798,12 @@ class EndlessScene {
       ctx.globalAlpha = 0.7;
       ctx.fillText(Math.ceil(this.waveTimer).toString(), cw / 2, ch * 0.25);
       ctx.globalAlpha = 1;
+    }
+
+    // Achievement toast
+    if (typeof Achievements !== 'undefined') {
+      Achievements.updateToast(0.016);
+      Achievements.drawToast(ctx, (k) => this.game.i18n(k));
     }
   }
 
@@ -1037,6 +1050,7 @@ class EndlessResultScene {
     this.counters.gold = Math.floor(this.result.gold * t);
     this.counters.bosses = Math.floor(this.result.bossesDefeated * t);
     this.shown = this.animTimer > 2;
+    if (typeof Achievements !== 'undefined') Achievements.updateToast(dt);
   }
 
   draw(ctx) {
@@ -1156,6 +1170,11 @@ class EndlessResultScene {
       ctx.font = 'bold 13px Outfit';
       ctx.fillText(this.game.i18n('menu_upgrade') || 'UPGRADE', cw / 2, upgY + upgH / 2 + 1);
       this.upgradeBtn = { x: upgX, y: upgY, w: upgW, h: upgH };
+    }
+
+    // Achievement toast
+    if (typeof Achievements !== 'undefined') {
+      Achievements.drawToast(ctx, (k) => this.game.i18n(k));
     }
   }
 

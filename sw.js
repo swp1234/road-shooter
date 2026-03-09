@@ -1,9 +1,11 @@
-const CACHE_NAME = 'road-shooter-v1';
+const CACHE_NAME = 'road-shooter-v2';
 const ASSETS = [
   '/road-shooter/',
   '/road-shooter/index.html',
   '/road-shooter/css/style.css',
   '/road-shooter/js/app.js',
+  '/road-shooter/js/achievements.js',
+  '/road-shooter/js/scenes/achieve.js',
   '/road-shooter/js/i18n.js',
   '/road-shooter/js/locales/ko.json',
   '/road-shooter/js/locales/en.json',

@@ -225,6 +225,26 @@ class MenuScene {
       ctx.fillText(statsText, cw / 2, ch * 0.68);
     }
 
+    // Trophy button (top-left)
+    if (typeof Achievements !== 'undefined') {
+      const tX = 8;
+      const tY = 8;
+      const prog = Achievements.getProgress(save);
+      ctx.fillStyle = prog.unlocked > 0 ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.05)';
+      ctx.beginPath();
+      ctx.roundRect(tX, tY, 52, 28, 6);
+      ctx.fill();
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('\uD83C\uDFC6', tX + 6, tY + 14);
+      ctx.font = 'bold 11px Outfit';
+      ctx.fillStyle = prog.unlocked > 0 ? CONFIG.COLORS.gold : '#64748b';
+      ctx.fillText(`${prog.unlocked}/${prog.total}`, tX + 24, tY + 14);
+      ctx.textBaseline = 'alphabetic';
+      this.trophyBtn = { x: tX, y: tY, w: 52, h: 28 };
+    }
+
     // Sound toggle (top-right)
     const sndX = cw - 36;
     const sndY = 8;
@@ -245,6 +265,16 @@ class MenuScene {
   }
 
   handleClick(x, y) {
+    // Trophy button
+    if (this.trophyBtn) {
+      const b = this.trophyBtn;
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        Sound.uiClick();
+        this.game.showAchievements();
+        return true;
+      }
+    }
+
     // Sound toggle
     if (this.soundBtn) {
       const b = this.soundBtn;

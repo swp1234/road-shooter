@@ -23,6 +23,7 @@ class ResultScene {
     this.counters.squad = Math.floor(this.result.maxSquad * t);
     this.counters.stars = this.animTimer > 1.5 ? this.result.stars : 0;
     this.shown = this.animTimer > 2;
+    if (typeof Achievements !== 'undefined') Achievements.updateToast(dt);
   }
 
   draw(ctx) {
@@ -163,6 +164,11 @@ class ResultScene {
       ctx.textAlign = 'center';
       ctx.fillText(this.game.i18n('menu_upgrade') || 'UPGRADE', cw / 2, upgY + upgH / 2 + 1);
       this.upgradeBtn = { x: upgX, y: upgY, w: upgW, h: upgH };
+    }
+
+    // Achievement toast
+    if (typeof Achievements !== 'undefined') {
+      Achievements.drawToast(ctx, (k) => this.game.i18n(k));
     }
   }
 

@@ -1137,6 +1137,12 @@ class RunScene {
         cw / 2, ch / 2
       );
     }
+
+    // Achievement toast
+    if (typeof Achievements !== 'undefined') {
+      Achievements.updateToast(0.016);
+      Achievements.drawToast(ctx, (k) => this.game.i18n(k));
+    }
   }
 
   drawBuffBar(ctx) {

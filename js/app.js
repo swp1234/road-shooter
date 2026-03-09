@@ -43,6 +43,8 @@ class Game {
       if (cssW && cssH) this.renderer3d.resize(Math.floor(cssW), Math.floor(cssH));
     }
     this.loadI18n().then(() => {
+      // Check achievements for existing save data on boot
+      if (typeof Achievements !== 'undefined') Achievements.check(this.saveData);
       this.showMenu();
       this.start();
     });
@@ -110,7 +112,7 @@ class Game {
         this.scene.handleClick(pos.x, pos.y);
       }
       if (this.scene && this.scene.handleDrag) {
-        this.scene.handleDrag(pos.x);
+        this.scene.handleDrag(pos.x, pos.y);
       }
     };
 
@@ -119,7 +121,7 @@ class Game {
       const pos = getPos(e);
       if (this.scene && this.scene.handleDrag) {
         if (this.isDragging || this.scene instanceof RunScene || this.scene instanceof EndlessScene) {
-          this.scene.handleDrag(pos.x);
+          this.scene.handleDrag(pos.x, pos.y);
         }
       }
     };
@@ -286,6 +288,10 @@ class Game {
 
   showUpgrade() {
     this.scene = new UpgradeScene(this);
+  }
+
+  showAchievements() {
+    this.scene = new AchievementScene(this);
   }
 
   startEndless() {
