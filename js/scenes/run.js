@@ -194,6 +194,7 @@ class RunScene {
       this.deathTimer = 1.0; // 1 second death animation
       this.game.slowMotion(0.6);
       this.game.shake(10, 0.5);
+      if (typeof Haptic !== 'undefined') Haptic.heavy();
       // Death burst at squad position
       this.particles.emit(this.squad.x, this.squad.y, '#ef4444', 30, 8, 0.8, 6);
       this.particles.emit(this.squad.x, this.squad.y, '#fbbf24', 15, 5, 0.6, 4);
@@ -455,6 +456,7 @@ class RunScene {
           this.game.slowMotion(0.5);
           Sound.bossDeath();
           Sound.bigKill();
+          if (typeof Haptic !== 'undefined') Haptic.success();
         }
         this.bossDefeated = true;
         // Wait for death animation then end
@@ -783,8 +785,10 @@ class RunScene {
     if (killCount >= 3) {
       this.game.shake(3, 0.15);
       Sound.comboKill(this.killCombo);
+      if (typeof Haptic !== 'undefined') Haptic.medium();
     } else if (killCount >= 1) {
       this.game.shake(1, 0.08);
+      if (typeof Haptic !== 'undefined') Haptic.light();
     }
 
     // Combo milestone announcements
