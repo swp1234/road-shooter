@@ -42,18 +42,18 @@
 
     // Set title
     const titleMap = {
-      ko: 'Road Shooter - 분대 러너 슈터 게임',
-      en: 'Road Shooter - Squad Runner Shooter',
-      ja: 'Road Shooter - スクワッドランナーシューター',
-      zh: 'Road Shooter - 小队跑酷射击',
-      es: 'Road Shooter - Juego de Escuadrón Runner',
-      fr: 'Road Shooter - Jeu de Tir en Escouade',
-      de: 'Road Shooter - Trupp-Runner-Shooter',
-      pt: 'Road Shooter - Jogo de Esquadrão',
-      ru: 'Road Shooter - Отрядный Раннер Шутер',
-      hi: 'Road Shooter - स्क्वाड रनर शूटर गेम',
-      id: 'Road Shooter - Game Pasukan Runner Shooter',
-      tr: 'Road Shooter - Manga Koşucu Nişancı Oyunu'
+      ko: 'Road Shooter - 분대 러너 슈터 게임 | DopaBrain',
+      en: 'Road Shooter - Squad Runner Shooter | DopaBrain',
+      ja: 'Road Shooter - スクワッドランナーシューター | DopaBrain',
+      zh: 'Road Shooter - 小队跑酷射击 | DopaBrain',
+      es: 'Road Shooter - Juego de Escuadrón Runner | DopaBrain',
+      fr: 'Road Shooter - Jeu de Tir en Escouade | DopaBrain',
+      de: 'Road Shooter - Trupp-Runner-Shooter | DopaBrain',
+      pt: 'Road Shooter - Jogo de Esquadrão | DopaBrain',
+      ru: 'Road Shooter - Отрядный Раннер Шутер | DopaBrain',
+      hi: 'Road Shooter - स्क्वाड रनर शूटर गेम | DopaBrain',
+      id: 'Road Shooter - Game Pasukan Runner Shooter | DopaBrain',
+      tr: 'Road Shooter - Manga Koşucu Nişancı Oyunu | DopaBrain'
     };
     document.title = titleMap[lang] || titleMap.en;
 
