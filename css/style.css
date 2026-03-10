@@ -99,6 +99,28 @@ html, body {
   box-shadow: 0 0 60px rgba(0,229,255,0.08);
 }
 
+.legal-link {
+  position: fixed;
+  right: 14px;
+  bottom: 10px;
+  z-index: 100002;
+  color: rgba(226, 232, 240, 0.75);
+  font-size: 12px;
+  text-decoration: none;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+  padding: 5px 10px;
+  backdrop-filter: blur(4px);
+}
+
+.legal-link:hover,
+.legal-link:focus-visible {
+  color: #ffffff;
+  border-color: rgba(0, 229, 255, 0.7);
+  outline: none;
+}
+
 /* Light mode - game stays dark */
 @media (prefers-color-scheme: light) {
   :root {

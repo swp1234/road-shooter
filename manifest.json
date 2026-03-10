@@ -1,8 +1,10 @@
 {
   "name": "Road Shooter",
   "short_name": "Road Shooter",
-  "description": "Squad-based road runner shooting game - DopaBrain",
-  "start_url": "/road-shooter/",
+  "description": "Squad-based road runner shooting game",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#ff4444",
