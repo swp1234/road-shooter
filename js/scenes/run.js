@@ -112,8 +112,8 @@ class RunScene {
         this.segmentTimer = CONFIG.BOSS_DURATION;
         const rot = CONFIG.BOSS_ROTATION;
         const bossType = rot[(this.stage - 1) % rot.length];
-        const bossMul = 1 + (this.stage - 1) * 0.25; // Bosses scale harder than mobs
-        this.boss = new Boss(bossType, bossMul);
+        this.bossMul = 1 + (this.stage - 1) * 0.25; // Bosses scale harder than mobs
+        this.boss = new Boss(bossType, this.bossMul);
         this.showSegmentIntro(`${this.game.i18n('run_boss') || 'BOSS'}`);
         this.enemies = [];
       } else {
@@ -409,7 +409,7 @@ class RunScene {
       this.combat.squadFire(this.squad, this.enemies, this.boss, dmg, rapid, this.particles);
       this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
 
-      const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles);
+      const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles, this.bossMul || 1);
       this.kills += hitResult.kills;
       this.gold += hitResult.gold;
       this.processKills(hitResult.kills);

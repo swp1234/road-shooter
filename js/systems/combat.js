@@ -160,7 +160,7 @@ class CombatSystem {
   }
 
   // Check bullet-enemy collisions
-  checkBulletHits(enemies, boss, particles) {
+  checkBulletHits(enemies, boss, particles, bossGoldMul = 1) {
     let kills = 0;
     let gold = 0;
     const bullets = this.bulletPool.active;
@@ -181,7 +181,7 @@ class CombatSystem {
           Sound.bossHit();
           if (killed) {
             particles.emitBossDeath(boss.x, boss.y);
-            gold += CONFIG.BOSS_GOLD;
+            gold += Math.floor(CONFIG.BOSS_GOLD * bossGoldMul);
             Sound.bossDeath();
           }
           continue;

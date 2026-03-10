@@ -246,8 +246,10 @@ class Boss {
 
     // Movement (Inferno Dragon strafes faster during fire_trail)
     this.moveTimer += dt;
-    const moveSpeed = (this.type === 'infernoDragon' && this.fireTrailActive) ? 4 : 1.5;
-    this.x += Math.sin(this.moveTimer * 1.5) * moveSpeed;
+    let moveSpeed = 1.5;
+    if (this.type === 'infernoDragon' && this.fireTrailActive) moveSpeed = 4;
+    else if (this.type === 'frostWraith') moveSpeed = 2 + Math.sin(this.moveTimer * 3) * 0.8;
+    this.x += Math.sin(this.moveTimer * (this.type === 'frostWraith' ? 2.2 : 1.5)) * moveSpeed;
     // Clamp to road bounds
     const roadL = (CONFIG.CANVAS_WIDTH - CONFIG.CANVAS_WIDTH * CONFIG.ROAD_WIDTH_RATIO) / 2 + 30;
     const roadR = roadL + CONFIG.CANVAS_WIDTH * CONFIG.ROAD_WIDTH_RATIO - 60;

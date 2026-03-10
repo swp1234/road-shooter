@@ -329,7 +329,7 @@ class EndlessScene {
     const rapid = this.buffs.fireRate > 0;
     this.combat.squadFire(this.squad, this.enemies, this.boss, dmg, rapid);
 
-    const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles);
+    const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles, this.stageMul || 1);
     this.kills += hitResult.kills;
     this.gold += hitResult.gold;
     this.processKills(hitResult.kills);
