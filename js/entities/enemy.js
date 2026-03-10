@@ -40,6 +40,12 @@ class Enemy {
     this.shieldMaxHp = this.shieldHp;
     this.elitePhase = 0; // 0=advance, 1=hold, 2=attack
     this.eliteAttackTimer = 0;
+    // Healer state
+    this.healTimer = 0;
+    this.healPulseAnim = 0; // visual pulse animation
+    // Splitter state
+    this.isMini = type === 'splitterMini';
+    this.splitOnDeath = type === 'splitter';
   }
 
   update(dt, squadX, squadY) {
@@ -178,6 +184,33 @@ class Enemy {
         }
         break;
       }
+      case 'healer': {
+        // Advance to mid-screen then hold position behind other enemies
+        if (this.y < 60) this.y += this.speed;
+        else {
+          // Drift slowly toward center-ish position
+          if (squadX > this.x + 30) this.x += 0.3;
+          else if (squadX < this.x - 30) this.x -= 0.3;
+        }
+        // Heal timer managed externally in run.js (needs access to enemies array)
+        this.healTimer -= dt;
+        if (this.healPulseAnim > 0) this.healPulseAnim -= dt;
+        break;
+      }
+      case 'splitter':
+      case 'splitterMini': {
+        // Rush toward squad like rusher but with zigzag
+        const sdx = squadX - this.x;
+        const sdy = squadY - this.y;
+        const sdist = Math.sqrt(sdx * sdx + sdy * sdy);
+        if (sdist > 0) {
+          const zigzag = Math.sin(this.animTimer * 2) * (this.isMini ? 1.5 : 1.0);
+          this.x += (sdx / sdist) * this.speed * 0.5 + zigzag;
+          this.y += (sdy / sdist) * this.speed;
+        }
+        this.angle = Math.atan2(sdy, sdx);
+        break;
+      }
     }
 
     if (this.y > CONFIG.CANVAS_HEIGHT + 50) this.active = false;
@@ -209,7 +242,7 @@ class Enemy {
 
     // Knockback: small enemies get pushed, heavy enemies barely budge
     const knockResist = this.type === 'brute' ? 0.05 : this.type === 'tank' ? 0.1
-      : this.type === 'elite' ? 0.08 : 0.4;
+      : this.type === 'elite' ? 0.08 : this.type === 'splitter' ? 0.25 : 0.4;
     const knockStr = Math.min(dmg * knockResist, 6);
     if (fromX !== undefined && fromY !== undefined) {
       const dx = this.x - fromX;
@@ -223,7 +256,7 @@ class Enemy {
 
     if (this.hp <= 0) {
       this.dying = true;
-      this.deathTimer = (this.type === 'elite' || this.type === 'brute') ? 0.5 : this.type === 'tank' ? 0.35 : 0.2;
+      this.deathTimer = (this.type === 'elite' || this.type === 'brute') ? 0.5 : this.type === 'tank' ? 0.35 : this.type === 'splitter' ? 0.3 : 0.2;
       return true;
     }
     return false;
@@ -238,6 +271,7 @@ class Enemy {
     const s = this.type === 'elite' ? this.size * 1.3
             : this.type === 'brute' ? this.size * 1.5
             : this.type === 'tank' ? this.size * 1.8
+            : this.type === 'splitterMini' ? this.size * 1.8
             : this.size * 2.2;
 
     // Scale-aware rendering: use simplified silhouettes at distance
@@ -271,6 +305,13 @@ class Enemy {
           break;
         case 'elite':
           this.drawElite(ctx, s, isFlash);
+          break;
+        case 'healer':
+          this.drawHealer(ctx, s, isFlash);
+          break;
+        case 'splitter':
+        case 'splitterMini':
+          this.drawSplitter(ctx, s, isFlash);
           break;
         default:
           ctx.fillStyle = isFlash ? '#fff' : this.color;
@@ -496,6 +537,35 @@ class Enemy {
           ctx.arc(x, y, s * 0.65, 0, Math.PI * 2);
           ctx.stroke();
         }
+        break;
+      }
+      case 'healer': {
+        // Green cross
+        ctx.fillStyle = isFlash ? '#fff' : '#22c55e';
+        ctx.fillRect(x - s * 0.15, y - s * 0.5, s * 0.3, s);
+        ctx.fillRect(x - s * 0.5, y - s * 0.15, s, s * 0.3);
+        // Pulse ring
+        if (this.healPulseAnim > 0) {
+          ctx.strokeStyle = 'rgba(34,197,94,0.5)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(x, y, s * (1 + (1 - this.healPulseAnim / 0.5) * 2), 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        break;
+      }
+      case 'splitter':
+      case 'splitterMini': {
+        // Hexagonal blob
+        ctx.fillStyle = isFlash ? '#fff' : this.color;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = Math.PI / 3 * i - Math.PI / 6;
+          const r = s * 0.5;
+          ctx[i === 0 ? 'moveTo' : 'lineTo'](x + Math.cos(a) * r, y + Math.sin(a) * r);
+        }
+        ctx.closePath();
+        ctx.fill();
         break;
       }
     }
@@ -1939,5 +2009,134 @@ class Enemy {
       ctx.fillStyle = pct > 0.5 ? '#ef4444' : pct > 0.25 ? '#f97316' : '#fbbf24';
       ctx.fillRect(bx, by, barW * pct, barH);
     }
+  }
+
+  drawHealer(ctx, s, isFlash) {
+    const x = this.x;
+    const y = this.y;
+
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.85, s * 0.6, s * 0.18, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Heal pulse ring animation
+    if (this.healPulseAnim > 0) {
+      const progress = 1 - this.healPulseAnim / 0.5;
+      const radius = s * (1 + progress * 4);
+      ctx.strokeStyle = `rgba(34,197,94,${0.6 * (1 - progress)})`;
+      ctx.lineWidth = 3 * (1 - progress);
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Body — hovering orb with glow
+    const pulse = 0.85 + Math.sin(this.animTimer * 2) * 0.15;
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, s * 0.9);
+    glow.addColorStop(0, isFlash ? 'rgba(255,255,255,0.5)' : 'rgba(34,197,94,0.4)');
+    glow.addColorStop(1, 'rgba(34,197,94,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, s * 0.9, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Main body orb
+    const bodyGrad = ctx.createRadialGradient(x - s * 0.1, y - s * 0.1, s * 0.05, x, y, s * 0.5 * pulse);
+    bodyGrad.addColorStop(0, isFlash ? '#fff' : '#4ade80');
+    bodyGrad.addColorStop(0.6, isFlash ? '#ccc' : '#22c55e');
+    bodyGrad.addColorStop(1, isFlash ? '#999' : '#15803d');
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.arc(x, y, s * 0.5 * pulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cross symbol on body
+    ctx.fillStyle = isFlash ? '#eee' : '#dcfce7';
+    const cw = s * 0.12;
+    const ch = s * 0.35;
+    ctx.fillRect(x - cw / 2, y - ch / 2, cw, ch);
+    ctx.fillRect(x - ch / 2, y - cw / 2, ch, cw);
+
+    // Orbiting heal particles
+    for (let i = 0; i < 3; i++) {
+      const angle = this.animTimer * 1.5 + (Math.PI * 2 / 3) * i;
+      const orbitR = s * 0.7;
+      const px = x + Math.cos(angle) * orbitR;
+      const py = y + Math.sin(angle) * orbitR * 0.6;
+      ctx.fillStyle = `rgba(134,239,172,${0.4 + Math.sin(this.animTimer + i) * 0.3})`;
+      ctx.beginPath();
+      ctx.arc(px, py, s * 0.08, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  drawSplitter(ctx, s, isFlash) {
+    const x = this.x;
+    const y = this.y;
+    const mini = this.isMini;
+
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.75, s * 0.5, s * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Wobble animation for organic feel
+    const wobble = Math.sin(this.animTimer * 3) * 0.08;
+
+    // Hexagonal body
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(wobble);
+
+    const bodyGrad = ctx.createRadialGradient(0, -s * 0.1, s * 0.05, 0, 0, s * 0.55);
+    bodyGrad.addColorStop(0, isFlash ? '#fff' : (mini ? '#5eead4' : '#2dd4bf'));
+    bodyGrad.addColorStop(0.7, isFlash ? '#ccc' : (mini ? '#2dd4bf' : '#14b8a6'));
+    bodyGrad.addColorStop(1, isFlash ? '#999' : (mini ? '#14b8a6' : '#0d9488'));
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = Math.PI / 3 * i - Math.PI / 6;
+      const r = s * 0.55;
+      ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * r, Math.sin(a) * r);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Edge highlight
+    ctx.strokeStyle = isFlash ? '#eee' : 'rgba(94,234,212,0.6)';
+    ctx.lineWidth = mini ? 1 : 1.5;
+    ctx.stroke();
+
+    // Inner nucleus
+    const nucPulse = 0.7 + Math.sin(this.animTimer * 4) * 0.3;
+    ctx.fillStyle = isFlash ? '#ddd' : `rgba(204,251,241,${0.5 * nucPulse})`;
+    ctx.beginPath();
+    ctx.arc(0, 0, s * 0.2 * nucPulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Split line indicator (shows it will split)
+    if (!mini) {
+      ctx.strokeStyle = 'rgba(204,251,241,0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.4, -s * 0.02);
+      ctx.lineTo(s * 0.4, -s * 0.02);
+      ctx.moveTo(-s * 0.4, s * 0.02);
+      ctx.lineTo(s * 0.4, s * 0.02);
+      ctx.stroke();
+    }
+
+    // Eyes
+    const eyeR = mini ? s * 0.08 : s * 0.1;
+    ctx.fillStyle = isFlash ? '#bbb' : '#022c22';
+    ctx.beginPath();
+    ctx.arc(-s * 0.15, -s * 0.1, eyeR, 0, Math.PI * 2);
+    ctx.arc(s * 0.15, -s * 0.1, eyeR, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
   }
 }

@@ -336,6 +336,12 @@ class RunScene {
     // Assign thief targets
     this.assignThiefTargets();
 
+    // Healer heal pulses
+    this.processHealers(dt);
+
+    // Splitter death spawning
+    this.processSplitterDeaths();
+
     // Advance when timer expires and enemies clear
     const aliveEnemies = this.enemies.filter(e => e.active && !e.dying).length;
     // Wave clear celebration + mid-run dmg bonus
@@ -802,6 +808,52 @@ class RunScene {
       }
       e.stealTarget = nearest;
     }
+  }
+
+  processHealers(dt) {
+    for (const healer of this.enemies) {
+      if (healer.type !== 'healer' || healer.dying || !healer.active) continue;
+      if (healer.healTimer > 0) continue;
+      // Find nearby damaged enemies to heal
+      const cfg = CONFIG.ENEMIES.healer;
+      let healed = false;
+      for (const target of this.enemies) {
+        if (target === healer || !target.active || target.dying) continue;
+        if (target.hp >= target.maxHp) continue;
+        const dx = target.x - healer.x;
+        const dy = target.y - healer.y;
+        if (dx * dx + dy * dy < cfg.healRange * cfg.healRange) {
+          target.hp = Math.min(target.maxHp, target.hp + cfg.healAmount);
+          healed = true;
+          // Green particles on healed target
+          this.particles.emit(target.x, target.y, '#4ade80', 3);
+        }
+      }
+      if (healed) {
+        healer.healTimer = 1 / cfg.healRate;
+        healer.healPulseAnim = 0.5;
+      }
+    }
+  }
+
+  processSplitterDeaths() {
+    const newEnemies = [];
+    for (const e of this.enemies) {
+      if (e.splitOnDeath && e.dying && e.deathTimer > 0 && !e._hasSplit) {
+        e._hasSplit = true;
+        // Spawn 2 mini splitters
+        for (let i = 0; i < 2; i++) {
+          const offsetX = (i === 0 ? -15 : 15);
+          const mini = new Enemy(e.x + offsetX, e.y, 'splitterMini', this.stageMul);
+          mini.speed *= this.speedScale;
+          newEnemies.push(mini);
+        }
+        // Split particles
+        this.particles.emit(e.x, e.y, '#2dd4bf', 6);
+        Sound.hit();
+      }
+    }
+    for (const ne of newEnemies) this.enemies.push(ne);
   }
 
   applyBuff(cfg) {

@@ -69,7 +69,10 @@ const CONFIG = {
     detonator: { hp: 3,  speed: 2.8, dmg: 5, color: '#dc2626', size: 12, shape: 'circle',   reward: 6,  minStage: 4 },
     thief:     { hp: 2,  speed: 4,   dmg: 1, color: '#1f2937', size: 12, shape: 'triangle', reward: 10, minStage: 7 },
     flanker:   { hp: 4,  speed: 2.8, dmg: 1, color: '#991b1b', size: 14, shape: 'diamond',  reward: 7,  fireRate: 1.3, minStage: 5 },
-    elite:     { hp: 30, speed: 0.3, dmg: 3, color: '#7c3aed', size: 42, shape: 'elite',    reward: 30, fireRate: 1.0, minStage: 2 }
+    elite:     { hp: 30, speed: 0.3, dmg: 3, color: '#7c3aed', size: 42, shape: 'elite',    reward: 30, fireRate: 1.0, minStage: 2 },
+    healer:    { hp: 8,  speed: 0.5, dmg: 0, color: '#22c55e', size: 14, shape: 'cross',    reward: 15, minStage: 5, healRate: 2.0, healAmount: 3, healRange: 120 },
+    splitter:  { hp: 12, speed: 1.8, dmg: 2, color: '#14b8a6', size: 18, shape: 'hex',      reward: 8,  minStage: 6 },
+    splitterMini: { hp: 3, speed: 3.0, dmg: 1, color: '#2dd4bf', size: 10, shape: 'hex',    reward: 4,  minStage: 99 }
   },
 
   // Upgrades
