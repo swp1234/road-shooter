@@ -514,6 +514,71 @@ class RunScene {
         }
       }
 
+      // Ice shard damage (Frost Wraith)
+      for (const s of this.boss.iceShards) {
+        if (s.hit) continue;
+        const alive = this.squad.alive;
+        for (const char of alive) {
+          if (char.dying) continue;
+          const dx = char.x - s.x, dy = char.y - s.y;
+          if (dx * dx + dy * dy < 15 * 15) {
+            s.hit = true;
+            const died = char.takeDamage(s.dmg);
+            if (died) this.particles.emitDeath(char.x, char.y);
+            this.particles.emit(s.x, s.y, '#7dd3fc', 6, 3, 0.3, 2);
+            break;
+          }
+        }
+      }
+
+      // Blizzard damage (Frost Wraith)
+      if (this.boss.blizzardActive) {
+        const alive = this.squad.alive;
+        for (const char of alive) {
+          if (char.dying) continue;
+          if (Math.random() < 0.015) {
+            const died = char.takeDamage(1);
+            if (died) this.particles.emitDeath(char.x, char.y);
+          }
+        }
+      }
+
+      // Frost nova damage (Frost Wraith)
+      if (this.boss.frostNovaActive && !this.boss._frostNovaHit) {
+        const r = this.boss.frostNovaRadius;
+        if (r > 50) {
+          const alive = this.squad.alive;
+          for (const char of alive) {
+            if (char.dying) continue;
+            const dx = char.x - this.boss.x, dy = char.y - this.boss.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (Math.abs(dist - r) < 25) {
+              const died = char.takeDamage(2);
+              if (died) this.particles.emitDeath(char.x, char.y);
+            }
+          }
+          this.boss._frostNovaHit = true;
+          setTimeout(() => { this.boss._frostNovaHit = false; }, 400);
+        }
+      }
+
+      // Frozen zone damage (Frost Wraith)
+      for (const fz of this.boss.frozenZones) {
+        const alive = this.squad.alive;
+        for (const char of alive) {
+          if (char.dying) continue;
+          const dx = char.x - fz.x, dy = char.y - fz.y;
+          if (dx * dx + dy * dy < fz.radius * fz.radius) {
+            if (Math.random() < 0.03) {
+              const died = char.takeDamage(1);
+              if (died) this.particles.emitDeath(char.x, char.y);
+            }
+            // Slow effect
+            char.targetX += (char.x > fz.x ? 1 : -1) * 0.5;
+          }
+        }
+      }
+
       // Boss defeated?
       if (this.boss.dying || !this.boss.active) {
         if (!this.bossDefeated) {

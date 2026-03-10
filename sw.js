@@ -1,4 +1,4 @@
-const CACHE_NAME = 'road-shooter-v7';
+const CACHE_NAME = 'road-shooter-v8';
 const ASSETS = [
   '/road-shooter/',
   '/road-shooter/index.html',

@@ -130,11 +130,22 @@ const CONFIG = {
         { threshold: 0.33, attack: 'fire_trail', interval: 2000 },
         { threshold: 0, attack: 'meteor_rain', interval: 3000 }
       ]
+    },
+    frostWraith: {
+      hp: 200,
+      size: 40,
+      color: '#38bdf8',
+      name: 'FROST WRAITH',
+      phases: [
+        { threshold: 0.66, attack: 'ice_shard', interval: 2500 },
+        { threshold: 0.33, attack: 'blizzard', interval: 3000 },
+        { threshold: 0, attack: 'frost_nova', interval: 2500 }
+      ]
     }
   },
 
   // Boss rotation by stage
-  BOSS_ROTATION: ['zombieTitan', 'warMachine', 'stormColossus', 'infernoDragon'],
+  BOSS_ROTATION: ['zombieTitan', 'warMachine', 'stormColossus', 'infernoDragon', 'frostWraith'],
 
   // Bullet
   BULLET_SPEED: 6,

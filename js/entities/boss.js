@@ -57,6 +57,16 @@ class Boss {
     this.meteors = []; // {x, y, vy, timer, dmg, radius, warning}
     this.fireTrailTimer = 0;
     this.fireTrailActive = false;
+
+    // Frost Wraith specific
+    this.iceShards = []; // {x, y, vx, vy, timer, dmg}
+    this.blizzardActive = false;
+    this.blizzardTimer = 0;
+    this.blizzardParticles = []; // {x, y, vx, vy, alpha}
+    this.frostNovaRadius = 0;
+    this.frostNovaActive = false;
+    this.frostNovaTimer = 0;
+    this.frozenZones = []; // {x, y, timer, radius}
   }
 
   get hpPercent() { return this.hp / this.maxHp; }
@@ -163,6 +173,73 @@ class Boss {
         m.y += m.vy * dt * 60;
         if (m.y > CONFIG.CANVAS_HEIGHT + 20) this.meteors.splice(i, 1);
       }
+    }
+
+    // Frost Wraith: ice shards move
+    for (let i = this.iceShards.length - 1; i >= 0; i--) {
+      const s = this.iceShards[i];
+      s.x += s.vx * dt * 60;
+      s.y += s.vy * dt * 60;
+      s.timer -= dt;
+      if (s.timer <= 0 || s.y > CONFIG.CANVAS_HEIGHT + 20) this.iceShards.splice(i, 1);
+    }
+
+    // Frost Wraith: blizzard
+    if (this.blizzardActive) {
+      this.blizzardTimer -= dt;
+      if (this.blizzardTimer <= 0) {
+        this.blizzardActive = false;
+        this.blizzardParticles = [];
+        this.weakSpotActive = true;
+        this.weakSpotTimer = 3;
+      } else {
+        // Spawn blizzard particles
+        for (let i = 0; i < 3; i++) {
+          this.blizzardParticles.push({
+            x: Math.random() * CONFIG.CANVAS_WIDTH,
+            y: -10,
+            vx: -1.5 + Math.random() * 0.5,
+            vy: 3 + Math.random() * 2,
+            alpha: 0.5 + Math.random() * 0.5
+          });
+        }
+        // Decay old particles
+        for (let i = this.blizzardParticles.length - 1; i >= 0; i--) {
+          const p = this.blizzardParticles[i];
+          p.x += p.vx * dt * 60;
+          p.y += p.vy * dt * 60;
+          p.alpha -= dt * 0.3;
+          if (p.y > CONFIG.CANVAS_HEIGHT + 10 || p.alpha <= 0) this.blizzardParticles.splice(i, 1);
+        }
+      }
+    }
+
+    // Frost Wraith: frost nova expand
+    if (this.frostNovaActive) {
+      this.frostNovaRadius += 5;
+      this.frostNovaTimer -= dt;
+      if (this.frostNovaTimer <= 0 || this.frostNovaRadius > 350) {
+        this.frostNovaActive = false;
+        // Leave frozen zones where nova passed
+        const roadL = (CONFIG.CANVAS_WIDTH - CONFIG.CANVAS_WIDTH * CONFIG.ROAD_WIDTH_RATIO) / 2 + 20;
+        const roadR = roadL + CONFIG.CANVAS_WIDTH * CONFIG.ROAD_WIDTH_RATIO - 40;
+        for (let i = 0; i < 3; i++) {
+          this.frozenZones.push({
+            x: roadL + Math.random() * (roadR - roadL),
+            y: 400 + Math.random() * 200,
+            timer: 4,
+            radius: 30 + Math.random() * 15
+          });
+        }
+        this.weakSpotActive = true;
+        this.weakSpotTimer = 3;
+      }
+    }
+
+    // Frost Wraith: frozen zones decay
+    for (let i = this.frozenZones.length - 1; i >= 0; i--) {
+      this.frozenZones[i].timer -= dt;
+      if (this.frozenZones[i].timer <= 0) this.frozenZones.splice(i, 1);
     }
 
     this.updatePhase();
@@ -386,6 +463,66 @@ class Boss {
         }, 3500);
         break;
       }
+
+      // Frost Wraith attacks
+      case 'ice_shard': {
+        // 6 ice shards in a fan aimed at squad
+        const dx = squadX - this.x;
+        const dy = squadY - this.y;
+        const baseAngle = Math.atan2(dy, dx);
+        for (let i = 0; i < 6; i++) {
+          const a = baseAngle + (i - 2.5) * 0.25;
+          this.iceShards.push({
+            x: this.x, y: this.y + this.size,
+            vx: Math.cos(a) * 3.5,
+            vy: Math.sin(a) * 3.5,
+            timer: 3, dmg: 2
+          });
+        }
+        setTimeout(() => {
+          if (!this.dying) {
+            this.weakSpotActive = true;
+            this.weakSpotTimer = 2;
+          }
+        }, 1500);
+        break;
+      }
+      case 'blizzard':
+        this.blizzardActive = true;
+        this.blizzardTimer = 4;
+        this.blizzardParticles = [];
+        // Also fire ice shards during blizzard
+        for (let i = 0; i < 3; i++) {
+          setTimeout(() => {
+            if (!this.dying && this.blizzardActive) {
+              const cw = CONFIG.CANVAS_WIDTH;
+              for (let j = 0; j < 4; j++) {
+                this.iceShards.push({
+                  x: Math.random() * cw, y: -10,
+                  vx: (Math.random() - 0.5) * 2,
+                  vy: 3 + Math.random() * 2,
+                  timer: 3, dmg: 1
+                });
+              }
+            }
+          }, i * 1200);
+        }
+        break;
+      case 'frost_nova':
+        this.frostNovaActive = true;
+        this.frostNovaRadius = 0;
+        this.frostNovaTimer = 2;
+        // Also fire bullet ring
+        for (let i = 0; i < 8; i++) {
+          const angle = (Math.PI * 2 * i) / 8;
+          this.bulletQueue.push({
+            x: this.x, y: this.y + this.size,
+            vx: Math.cos(angle) * 2.5,
+            vy: Math.sin(angle) * 2.5,
+            dmg: 1, delay: 300
+          });
+        }
+        break;
     }
   }
 
@@ -426,6 +563,8 @@ class Boss {
       this.drawStormColossus(ctx, s);
     } else if (this.type === 'infernoDragon') {
       this.drawInfernoDragon(ctx, s);
+    } else if (this.type === 'frostWraith') {
+      this.drawFrostWraith(ctx, s);
     } else {
       this.drawZombieTitan(ctx, s);
     }
@@ -589,6 +728,90 @@ class Boss {
         ctx.lineTo(m.x, m.y - 40);
         ctx.lineTo(m.x + 5, m.y);
         ctx.fill();
+      }
+    }
+
+    // Frost Wraith: ice shards
+    for (const s of this.iceShards) {
+      ctx.globalAlpha = Math.min(s.timer / 0.5, 1) * alpha;
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(Math.atan2(s.vy, s.vx));
+      const shardG = ctx.createLinearGradient(-8, 0, 8, 0);
+      shardG.addColorStop(0, 'rgba(56,189,248,0)');
+      shardG.addColorStop(0.3, '#7dd3fc');
+      shardG.addColorStop(0.5, '#e0f2fe');
+      shardG.addColorStop(0.7, '#7dd3fc');
+      shardG.addColorStop(1, 'rgba(56,189,248,0)');
+      ctx.fillStyle = shardG;
+      ctx.beginPath();
+      ctx.moveTo(12, 0);
+      ctx.lineTo(0, -4);
+      ctx.lineTo(-8, 0);
+      ctx.lineTo(0, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.globalAlpha = alpha;
+
+    // Frost Wraith: blizzard particles
+    if (this.blizzardActive) {
+      const ba = Math.min(this.blizzardTimer / 0.5, 1) * 0.2;
+      ctx.fillStyle = `rgba(186,230,253,${ba})`;
+      ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+      for (const p of this.blizzardParticles) {
+        ctx.globalAlpha = p.alpha * alpha;
+        ctx.fillStyle = '#e0f2fe';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2 + Math.random() * 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = alpha;
+
+    // Frost Wraith: frost nova ring
+    if (this.frostNovaActive) {
+      const na = Math.max(0, 1 - this.frostNovaRadius / 350);
+      ctx.globalAlpha = na * alpha;
+      ctx.strokeStyle = '#bae6fd';
+      ctx.lineWidth = 4;
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 15;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.frostNovaRadius, 0, Math.PI * 2);
+      ctx.stroke();
+      // Inner bright ring
+      ctx.strokeStyle = '#e0f2fe';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.frostNovaRadius - 3, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+    ctx.globalAlpha = alpha;
+
+    // Frost Wraith: frozen zones on ground
+    for (const fz of this.frozenZones) {
+      const fa = Math.min(fz.timer / 0.5, 1) * 0.5;
+      ctx.globalAlpha = fa * alpha;
+      const fzG = ctx.createRadialGradient(fz.x, fz.y, 0, fz.x, fz.y, fz.radius);
+      fzG.addColorStop(0, 'rgba(186,230,253,0.6)');
+      fzG.addColorStop(0.6, 'rgba(56,189,248,0.3)');
+      fzG.addColorStop(1, 'rgba(56,189,248,0)');
+      ctx.fillStyle = fzG;
+      ctx.beginPath();
+      ctx.arc(fz.x, fz.y, fz.radius, 0, Math.PI * 2);
+      ctx.fill();
+      // Ice crystal pattern
+      ctx.strokeStyle = 'rgba(224,242,254,0.5)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 6; i++) {
+        const a = (Math.PI * 2 * i) / 6;
+        ctx.beginPath();
+        ctx.moveTo(fz.x, fz.y);
+        ctx.lineTo(fz.x + Math.cos(a) * fz.radius * 0.7, fz.y + Math.sin(a) * fz.radius * 0.7);
+        ctx.stroke();
       }
     }
 
@@ -1695,6 +1918,253 @@ class Boss {
       ctx.beginPath();
       ctx.arc(x, y, s * 0.6 + pulse, 0, Math.PI * 2);
       ctx.stroke();
+    }
+  }
+
+  drawFrostWraith(ctx, s) {
+    const x = this.x;
+    const y = this.y;
+    const flash = this.flashTimer > 0;
+    const time = Date.now() / 300;
+    const pulse = Math.sin(Date.now() / 250) * 0.12 + 0.88;
+
+    // Ground shadow (faint, ghostly)
+    ctx.save();
+    ctx.fillStyle = 'rgba(56,189,248,0.15)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 1.0, s * 0.8, s * 0.12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Ghostly trailing wisps (behind body)
+    if (!this.dying) {
+      for (let i = 0; i < 4; i++) {
+        const wa = time * 0.8 + i * 1.5;
+        const wx = x + Math.sin(wa) * s * 0.5;
+        const wy = y + s * 0.3 + i * s * 0.15;
+        const wAlpha = 0.15 + Math.sin(wa * 2) * 0.1;
+        const wG = ctx.createRadialGradient(wx, wy, 0, wx, wy, s * 0.2);
+        wG.addColorStop(0, `rgba(186,230,253,${wAlpha})`);
+        wG.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = wG;
+        ctx.beginPath();
+        ctx.arc(wx, wy, s * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Floating ice armor fragments (orbiting like stormColossus plates)
+    for (let i = 0; i < 4; i++) {
+      const angle = time * 0.4 + (Math.PI * 2 * i) / 4;
+      const dist = s * 0.8 * pulse;
+      const px = x + Math.cos(angle) * dist;
+      const py = y + Math.sin(angle) * dist * 0.6;
+
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(angle + Math.PI / 4);
+
+      // Ice crystal shard
+      const crystalG = ctx.createLinearGradient(-s * 0.15, -s * 0.25, s * 0.15, s * 0.25);
+      crystalG.addColorStop(0, flash ? '#fff' : '#bae6fd');
+      crystalG.addColorStop(0.3, flash ? '#f0f0f0' : '#7dd3fc');
+      crystalG.addColorStop(0.5, flash ? '#eee' : '#e0f2fe');
+      crystalG.addColorStop(0.7, flash ? '#ddd' : '#7dd3fc');
+      crystalG.addColorStop(1, flash ? '#ccc' : '#38bdf8');
+      ctx.fillStyle = crystalG;
+      ctx.beginPath();
+      ctx.moveTo(0, -s * 0.3);
+      ctx.lineTo(-s * 0.12, 0);
+      ctx.lineTo(0, s * 0.3);
+      ctx.lineTo(s * 0.12, 0);
+      ctx.closePath();
+      ctx.fill();
+      // Specular edge
+      ctx.strokeStyle = flash ? 'rgba(255,255,255,0.5)' : 'rgba(224,242,254,0.6)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(0, -s * 0.3);
+      ctx.lineTo(-s * 0.12, 0);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // Frost arcs between crystals
+    if (!this.dying) {
+      const arcAlpha = 0.3 + Math.sin(time * 3) * 0.2;
+      ctx.strokeStyle = `rgba(186,230,253,${arcAlpha})`;
+      ctx.lineWidth = 1;
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 4;
+      for (let i = 0; i < 4; i++) {
+        const a1 = time * 0.4 + (Math.PI * 2 * i) / 4;
+        const a2 = time * 0.4 + (Math.PI * 2 * ((i + 1) % 4)) / 4;
+        const d = s * 0.8 * pulse;
+        const x1 = x + Math.cos(a1) * d;
+        const y1 = y + Math.sin(a1) * d * 0.6;
+        const x2 = x + Math.cos(a2) * d;
+        const y2 = y + Math.sin(a2) * d * 0.6;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * s * 0.2;
+        const my = (y1 + y2) / 2 + (Math.random() - 0.5) * s * 0.15;
+        ctx.lineTo(mx, my);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+    }
+
+    // Main body — spectral form (layered gradients)
+    // Outer ghostly aura
+    const auraG = ctx.createRadialGradient(x, y, s * 0.2, x, y, s * 0.7);
+    auraG.addColorStop(0, flash ? 'rgba(255,255,255,0.3)' : 'rgba(56,189,248,0.25)');
+    auraG.addColorStop(1, 'rgba(56,189,248,0)');
+    ctx.fillStyle = auraG;
+    ctx.beginPath();
+    ctx.arc(x, y, s * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Inner body (elongated spectral shape)
+    ctx.beginPath();
+    ctx.moveTo(x, y - s * 0.8);
+    ctx.bezierCurveTo(x + s * 0.5, y - s * 0.4, x + s * 0.45, y + s * 0.3, x + s * 0.2, y + s * 0.7);
+    ctx.quadraticCurveTo(x, y + s * 0.9, x - s * 0.2, y + s * 0.7);
+    ctx.bezierCurveTo(x - s * 0.45, y + s * 0.3, x - s * 0.5, y - s * 0.4, x, y - s * 0.8);
+    ctx.closePath();
+    const bodyG = ctx.createRadialGradient(x - s * 0.1, y - s * 0.15, s * 0.05, x, y, s * 0.6);
+    bodyG.addColorStop(0, flash ? '#fff' : '#e0f2fe');
+    bodyG.addColorStop(0.3, flash ? '#f0f0f0' : '#7dd3fc');
+    bodyG.addColorStop(0.6, flash ? '#ddd' : '#38bdf8');
+    bodyG.addColorStop(1, flash ? '#bbb' : '#0284c7');
+    ctx.fillStyle = bodyG;
+    ctx.fill();
+    // Body rim light (left edge)
+    ctx.strokeStyle = flash ? 'rgba(255,255,255,0.4)' : 'rgba(224,242,254,0.4)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.bezierCurveTo(x - s * 0.5, y - s * 0.4, x - s * 0.45, y + s * 0.1, x - s * 0.2, y + s * 0.5);
+    ctx.stroke();
+
+    // Ice crown (3 spikes on head)
+    for (let i = -1; i <= 1; i++) {
+      const cx = x + i * s * 0.18;
+      const crownG = ctx.createLinearGradient(cx, y - s * 0.8, cx, y - s * 1.3 + Math.abs(i) * s * 0.15);
+      crownG.addColorStop(0, flash ? '#eee' : '#7dd3fc');
+      crownG.addColorStop(0.5, flash ? '#fff' : '#e0f2fe');
+      crownG.addColorStop(1, flash ? '#ddd' : '#bae6fd');
+      ctx.fillStyle = crownG;
+      ctx.beginPath();
+      ctx.moveTo(cx - s * 0.06, y - s * 0.75);
+      ctx.lineTo(cx, y - s * 1.25 + Math.abs(i) * s * 0.15);
+      ctx.lineTo(cx + s * 0.06, y - s * 0.75);
+      ctx.closePath();
+      ctx.fill();
+      // Crown specular
+      ctx.strokeStyle = flash ? '#fff' : 'rgba(224,242,254,0.6)';
+      ctx.lineWidth = 0.6;
+      ctx.beginPath();
+      ctx.moveTo(cx - s * 0.06, y - s * 0.75);
+      ctx.lineTo(cx, y - s * 1.25 + Math.abs(i) * s * 0.15);
+      ctx.stroke();
+    }
+
+    if (!this.dying) {
+      // Eyes (intense cold blue glow)
+      for (const side of [-1, 1]) {
+        const ex = x + side * s * 0.15;
+        const ey = y - s * 0.45;
+        // Outer glow
+        const eyeHalo = ctx.createRadialGradient(ex, ey, 0, ex, ey, s * 0.15);
+        eyeHalo.addColorStop(0, 'rgba(186,230,253,0.6)');
+        eyeHalo.addColorStop(0.5, 'rgba(56,189,248,0.2)');
+        eyeHalo.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = eyeHalo;
+        ctx.beginPath();
+        ctx.arc(ex, ey, s * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+        // Eye body
+        const eyeG = ctx.createRadialGradient(ex - s * 0.02, ey - s * 0.02, 0, ex, ey, s * 0.08);
+        eyeG.addColorStop(0, '#f0f9ff');
+        eyeG.addColorStop(0.4, '#bae6fd');
+        eyeG.addColorStop(1, '#0ea5e9');
+        ctx.fillStyle = eyeG;
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(ex, ey, s * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        // Pupil
+        ctx.fillStyle = '#0c4a6e';
+        ctx.beginPath();
+        ctx.arc(ex, ey, s * 0.03, 0, Math.PI * 2);
+        ctx.fill();
+        // Specular
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.beginPath();
+        ctx.arc(ex - s * 0.015, ey - s * 0.015, s * 0.012, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Frost breath mist (subtle)
+      if (this.blizzardActive) {
+        ctx.fillStyle = 'rgba(186,230,253,0.4)';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(x, y - s * 0.25, s * 0.1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // Weak spot — chest core (pulsing)
+      if (this.weakSpotActive) {
+        const wsG = ctx.createRadialGradient(x, y - s * 0.1, 0, x, y - s * 0.1, s * 0.15);
+        wsG.addColorStop(0, '#fff8e0');
+        wsG.addColorStop(0.4, '#fde68a');
+        wsG.addColorStop(0.8, '#fbbf24');
+        wsG.addColorStop(1, '#d4a017');
+        ctx.fillStyle = wsG;
+        ctx.shadowColor = '#fbbf24';
+        ctx.shadowBlur = 18;
+      } else {
+        const coreP = Math.sin(Date.now() / 200) * 0.2 + 0.8;
+        const wsG = ctx.createRadialGradient(x, y - s * 0.1, 0, x, y - s * 0.1, s * 0.12);
+        wsG.addColorStop(0, flash ? '#fff' : `rgba(224,242,254,${coreP})`);
+        wsG.addColorStop(0.5, flash ? '#ddd' : `rgba(56,189,248,${coreP * 0.7})`);
+        wsG.addColorStop(1, flash ? '#aaa' : `rgba(2,132,199,${coreP * 0.3})`);
+        ctx.fillStyle = wsG;
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 8;
+      }
+      ctx.beginPath();
+      ctx.arc(x, y - s * 0.1, s * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Spectral hands (reaching out)
+      for (const side of [-1, 1]) {
+        const hx = x + side * s * 0.45;
+        const hy = y + s * 0.1;
+        const handG = ctx.createRadialGradient(hx, hy, 0, hx, hy, s * 0.2);
+        handG.addColorStop(0, flash ? '#eee' : 'rgba(125,211,252,0.5)');
+        handG.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = handG;
+        ctx.beginPath();
+        ctx.arc(hx, hy, s * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+        // Claw fingers
+        for (let f = -1; f <= 1; f++) {
+          ctx.strokeStyle = flash ? '#ddd' : 'rgba(186,230,253,0.6)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(hx + f * s * 0.06, hy);
+          ctx.lineTo(hx + side * s * 0.15 + f * s * 0.08, hy + s * 0.12);
+          ctx.stroke();
+        }
+      }
     }
   }
 
