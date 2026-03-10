@@ -88,5 +88,12 @@
   "skin_no_gold": "Not enough gold",
   "skin_locked_ach": "100 Runs to Unlock",
   "rank_title": "LEADERBOARD",
-  "rank_empty": "No records yet"
+  "rank_empty": "No records yet",
+  "tut_title": "HOW TO PLAY",
+  "tut_move": "Drag left/right to move your squad",
+  "tut_shoot": "Your squad auto-shoots enemies",
+  "tut_recruit": "Collect allies to grow your army",
+  "tut_gold": "Earn gold to upgrade your squad",
+  "tut_boss": "Defeat bosses to clear stages",
+  "tut_gotit": "GOT IT!"
 }

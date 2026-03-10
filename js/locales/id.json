@@ -88,5 +88,12 @@
   "skin_no_gold": "Emas tidak cukup",
   "skin_locked_ach": "Buka dengan 100 permainan",
   "rank_title": "PAPAN PERINGKAT",
-  "rank_empty": "Belum ada catatan"
+  "rank_empty": "Belum ada catatan",
+  "tut_title": "CARA BERMAIN",
+  "tut_move": "Geser kiri/kanan untuk menggerakkan pasukan",
+  "tut_shoot": "Pasukanmu menembak musuh otomatis",
+  "tut_recruit": "Kumpulkan sekutu untuk memperbesar tentara",
+  "tut_gold": "Kumpulkan emas untuk upgrade pasukan",
+  "tut_boss": "Kalahkan bos untuk melewati stage",
+  "tut_gotit": "MENGERTI!"
 }

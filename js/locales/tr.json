@@ -88,5 +88,12 @@
   "skin_no_gold": "Yeterli altın yok",
   "skin_locked_ach": "100 oyunla aç",
   "rank_title": "SKOR TABLOSU",
-  "rank_empty": "Henüz kayıt yok"
+  "rank_empty": "Henüz kayıt yok",
+  "tut_title": "NASIL OYNANIR",
+  "tut_move": "Mangayı sağa/sola sürükleyerek hareket ettir",
+  "tut_shoot": "Mangan otomatik olarak ateş eder",
+  "tut_recruit": "Müttefikleri toplayarak ordunu büyüt",
+  "tut_gold": "Altın kazanarak mangayı geliştir",
+  "tut_boss": "Bossları yenerek aşamaları geç",
+  "tut_gotit": "ANLADIM!"
 }

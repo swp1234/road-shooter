@@ -88,5 +88,12 @@
   "skin_no_gold": "골드가 부족합니다",
   "skin_locked_ach": "100회 출격 시 해금",
   "rank_title": "리더보드",
-  "rank_empty": "기록이 없습니다"
+  "rank_empty": "기록이 없습니다",
+  "tut_title": "게임 방법",
+  "tut_move": "좌우로 드래그하여 분대를 이동",
+  "tut_shoot": "분대가 자동으로 적을 사격합니다",
+  "tut_recruit": "아군을 모아 군대를 키우세요",
+  "tut_gold": "골드를 모아 분대를 강화하세요",
+  "tut_boss": "보스를 물리쳐 스테이지를 클리어",
+  "tut_gotit": "알겠어요!"
 }

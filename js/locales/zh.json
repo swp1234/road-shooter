@@ -88,5 +88,12 @@
   "skin_no_gold": "金币不足",
   "skin_locked_ach": "出击100次解锁",
   "rank_title": "排行榜",
-  "rank_empty": "暂无记录"
+  "rank_empty": "暂无记录",
+  "tut_title": "游戏玩法",
+  "tut_move": "左右拖动移动你的小队",
+  "tut_shoot": "小队自动射击敌人",
+  "tut_recruit": "收集盟友壮大你的军队",
+  "tut_gold": "赚取金币升级小队",
+  "tut_boss": "击败Boss通关",
+  "tut_gotit": "知道了!"
 }

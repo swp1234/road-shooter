@@ -88,5 +88,12 @@
   "skin_no_gold": "Ouro insuficiente",
   "skin_locked_ach": "Desbloqueie com 100 partidas",
   "rank_title": "CLASSIFICAÇÃO",
-  "rank_empty": "Sem registros ainda"
+  "rank_empty": "Sem registros ainda",
+  "tut_title": "COMO JOGAR",
+  "tut_move": "Arraste para mover seu esquadrão",
+  "tut_shoot": "Seu esquadrão atira automaticamente",
+  "tut_recruit": "Recrute aliados para seu exército",
+  "tut_gold": "Ganhe ouro para melhorar seu esquadrão",
+  "tut_boss": "Derrote chefes para avançar",
+  "tut_gotit": "ENTENDI!"
 }

@@ -88,5 +88,12 @@
   "skin_no_gold": "ゴールドが足りません",
   "skin_locked_ach": "100回出撃で解除",
   "rank_title": "ランキング",
-  "rank_empty": "記録なし"
+  "rank_empty": "記録なし",
+  "tut_title": "遊び方",
+  "tut_move": "左右にドラッグして部隊を移動",
+  "tut_shoot": "部隊が自動で敵を攻撃します",
+  "tut_recruit": "仲間を集めて軍隊を大きく",
+  "tut_gold": "ゴールドを集めて部隊を強化",
+  "tut_boss": "ボスを倒してステージクリア",
+  "tut_gotit": "わかった!"
 }

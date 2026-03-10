@@ -88,5 +88,12 @@
   "skin_no_gold": "Pas assez d'or",
   "skin_locked_ach": "Débloquer avec 100 parties",
   "rank_title": "CLASSEMENT",
-  "rank_empty": "Aucun record pour le moment"
+  "rank_empty": "Aucun record pour le moment",
+  "tut_title": "COMMENT JOUER",
+  "tut_move": "Glissez pour déplacer votre escouade",
+  "tut_shoot": "Votre escouade tire automatiquement",
+  "tut_recruit": "Recrutez des alliés pour agrandir votre armée",
+  "tut_gold": "Gagnez de l'or pour améliorer votre escouade",
+  "tut_boss": "Battez les boss pour progresser",
+  "tut_gotit": "COMPRIS !"
 }

@@ -88,5 +88,12 @@
   "skin_no_gold": "Nicht genug Gold",
   "skin_locked_ach": "Mit 100 Einsätzen freischalten",
   "rank_title": "BESTENLISTE",
-  "rank_empty": "Noch keine Einträge"
+  "rank_empty": "Noch keine Einträge",
+  "tut_title": "SPIELANLEITUNG",
+  "tut_move": "Wische um deinen Trupp zu bewegen",
+  "tut_shoot": "Dein Trupp schießt automatisch",
+  "tut_recruit": "Sammle Verbündete für deine Armee",
+  "tut_gold": "Verdiene Gold für Upgrades",
+  "tut_boss": "Besiege Bosse um Stages zu schaffen",
+  "tut_gotit": "VERSTANDEN!"
 }

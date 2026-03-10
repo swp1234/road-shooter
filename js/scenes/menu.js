@@ -6,6 +6,8 @@ class MenuScene {
     this.buttonPulse = 0;
     this.starField = [];
     this.selectedStage = (game.saveData.progress.maxStage || 0) + 1;
+    this.showTutorial = game.saveData.stats.totalRuns === 0;
+    this.tutorialAlpha = this.showTutorial ? 0 : 0;
 
     for (let i = 0; i < 50; i++) {
       this.starField.push({
@@ -20,6 +22,9 @@ class MenuScene {
   update(dt) {
     this.titleAlpha = Math.min(1, this.titleAlpha + dt * 2);
     this.buttonPulse += dt * 3;
+    if (this.showTutorial) {
+      this.tutorialAlpha = Math.min(1, this.tutorialAlpha + dt * 3);
+    }
     for (const s of this.starField) {
       s.y += s.speed;
       if (s.y > CONFIG.CANVAS_HEIGHT) { s.y = 0; s.x = Math.random() * CONFIG.CANVAS_WIDTH; }
@@ -293,10 +298,112 @@ class MenuScene {
     ctx.textBaseline = 'alphabetic';
     this.soundBtn = { x: sndX, y: sndY, w: 28, h: 28 };
 
+    // Help button (top-right, before sound)
+    const helpX = cw - 70;
+    const helpY = 8;
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.beginPath();
+    ctx.roundRect(helpX, helpY, 28, 28, 6);
+    ctx.fill();
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 16px Outfit';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('?', helpX + 14, helpY + 14);
+    ctx.textBaseline = 'alphabetic';
+    this.helpBtn = { x: helpX, y: helpY, w: 28, h: 28 };
+
+    // Tutorial overlay
+    if (this.showTutorial) {
+      this._drawTutorial(ctx, cw, ch);
+    }
+
     ctx.globalAlpha = 1;
   }
 
+  _drawTutorial(ctx, cw, ch) {
+    ctx.globalAlpha = this.tutorialAlpha * 0.85;
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, cw, ch);
+    ctx.globalAlpha = this.tutorialAlpha;
+
+    // Title
+    ctx.fillStyle = CONFIG.COLORS.primary;
+    ctx.font = 'bold 24px Syne, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = CONFIG.COLORS.primary;
+    ctx.shadowBlur = 15;
+    ctx.fillText(this.game.i18n('tut_title') || 'HOW TO PLAY', cw / 2, ch * 0.12);
+    ctx.shadowBlur = 0;
+
+    const steps = [
+      { icon: '\u2B05\uFE0F\u27A1\uFE0F', key: 'tut_move', fallback: 'Drag left/right to move your squad' },
+      { icon: '\uD83D\uDCA5', key: 'tut_shoot', fallback: 'Your squad auto-shoots enemies ahead' },
+      { icon: '\uD83D\uDC65', key: 'tut_recruit', fallback: 'Collect allies to grow your army' },
+      { icon: '\uD83D\uDCB0', key: 'tut_gold', fallback: 'Earn gold to upgrade your squad' },
+      { icon: '\uD83D\uDC32', key: 'tut_boss', fallback: 'Defeat bosses to clear stages' },
+    ];
+
+    const startY = ch * 0.22;
+    const lineH = ch * 0.13;
+    for (let i = 0; i < steps.length; i++) {
+      const y = startY + i * lineH;
+      // Icon
+      ctx.font = '22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(steps[i].icon, cw * 0.15, y + 4);
+      // Text
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = '14px Outfit, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(this.game.i18n(steps[i].key) || steps[i].fallback, cw * 0.25, y + 4);
+      ctx.fillStyle = CONFIG.COLORS.primary;
+    }
+
+    // Got it button
+    const btnW = 180;
+    const btnH = 44;
+    const btnX = (cw - btnW) / 2;
+    const btnY = ch * 0.88;
+    ctx.fillStyle = CONFIG.COLORS.primary;
+    ctx.beginPath();
+    ctx.roundRect(btnX, btnY, btnW, btnH, 10);
+    ctx.fill();
+    ctx.fillStyle = CONFIG.COLORS.bg;
+    ctx.font = 'bold 18px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(this.game.i18n('tut_gotit') || 'GOT IT!', cw / 2, btnY + btnH / 2);
+    ctx.textBaseline = 'alphabetic';
+    this.tutorialBtn = { x: btnX, y: btnY, w: btnW, h: btnH };
+  }
+
   handleClick(x, y) {
+    // Tutorial overlay intercepts all clicks
+    if (this.showTutorial) {
+      if (this.tutorialBtn) {
+        const b = this.tutorialBtn;
+        if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+          Sound.uiClick();
+          this.showTutorial = false;
+          return true;
+        }
+      }
+      // Any tap dismisses tutorial
+      this.showTutorial = false;
+      return true;
+    }
+
+    // Help button
+    if (this.helpBtn) {
+      const b = this.helpBtn;
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        Sound.uiClick();
+        this.showTutorial = true;
+        this.tutorialAlpha = 0;
+        return true;
+      }
+    }
     // Trophy button
     if (this.trophyBtn) {
       const b = this.trophyBtn;
