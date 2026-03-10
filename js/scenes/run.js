@@ -449,6 +449,65 @@ class RunScene {
         }
       }
 
+      // Flame breath damage (Inferno Dragon)
+      if (this.boss.flameBreath) {
+        const fb = this.boss.flameBreath;
+        const cx = this.boss.x, cy = this.boss.y + this.boss.size;
+        const alive = this.squad.alive;
+        for (const char of alive) {
+          if (char.dying) continue;
+          const dx = char.x - cx, dy = char.y - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < fb.range) {
+            const angle = Math.atan2(dy, dx);
+            const breathAngle = Math.PI / 2 + fb.angle;
+            const diff = Math.abs(angle - breathAngle);
+            if (diff < 0.4) {
+              if (Math.random() < 0.03) {
+                const died = char.takeDamage(fb.dmg);
+                if (died) this.particles.emitDeath(char.x, char.y);
+              }
+            }
+          }
+        }
+      }
+
+      // Fire trail damage (Inferno Dragon)
+      for (const ft of this.boss.fireTrails) {
+        if (ft.hit) continue;
+        const alive = this.squad.alive;
+        for (const char of alive) {
+          if (char.dying) continue;
+          const dx = char.x - ft.x, dy = char.y - ft.y;
+          if (dx * dx + dy * dy < ft.radius * ft.radius) {
+            if (Math.random() < 0.04) {
+              const died = char.takeDamage(ft.dmg);
+              if (died) this.particles.emitDeath(char.x, char.y);
+            }
+          }
+        }
+      }
+
+      // Meteor impact damage (Inferno Dragon)
+      for (const m of this.boss.meteors) {
+        if (m.warning > 0 || m.hit) continue;
+        if (m.y > 400 && m.y < CONFIG.CANVAS_HEIGHT) {
+          m.hit = true;
+          const alive = this.squad.alive;
+          for (const char of alive) {
+            if (char.dying) continue;
+            const dx = char.x - m.x, dy = char.y - m.y;
+            if (dx * dx + dy * dy < m.radius * m.radius * 4) {
+              const died = char.takeDamage(m.dmg);
+              if (died) this.particles.emitDeath(char.x, char.y);
+            }
+          }
+          this.particles.emit(m.x, m.y, '#f97316', 12, 6, 0.5, 4);
+          Sound.explosion();
+          this.game.shake(6, 0.3);
+        }
+      }
+
       // Boss defeated?
       if (this.boss.dying || !this.boss.active) {
         if (!this.bossDefeated) {

@@ -116,11 +116,22 @@ const CONFIG = {
         { threshold: 0.33, attack: 'tornado', interval: 3000 },
         { threshold: 0, attack: 'thunderstorm', interval: 2500 }
       ]
+    },
+    infernoDragon: {
+      hp: 180,
+      size: 42,
+      color: '#f97316',
+      name: 'INFERNO DRAGON',
+      phases: [
+        { threshold: 0.66, attack: 'flame_breath', interval: 2500 },
+        { threshold: 0.33, attack: 'fire_trail', interval: 2000 },
+        { threshold: 0, attack: 'meteor_rain', interval: 3000 }
+      ]
     }
   },
 
   // Boss rotation by stage
-  BOSS_ROTATION: ['zombieTitan', 'warMachine', 'stormColossus'],
+  BOSS_ROTATION: ['zombieTitan', 'warMachine', 'stormColossus', 'infernoDragon'],
 
   // Bullet
   BULLET_SPEED: 6,

@@ -50,6 +50,13 @@ class Boss {
     this.tornadoTimer = 0;
     this.stormTimer = 0;
     this.stormActive = false;
+
+    // Inferno Dragon specific
+    this.flameBreath = null; // {angle, sweep, timer, dmg}
+    this.fireTrails = []; // {x, y, timer, dmg, radius}
+    this.meteors = []; // {x, y, vy, timer, dmg, radius, warning}
+    this.fireTrailTimer = 0;
+    this.fireTrailActive = false;
   }
 
   get hpPercent() { return this.hp / this.maxHp; }
@@ -119,11 +126,56 @@ class Boss {
       if (this.stormTimer <= 0) this.stormActive = false;
     }
 
+    // Inferno Dragon: flame breath sweep
+    if (this.flameBreath) {
+      this.flameBreath.timer -= dt;
+      this.flameBreath.angle += this.flameBreath.sweep * dt;
+      if (this.flameBreath.timer <= 0) this.flameBreath = null;
+    }
+
+    // Inferno Dragon: fire trails decay
+    for (let i = this.fireTrails.length - 1; i >= 0; i--) {
+      this.fireTrails[i].timer -= dt;
+      if (this.fireTrails[i].timer <= 0) this.fireTrails.splice(i, 1);
+    }
+
+    // Inferno Dragon: fire trail drop while active
+    if (this.fireTrailActive) {
+      this.fireTrailTimer -= dt;
+      if (this.fireTrailTimer <= 0) {
+        this.fireTrailActive = false;
+        this.weakSpotActive = true;
+        this.weakSpotTimer = 2.5;
+      } else {
+        // Drop fire every 0.3s
+        if (Math.random() < dt * 3.3) {
+          this.fireTrails.push({ x: this.x, y: this.y + this.size, timer: 4, dmg: 1, radius: 20 });
+        }
+      }
+    }
+
+    // Inferno Dragon: meteors fall
+    for (let i = this.meteors.length - 1; i >= 0; i--) {
+      const m = this.meteors[i];
+      if (m.warning > 0) {
+        m.warning -= dt;
+      } else {
+        m.y += m.vy * dt * 60;
+        if (m.y > CONFIG.CANVAS_HEIGHT + 20) this.meteors.splice(i, 1);
+      }
+    }
+
     this.updatePhase();
 
-    // Movement
+    // Movement (Inferno Dragon strafes faster during fire_trail)
     this.moveTimer += dt;
-    this.x += Math.sin(this.moveTimer * 1.5) * 1.5;
+    const moveSpeed = (this.type === 'infernoDragon' && this.fireTrailActive) ? 4 : 1.5;
+    this.x += Math.sin(this.moveTimer * 1.5) * moveSpeed;
+    // Clamp to road bounds
+    const roadL = (CONFIG.CANVAS_WIDTH - CONFIG.CANVAS_WIDTH * CONFIG.ROAD_WIDTH_RATIO) / 2 + 30;
+    const roadR = roadL + CONFIG.CANVAS_WIDTH * CONFIG.ROAD_WIDTH_RATIO - 60;
+    if (this.x < roadL) this.x = roadL;
+    if (this.x > roadR) this.x = roadR;
 
     // Attack timer
     this.attackTimer -= dt * 1000;
@@ -275,6 +327,65 @@ class Boss {
           this.weakSpotTimer = 3;
         }, 3000);
         break;
+
+      // Inferno Dragon attacks
+      case 'flame_breath':
+        this.flameBreath = {
+          angle: -0.5,
+          sweep: 0.5, // radians per second sweep
+          timer: 2,
+          dmg: 2,
+          range: 200
+        };
+        // Vulnerable after breath
+        setTimeout(() => {
+          if (!this.dying) {
+            this.weakSpotActive = true;
+            this.weakSpotTimer = 2;
+          }
+        }, 2000);
+        break;
+
+      case 'fire_trail':
+        this.fireTrailActive = true;
+        this.fireTrailTimer = 3;
+        // Move faster during trail
+        this.moveDir = Math.random() < 0.5 ? -1 : 1;
+        break;
+
+      case 'meteor_rain': {
+        // 5 meteors with warnings
+        const cw3 = CONFIG.CANVAS_WIDTH;
+        for (let i = 0; i < 5; i++) {
+          this.meteors.push({
+            x: 40 + Math.random() * (cw3 - 80),
+            y: -30,
+            vy: 4 + Math.random() * 2,
+            timer: 0,
+            dmg: 3,
+            radius: 25,
+            warning: 0.8 + i * 0.3 // staggered warnings
+          });
+        }
+        // Fire bullet ring too
+        for (let i = 0; i < 6; i++) {
+          const angle = (Math.PI * 2 * i) / 6;
+          this.bulletQueue.push({
+            x: this.x, y: this.y + this.size,
+            vx: Math.cos(angle) * 2,
+            vy: Math.sin(angle) * 2,
+            dmg: 1, delay: 800
+          });
+        }
+        // Vulnerable after rain
+        setTimeout(() => {
+          if (!this.dying) {
+            this.weakSpotActive = true;
+            this.weakSpotTimer = 3;
+          }
+        }, 3500);
+        break;
+      }
     }
   }
 
@@ -313,6 +424,8 @@ class Boss {
       this.drawWarMachine(ctx, s);
     } else if (this.type === 'stormColossus') {
       this.drawStormColossus(ctx, s);
+    } else if (this.type === 'infernoDragon') {
+      this.drawInfernoDragon(ctx, s);
     } else {
       this.drawZombieTitan(ctx, s);
     }
@@ -408,6 +521,75 @@ class Boss {
       const sa = Math.min(this.stormTimer / 0.5, 1) * 0.15;
       ctx.fillStyle = `rgba(124,58,237,${sa})`;
       ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+    }
+
+    // Inferno Dragon: flame breath cone
+    if (this.flameBreath) {
+      const fb = this.flameBreath;
+      const cx = this.x, cy = this.y + this.size;
+      const range = fb.range;
+      const spreadAngle = 0.4;
+      const a1 = Math.PI / 2 + fb.angle - spreadAngle;
+      const a2 = Math.PI / 2 + fb.angle + spreadAngle;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, range);
+      grad.addColorStop(0, 'rgba(249,115,22,0.8)');
+      grad.addColorStop(0.5, 'rgba(239,68,68,0.4)');
+      grad.addColorStop(1, 'rgba(239,68,68,0)');
+      ctx.globalAlpha = Math.min(fb.timer / 0.3, 1) * alpha;
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, range, a1, a2);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.globalAlpha = alpha;
+
+    // Inferno Dragon: fire trails on ground
+    for (const ft of this.fireTrails) {
+      const fa = Math.min(ft.timer / 0.5, 1) * 0.6;
+      ctx.globalAlpha = fa * alpha;
+      const fgrad = ctx.createRadialGradient(ft.x, ft.y, 0, ft.x, ft.y, ft.radius);
+      fgrad.addColorStop(0, 'rgba(249,115,22,0.7)');
+      fgrad.addColorStop(0.6, 'rgba(239,68,68,0.3)');
+      fgrad.addColorStop(1, 'rgba(239,68,68,0)');
+      ctx.fillStyle = fgrad;
+      ctx.beginPath();
+      ctx.arc(ft.x, ft.y, ft.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = alpha;
+
+    // Inferno Dragon: meteor warnings + falling meteors
+    for (const m of this.meteors) {
+      if (m.warning > 0) {
+        // Warning circle
+        const wa = Math.sin(Date.now() / 80) * 0.3 + 0.5;
+        ctx.globalAlpha = wa * alpha;
+        ctx.strokeStyle = '#f97316';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(m.x, 500 + Math.random() * 100, m.radius, 0, Math.PI * 2);
+        ctx.stroke();
+      } else {
+        // Falling meteor
+        ctx.globalAlpha = alpha;
+        const mg = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.radius);
+        mg.addColorStop(0, '#fbbf24');
+        mg.addColorStop(0.4, '#f97316');
+        mg.addColorStop(1, 'rgba(239,68,68,0)');
+        ctx.fillStyle = mg;
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2);
+        ctx.fill();
+        // Trail
+        ctx.fillStyle = 'rgba(249,115,22,0.3)';
+        ctx.beginPath();
+        ctx.moveTo(m.x - 5, m.y);
+        ctx.lineTo(m.x, m.y - 40);
+        ctx.lineTo(m.x + 5, m.y);
+        ctx.fill();
+      }
     }
 
     ctx.globalAlpha = 1;
@@ -1410,6 +1592,109 @@ class Boss {
         ctx.arc(ox, oy, s * 0.04, 0, Math.PI * 2);
         ctx.fill();
       }
+    }
+  }
+
+  drawInfernoDragon(ctx, s) {
+    const x = this.x;
+    const y = this.y;
+    const flash = this.flashTimer > 0;
+
+    // Ground shadow
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 1.1, s * 1.2, s * 0.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Wings (spread out behind body)
+    for (const side of [-1, 1]) {
+      const wingX = x + side * s * 0.3;
+      const wingTip = x + side * s * 1.4;
+      const wingFlap = Math.sin(Date.now() / 200) * s * 0.15;
+      ctx.fillStyle = flash ? '#ddd' : '#c2410c';
+      ctx.beginPath();
+      ctx.moveTo(wingX, y - s * 0.1);
+      ctx.quadraticCurveTo(wingTip, y - s * 0.6 + wingFlap, wingTip, y + s * 0.2 + wingFlap);
+      ctx.quadraticCurveTo((wingX + wingTip) / 2, y + s * 0.3, wingX, y + s * 0.3);
+      ctx.fill();
+      // Wing membrane
+      ctx.fillStyle = flash ? '#ccc' : 'rgba(234,88,12,0.4)';
+      ctx.beginPath();
+      ctx.moveTo(wingX, y);
+      ctx.quadraticCurveTo(wingTip * 0.8 + wingX * 0.2, y - s * 0.3 + wingFlap, wingTip, y + s * 0.1 + wingFlap);
+      ctx.lineTo(wingX, y + s * 0.2);
+      ctx.fill();
+    }
+
+    // Body (oval with gradient)
+    const bodyG = ctx.createRadialGradient(x, y, 0, x, y, s * 0.7);
+    bodyG.addColorStop(0, flash ? '#fff' : '#fb923c');
+    bodyG.addColorStop(0.6, flash ? '#ddd' : '#ea580c');
+    bodyG.addColorStop(1, flash ? '#bbb' : '#9a3412');
+    ctx.fillStyle = bodyG;
+    ctx.beginPath();
+    ctx.ellipse(x, y, s * 0.5, s * 0.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Belly scales
+    ctx.fillStyle = flash ? '#eee' : '#fbbf24';
+    ctx.beginPath();
+    ctx.ellipse(x, y + s * 0.1, s * 0.25, s * 0.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Head
+    ctx.fillStyle = flash ? '#fff' : '#c2410c';
+    ctx.beginPath();
+    ctx.ellipse(x, y - s * 0.55, s * 0.3, s * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Eyes (glowing)
+    for (const side of [-1, 1]) {
+      ctx.fillStyle = '#fbbf24';
+      ctx.shadowColor = '#f97316';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(x + side * s * 0.12, y - s * 0.6, s * 0.06, 0, Math.PI * 2);
+      ctx.fill();
+      // Pupil
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(x + side * s * 0.12, y - s * 0.6, s * 0.03, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+
+    // Horns
+    for (const side of [-1, 1]) {
+      ctx.fillStyle = flash ? '#ccc' : '#78350f';
+      ctx.beginPath();
+      ctx.moveTo(x + side * s * 0.2, y - s * 0.7);
+      ctx.lineTo(x + side * s * 0.4, y - s * 1.0);
+      ctx.lineTo(x + side * s * 0.15, y - s * 0.65);
+      ctx.fill();
+    }
+
+    // Fire breath glow from mouth when breathing
+    if (this.flameBreath) {
+      ctx.fillStyle = 'rgba(249,115,22,0.6)';
+      ctx.shadowColor = '#f97316';
+      ctx.shadowBlur = 15;
+      ctx.beginPath();
+      ctx.arc(x, y - s * 0.35, s * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // Weak spot glow
+    if (this.weakSpotActive) {
+      ctx.strokeStyle = 'rgba(251,191,36,0.8)';
+      ctx.lineWidth = 2;
+      const pulse = Math.sin(Date.now() / 150) * 3;
+      ctx.beginPath();
+      ctx.arc(x, y, s * 0.6 + pulse, 0, Math.PI * 2);
+      ctx.stroke();
     }
   }
 
