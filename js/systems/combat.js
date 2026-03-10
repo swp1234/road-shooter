@@ -271,7 +271,7 @@ class CombatSystem {
     let losses = 0;
     for (const e of enemies) {
       if (!e.active || e.dying) continue;
-      const isContact = e.type === 'rusher' || e.type === 'tank' || e.type === 'brute';
+      const isContact = e.type === 'rusher' || e.type === 'tank' || e.type === 'brute' || e.type === 'splitter' || e.type === 'splitterMini';
       if (!isContact) continue;
       const alive = squad.alive;
       for (const char of alive) {
@@ -280,7 +280,7 @@ class CombatSystem {
         const dy = e.y - char.y;
         const hitDist = e.type === 'brute' ? (e.size + 10) : (e.size + 6);
         if (dx * dx + dy * dy < hitDist * hitDist) {
-          if (e.type === 'rusher') {
+          if (e.type === 'rusher' || e.type === 'splitter' || e.type === 'splitterMini') {
             const died = char.takeDamage(e.dmg);
             e.takeDamage(999);
             particles.emitEnemyDeath(e.x, e.y, e.type);
