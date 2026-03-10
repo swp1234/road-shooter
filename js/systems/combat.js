@@ -23,9 +23,11 @@ class CombatSystem {
 
     for (const char of firers) {
       if (targets.length > 0) {
-        // Find nearest target in range
+        // Find nearest target in range (healers get priority)
         let nearest = null;
         let minDist = char.config.range;
+        let nearestHealer = null;
+        let minHealerDist = char.config.range;
         for (const t of targets) {
           const dx = t.x - char.x;
           const dy = t.y - char.y;
@@ -34,7 +36,12 @@ class CombatSystem {
             minDist = dist;
             nearest = t;
           }
+          if (!t.isBoss && t.entity && t.entity.type === 'healer' && dist < minHealerDist) {
+            minHealerDist = dist;
+            nearestHealer = t;
+          }
         }
+        if (nearestHealer) nearest = nearestHealer;
 
         if (nearest) {
           char.fire();
