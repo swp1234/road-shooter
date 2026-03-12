@@ -13,21 +13,22 @@
 - [x] HUD weapon timer indicator in buff bar
 - [x] Weapon item visuals in item.js (hexagon + crosshair icon)
 
-## Phase 2: Character Sprites (Future)
-- [ ] Generate AI character sprites per class (rifleman, tanker, sniper, bomber, shotgunner, laser)
-  - Top-down view, 64x64px, cyberpunk military style
-  - Each with idle + firing animation frames (2-frame minimum)
-- [ ] Replace `Character.draw()` canvas shapes with sprite rendering
-- [ ] Add weapon-specific muzzle flash effects
-- [ ] Update squad formation visuals
+## Phase 2: Character Sprites (Session 148)
+- [x] Generate AI character sprites per class (rifleman, tanker, sniper, bomber, shotgunner, laser)
+  - Individual NanoBanana generation, bg removal, 128x128 PNG
+- [x] Replace `Character.draw()` with sprite rendering (canvas fallback)
+- [x] Damage flash glow + death effect on sprites
+- [ ] Add weapon-specific muzzle flash effects (future)
+- [ ] Idle + firing animation frames (future)
 
-## Phase 3: Enemy Sprites (Future)
-- [ ] Generate AI enemy sprites for 11 types:
-  - rusher, shooter, tank, brute, mortar, detonator, thief, flanker, elite, healer, splitter
-  - Each with unique silhouette, cyberpunk style, 48-64px
-- [ ] Replace `Enemy.draw()` canvas shapes with sprite rendering
-- [ ] Add hit/death animation frames
-- [ ] Update boss visuals (5 bosses: Zombie Titan, War Machine, Storm Colossus, Inferno Dragon, Frost Wraith)
+## Phase 3: Enemy Sprites (Session 148-149)
+- [x] Generate AI enemy sprites for 12 types:
+  - rusher, shooter, mortar, detonator, thief, flanker, tank, brute, elite, healer, splitter, splitterMini
+  - NanoBanana sprite sheets (3x2 + 5x1) + individual elite
+- [x] Replace `Enemy.draw()` with sprite rendering (canvas fallback)
+- [x] Damage flash glow + death effect on sprites
+- [ ] Hit/death animation frames (future)
+- [ ] Boss visuals (5 bosses: Zombie Titan, War Machine, Storm Colossus, Inferno Dragon, Frost Wraith)
 
 ## Phase 4: Environment & HUD (Future)
 - [ ] Generate AI road textures (cyberpunk highway, neon lane markers)
