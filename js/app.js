@@ -46,6 +46,19 @@ class Game {
       this.charSprites[type] = img;
     });
 
+    // Enemy sprites
+    this.enemySprites = {};
+    this.enemySpritesReady = {};
+    const enemyTypes = ['rusher', 'shooter', 'mortar', 'detonator', 'thief', 'flanker', 'tank', 'brute', 'elite', 'healer', 'splitter', 'splitterMini'];
+    enemyTypes.forEach(type => {
+      const img = new Image();
+      this.enemySpritesReady[type] = false;
+      img.onload = () => { this.enemySpritesReady[type] = true; };
+      img.onerror = () => { this.enemySpritesReady[type] = false; };
+      img.src = `assets/enemies/${type}.png`;
+      this.enemySprites[type] = img;
+    });
+
     // Input
     this.isDragging = false;
     this.dragStartX = 0;

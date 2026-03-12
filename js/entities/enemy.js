@@ -274,8 +274,12 @@ class Enemy {
             : this.type === 'splitterMini' ? this.size * 1.8
             : this.size * 2.2;
 
-    // Scale-aware rendering: use simplified silhouettes at distance
-    if (scale !== undefined && scale < 0.5) {
+    // Try sprite rendering first
+    const g = typeof game !== 'undefined' ? game : null;
+    if (g && g.enemySpritesReady[this.type] && g.enemySprites[this.type]) {
+      this.drawEnemySprite(ctx, s, alpha, isFlash, g.enemySprites[this.type]);
+    } else if (scale !== undefined && scale < 0.5) {
+      // Scale-aware rendering: use simplified silhouettes at distance
       this.drawSimplified(ctx, s, isFlash);
     } else {
       switch (this.type) {
@@ -349,6 +353,41 @@ class Enemy {
     }
 
     ctx.globalAlpha = 1;
+  }
+
+  drawEnemySprite(ctx, s, alpha, isFlash, spriteImg) {
+    const renderSize = s * 2.5;
+    const halfSize = renderSize / 2;
+
+    ctx.globalAlpha = alpha;
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(this.x, this.y + halfSize * 0.5, halfSize * 0.5, halfSize * 0.1, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Flash glow behind sprite
+    if (isFlash) {
+      ctx.globalAlpha = alpha * 0.5;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, halfSize * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = alpha;
+    }
+
+    // Draw sprite
+    ctx.drawImage(spriteImg, this.x - halfSize, this.y - halfSize, renderSize, renderSize);
+
+    // Death effect
+    if (this.dying) {
+      ctx.globalAlpha = alpha * 0.5;
+      ctx.fillStyle = '#ff4444';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, halfSize * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   // Simplified rendering for distant enemies (scale < 0.5)
