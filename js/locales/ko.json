@@ -95,5 +95,17 @@
   "tut_recruit": "아군을 모아 군대를 키우세요",
   "tut_gold": "골드를 모아 분대를 강화하세요",
   "tut_boss": "보스를 물리쳐 스테이지를 클리어",
-  "tut_gotit": "알겠어요!"
+  "tut_gotit": "알겠어요!",
+  "upgrade_effect_startSquad": "+1 시작 분대원",
+  "upgrade_effect_baseDamage": "+15% 공격력",
+  "upgrade_effect_baseHP": "+1 분대 체력",
+  "upgrade_effect_moveSpeed": "+5% 이동 속도",
+  "upgrade_effect_magnetRange": "+10% 수집 범위",
+  "upgrade_effect_goldBonus": "+10% 골드",
+  "boss_zombieTitan": "좀비 타이탄",
+  "boss_warMachine": "워 머신",
+  "boss_stormColossus": "스톰 콜로서스",
+  "boss_infernoDragon": "인페르노 드래곤",
+  "boss_frostWraith": "프로스트 레이스",
+  "hud_slowed": "감속!"
 }

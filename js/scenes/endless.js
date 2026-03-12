@@ -889,7 +889,7 @@ class EndlessScene {
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 9px Outfit';
       ctx.textAlign = 'center';
-      ctx.fillText(this.boss.name || 'BOSS', cw / 2, bossBarY + bossBarH + 12);
+      ctx.fillText(this.game.i18n(this.boss.nameKey) || this.boss.name || 'BOSS', cw / 2, bossBarY + bossBarH + 12);
     }
 
     // --- Danger overlay ---
@@ -933,7 +933,7 @@ class EndlessScene {
       ctx.font = 'bold 28px Syne';
       ctx.textAlign = 'center';
       ctx.globalAlpha = Math.min(1, pct * 2);
-      ctx.fillText(this.game.i18n('run_gameover') || 'GAME OVER', cw / 2, ch / 2);
+      ctx.fillText(this.game.i18n('result_fail') || 'GAME OVER', cw / 2, ch / 2);
       ctx.globalAlpha = 1;
     }
 
@@ -1063,7 +1063,7 @@ class EndlessScene {
       ctx.font = 'bold 28px Syne';
       ctx.textAlign = 'center';
       ctx.globalAlpha = Math.min(1, pct * 2);
-      ctx.fillText(this.game.i18n('run_gameover') || 'GAME OVER', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2);
+      ctx.fillText(this.game.i18n('result_fail') || 'GAME OVER', CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2);
       ctx.globalAlpha = 1;
     }
   }
@@ -1270,7 +1270,7 @@ class EndlessResultScene {
       ctx.fillStyle = '#10b981';
       ctx.font = 'bold 12px Outfit';
       ctx.textAlign = 'center';
-      ctx.fillText(`${this.game.i18n('daily_complete') || 'DAILY COMPLETE!'} +${dailyReward.reward} Gold`, cw / 2, bannerY + 18);
+      ctx.fillText(`${this.game.i18n('daily_complete') || 'DAILY COMPLETE!'} +${dailyReward.reward} ${this.game.i18n('hud_gold') || 'Gold'}`, cw / 2, bannerY + 18);
     }
 
     // Buttons

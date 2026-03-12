@@ -95,5 +95,17 @@
   "tut_recruit": "साथियों को इकट्ठा करके सेना बनाएं",
   "tut_gold": "गोल्ड कमाकर टुकड़ी को अपग्रेड करें",
   "tut_boss": "बॉस को हराकर स्टेज पार करें",
-  "tut_gotit": "समझ गया!"
+  "tut_gotit": "समझ गया!",
+  "upgrade_effect_startSquad": "+1 प्रारंभिक सैनिक",
+  "upgrade_effect_baseDamage": "+15% क्षति",
+  "upgrade_effect_baseHP": "+1 दस्ता HP",
+  "upgrade_effect_moveSpeed": "+5% गति",
+  "upgrade_effect_magnetRange": "+10% पिकअप रेंज",
+  "upgrade_effect_goldBonus": "+10% गोल्ड",
+  "boss_zombieTitan": "ज़ोंबी टाइटन",
+  "boss_warMachine": "वॉर मशीन",
+  "boss_stormColossus": "स्टॉर्म कोलोसस",
+  "boss_infernoDragon": "इन्फर्नो ड्रैगन",
+  "boss_frostWraith": "फ्रॉस्ट रेथ",
+  "hud_slowed": "धीमा!"
 }

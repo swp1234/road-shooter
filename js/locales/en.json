@@ -95,5 +95,17 @@
   "tut_recruit": "Collect allies to grow your army",
   "tut_gold": "Earn gold to upgrade your squad",
   "tut_boss": "Defeat bosses to clear stages",
-  "tut_gotit": "GOT IT!"
+  "tut_gotit": "GOT IT!",
+  "upgrade_effect_startSquad": "+1 starting soldier",
+  "upgrade_effect_baseDamage": "+15% damage",
+  "upgrade_effect_baseHP": "+1 squad HP",
+  "upgrade_effect_moveSpeed": "+5% move speed",
+  "upgrade_effect_magnetRange": "+10% pickup range",
+  "upgrade_effect_goldBonus": "+10% gold",
+  "boss_zombieTitan": "ZOMBIE TITAN",
+  "boss_warMachine": "WAR MACHINE",
+  "boss_stormColossus": "STORM COLOSSUS",
+  "boss_infernoDragon": "INFERNO DRAGON",
+  "boss_frostWraith": "FROST WRAITH",
+  "hud_slowed": "SLOWED"
 }

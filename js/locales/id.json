@@ -95,5 +95,17 @@
   "tut_recruit": "Kumpulkan sekutu untuk memperbesar tentara",
   "tut_gold": "Kumpulkan emas untuk upgrade pasukan",
   "tut_boss": "Kalahkan bos untuk melewati stage",
-  "tut_gotit": "MENGERTI!"
+  "tut_gotit": "MENGERTI!",
+  "upgrade_effect_startSquad": "+1 prajurit awal",
+  "upgrade_effect_baseDamage": "+15% kerusakan",
+  "upgrade_effect_baseHP": "+1 HP pasukan",
+  "upgrade_effect_moveSpeed": "+5% kecepatan",
+  "upgrade_effect_magnetRange": "+10% jangkauan pengambilan",
+  "upgrade_effect_goldBonus": "+10% emas",
+  "boss_zombieTitan": "TITAN ZOMBIE",
+  "boss_warMachine": "MESIN PERANG",
+  "boss_stormColossus": "KOLOSUS BADAI",
+  "boss_infernoDragon": "NAGA NERAKA",
+  "boss_frostWraith": "HANTU ES",
+  "hud_slowed": "LAMBAT!"
 }

@@ -47,7 +47,7 @@ class UpgradeScene {
     // Gold display
     ctx.fillStyle = CONFIG.COLORS.gold;
     ctx.font = 'bold 18px Outfit';
-    ctx.fillText(`${save.currency.gold} Gold`, cw / 2, 80);
+    ctx.fillText(`${save.currency.gold} ${this.game.i18n('hud_gold') || 'Gold'}`, cw / 2, 80);
 
     // Upgrade cards
     for (const btn of this.buttons) {
@@ -75,7 +75,7 @@ class UpgradeScene {
       // Effect description
       ctx.fillStyle = '#94a3b8';
       ctx.font = '11px Outfit';
-      ctx.fillText(btn.effect, bx + 12, btn.y + 40);
+      ctx.fillText(this.game.i18n('upgrade_effect_' + btn.key) || btn.effect, bx + 12, btn.y + 40);
 
       // Level
       ctx.fillStyle = '#64748b';

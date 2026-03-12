@@ -95,5 +95,17 @@
   "tut_recruit": "仲間を集めて軍隊を大きく",
   "tut_gold": "ゴールドを集めて部隊を強化",
   "tut_boss": "ボスを倒してステージクリア",
-  "tut_gotit": "わかった!"
+  "tut_gotit": "わかった!",
+  "upgrade_effect_startSquad": "+1 初期兵士",
+  "upgrade_effect_baseDamage": "+15% ダメージ",
+  "upgrade_effect_baseHP": "+1 分隊HP",
+  "upgrade_effect_moveSpeed": "+5% 移動速度",
+  "upgrade_effect_magnetRange": "+10% 回収範囲",
+  "upgrade_effect_goldBonus": "+10% ゴールド",
+  "boss_zombieTitan": "ゾンビタイタン",
+  "boss_warMachine": "ウォーマシン",
+  "boss_stormColossus": "ストームコロッサス",
+  "boss_infernoDragon": "インフェルノドラゴン",
+  "boss_frostWraith": "フロストレイス",
+  "hud_slowed": "減速！"
 }

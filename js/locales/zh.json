@@ -95,5 +95,17 @@
   "tut_recruit": "收集盟友壮大你的军队",
   "tut_gold": "赚取金币升级小队",
   "tut_boss": "击败Boss通关",
-  "tut_gotit": "知道了!"
+  "tut_gotit": "知道了!",
+  "upgrade_effect_startSquad": "+1 起始士兵",
+  "upgrade_effect_baseDamage": "+15% 伤害",
+  "upgrade_effect_baseHP": "+1 小队血量",
+  "upgrade_effect_moveSpeed": "+5% 移动速度",
+  "upgrade_effect_magnetRange": "+10% 拾取范围",
+  "upgrade_effect_goldBonus": "+10% 金币",
+  "boss_zombieTitan": "僵尸泰坦",
+  "boss_warMachine": "战争机器",
+  "boss_stormColossus": "风暴巨像",
+  "boss_infernoDragon": "地狱火龙",
+  "boss_frostWraith": "冰霜幽灵",
+  "hud_slowed": "减速！"
 }

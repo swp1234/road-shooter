@@ -33,7 +33,7 @@ class SkinScene {
     // Gold display
     ctx.fillStyle = CONFIG.COLORS.gold;
     ctx.font = 'bold 12px Outfit';
-    ctx.fillText(`${save.currency.gold} Gold`, cw / 2, 56);
+    ctx.fillText(`${save.currency.gold} ${this.game.i18n('hud_gold') || 'Gold'}`, cw / 2, 56);
 
     // Feedback toast
     if (this.feedbackTimer > 0) {
@@ -150,7 +150,7 @@ class SkinScene {
         const canAfford = save.currency.gold >= skin.cost;
         ctx.fillStyle = canAfford ? CONFIG.COLORS.gold : '#ef4444';
         ctx.font = 'bold 11px Outfit';
-        ctx.fillText(`${skin.cost} Gold`, x + cardW / 2, y + cardH - 14);
+        ctx.fillText(`${skin.cost} ${this.game.i18n('hud_gold') || 'Gold'}`, x + cardW / 2, y + cardH - 14);
       }
 
       this.cards.push({ x, y, w: cardW, h: cardH, skin, owned, equipped });

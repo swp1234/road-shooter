@@ -95,5 +95,17 @@
   "tut_recruit": "Müttefikleri toplayarak ordunu büyüt",
   "tut_gold": "Altın kazanarak mangayı geliştir",
   "tut_boss": "Bossları yenerek aşamaları geç",
-  "tut_gotit": "ANLADIM!"
+  "tut_gotit": "ANLADIM!",
+  "upgrade_effect_startSquad": "+1 başlangıç askeri",
+  "upgrade_effect_baseDamage": "+15% hasar",
+  "upgrade_effect_baseHP": "+1 takım HP",
+  "upgrade_effect_moveSpeed": "+5% hız",
+  "upgrade_effect_magnetRange": "+10% toplama menzili",
+  "upgrade_effect_goldBonus": "+10% altın",
+  "boss_zombieTitan": "ZOMBİ TİTAN",
+  "boss_warMachine": "SAVAŞ MAKİNESİ",
+  "boss_stormColossus": "FIRTINA KOLOSU",
+  "boss_infernoDragon": "CEHENNEM EJDERHASI",
+  "boss_frostWraith": "BUZ HAYALETI",
+  "hud_slowed": "YAVAŞ!"
 }

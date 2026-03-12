@@ -4,6 +4,7 @@ class Boss {
     const cfg = CONFIG.BOSS[type];
     this.type = type;
     this.name = cfg.name || type;
+    this.nameKey = cfg.nameKey || ('boss_' + type);
     this.hp = Math.ceil(cfg.hp * stageMul);
     this.maxHp = this.hp;
     this.size = cfg.size;

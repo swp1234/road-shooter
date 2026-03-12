@@ -1226,7 +1226,7 @@ class RunScene {
       ctx.font = 'bold 28px Syne';
       ctx.textAlign = 'center';
       ctx.globalAlpha = Math.min(1, pct * 2);
-      ctx.fillText(this.game.i18n('run_gameover') || 'GAME OVER', cw / 2, ch / 2);
+      ctx.fillText(this.game.i18n('result_fail') || 'GAME OVER', cw / 2, ch / 2);
       ctx.globalAlpha = 1;
     }
   }
@@ -1267,7 +1267,7 @@ class RunScene {
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 9px Outfit';
       ctx.textAlign = 'center';
-      ctx.fillText(this.boss.name || 'BOSS', cw / 2, by - 4);
+      ctx.fillText(this.game.i18n(this.boss.nameKey) || this.boss.name || 'BOSS', cw / 2, by - 4);
     }
 
     // Quicksand slow indicator
@@ -1277,7 +1277,7 @@ class RunScene {
       ctx.fillStyle = '#c2a569';
       ctx.font = 'bold 11px Outfit';
       ctx.textAlign = 'center';
-      ctx.fillText('SLOWED', cw / 2, ch - 22);
+      ctx.fillText(this.game.i18n('hud_slowed') || 'SLOWED', cw / 2, ch - 22);
     }
 
     // Danger overlay
@@ -1321,7 +1321,7 @@ class RunScene {
       ctx.font = 'bold 28px Syne';
       ctx.textAlign = 'center';
       ctx.globalAlpha = Math.min(1, pct * 2);
-      ctx.fillText(this.game.i18n('run_gameover') || 'GAME OVER', cw / 2, ch / 2);
+      ctx.fillText(this.game.i18n('result_fail') || 'GAME OVER', cw / 2, ch / 2);
       ctx.globalAlpha = 1;
     }
 
@@ -1333,7 +1333,7 @@ class RunScene {
       ctx.font = 'bold 24px Syne';
       ctx.textAlign = 'center';
       ctx.fillText(
-        this.bossDefeated ? (this.game.i18n('run_victory') || 'VICTORY!') : (this.game.i18n('run_gameover') || 'GAME OVER'),
+        this.bossDefeated ? (this.game.i18n('run_victory') || 'VICTORY!') : (this.game.i18n('result_fail') || 'GAME OVER'),
         cw / 2, ch / 2
       );
     }

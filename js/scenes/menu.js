@@ -226,7 +226,7 @@ class MenuScene {
     ctx.fillStyle = CONFIG.COLORS.gold;
     ctx.font = 'bold 12px Outfit';
     ctx.textAlign = 'center';
-    ctx.fillText(`${save.currency.gold} Gold`, cw / 2, ch * 0.97);
+    ctx.fillText(`${save.currency.gold} ${this.game.i18n('hud_gold') || 'Gold'}`, cw / 2, ch * 0.97);
 
     // Career stats (subtle, below road preview)
     if (save.stats.totalRuns > 0) {

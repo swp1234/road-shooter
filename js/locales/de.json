@@ -95,5 +95,17 @@
   "tut_recruit": "Sammle Verbündete für deine Armee",
   "tut_gold": "Verdiene Gold für Upgrades",
   "tut_boss": "Besiege Bosse um Stages zu schaffen",
-  "tut_gotit": "VERSTANDEN!"
+  "tut_gotit": "VERSTANDEN!",
+  "upgrade_effect_startSquad": "+1 Startsoldat",
+  "upgrade_effect_baseDamage": "+15% Schaden",
+  "upgrade_effect_baseHP": "+1 Trupp-HP",
+  "upgrade_effect_moveSpeed": "+5% Geschwindigkeit",
+  "upgrade_effect_magnetRange": "+10% Sammelreichweite",
+  "upgrade_effect_goldBonus": "+10% Gold",
+  "boss_zombieTitan": "ZOMBIE-TITAN",
+  "boss_warMachine": "KRIEGSMASCHINE",
+  "boss_stormColossus": "STURMKOLOSS",
+  "boss_infernoDragon": "HÖLLENDRACHE",
+  "boss_frostWraith": "FROSTGEIST",
+  "hud_slowed": "VERLANGSAMT"
 }

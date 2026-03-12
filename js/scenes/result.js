@@ -116,7 +116,7 @@ class ResultScene {
       ctx.fillStyle = '#10b981';
       ctx.font = 'bold 12px Outfit';
       ctx.textAlign = 'center';
-      ctx.fillText(`${this.game.i18n('daily_complete') || 'DAILY COMPLETE!'} +${dailyReward.reward} Gold`, cw / 2, bannerY + 18);
+      ctx.fillText(`${this.game.i18n('daily_complete') || 'DAILY COMPLETE!'} +${dailyReward.reward} ${this.game.i18n('hud_gold') || 'Gold'}`, cw / 2, bannerY + 18);
     }
 
     // Buttons

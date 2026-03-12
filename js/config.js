@@ -94,6 +94,7 @@ const CONFIG = {
       size: 40,
       color: '#dc2626',
       name: 'ZOMBIE TITAN',
+      nameKey: 'boss_zombieTitan',
       phases: [
         { threshold: 0.66, attack: 'shockwave', interval: 3000 },
         { threshold: 0.33, attack: 'summon', interval: 4000 },
@@ -105,6 +106,7 @@ const CONFIG = {
       size: 35,
       color: '#475569',
       name: 'WAR MACHINE',
+      nameKey: 'boss_warMachine',
       phases: [
         { threshold: 0.66, attack: 'gatling', interval: 2500 },
         { threshold: 0.33, attack: 'missiles', interval: 3500 },
@@ -116,6 +118,7 @@ const CONFIG = {
       size: 38,
       color: '#7c3aed',
       name: 'STORM COLOSSUS',
+      nameKey: 'boss_stormColossus',
       phases: [
         { threshold: 0.66, attack: 'lightning', interval: 2000 },
         { threshold: 0.33, attack: 'tornado', interval: 3000 },
@@ -127,6 +130,7 @@ const CONFIG = {
       size: 42,
       color: '#f97316',
       name: 'INFERNO DRAGON',
+      nameKey: 'boss_infernoDragon',
       phases: [
         { threshold: 0.66, attack: 'flame_breath', interval: 2500 },
         { threshold: 0.33, attack: 'fire_trail', interval: 2000 },
@@ -138,6 +142,7 @@ const CONFIG = {
       size: 40,
       color: '#38bdf8',
       name: 'FROST WRAITH',
+      nameKey: 'boss_frostWraith',
       phases: [
         { threshold: 0.66, attack: 'ice_shard', interval: 2500 },
         { threshold: 0.33, attack: 'blizzard', interval: 3000 },

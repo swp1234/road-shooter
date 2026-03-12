@@ -95,5 +95,17 @@
   "tut_recruit": "Recrute aliados para seu exército",
   "tut_gold": "Ganhe ouro para melhorar seu esquadrão",
   "tut_boss": "Derrote chefes para avançar",
-  "tut_gotit": "ENTENDI!"
+  "tut_gotit": "ENTENDI!",
+  "upgrade_effect_startSquad": "+1 soldado inicial",
+  "upgrade_effect_baseDamage": "+15% dano",
+  "upgrade_effect_baseHP": "+1 HP do esquadrão",
+  "upgrade_effect_moveSpeed": "+5% velocidade",
+  "upgrade_effect_magnetRange": "+10% alcance de coleta",
+  "upgrade_effect_goldBonus": "+10% ouro",
+  "boss_zombieTitan": "TITÃ ZUMBI",
+  "boss_warMachine": "MÁQUINA DE GUERRA",
+  "boss_stormColossus": "COLOSSO TEMPESTADE",
+  "boss_infernoDragon": "DRAGÃO INFERNAL",
+  "boss_frostWraith": "ESPECTRO GÉLIDO",
+  "hud_slowed": "LENTO!"
 }

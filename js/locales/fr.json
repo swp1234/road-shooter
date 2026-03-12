@@ -95,5 +95,17 @@
   "tut_recruit": "Recrutez des alliés pour agrandir votre armée",
   "tut_gold": "Gagnez de l'or pour améliorer votre escouade",
   "tut_boss": "Battez les boss pour progresser",
-  "tut_gotit": "COMPRIS !"
+  "tut_gotit": "COMPRIS !",
+  "upgrade_effect_startSquad": "+1 soldat de départ",
+  "upgrade_effect_baseDamage": "+15% dégâts",
+  "upgrade_effect_baseHP": "+1 PV d'escouade",
+  "upgrade_effect_moveSpeed": "+5% vitesse",
+  "upgrade_effect_magnetRange": "+10% portée de collecte",
+  "upgrade_effect_goldBonus": "+10% or",
+  "boss_zombieTitan": "TITAN ZOMBIE",
+  "boss_warMachine": "MACHINE DE GUERRE",
+  "boss_stormColossus": "COLOSSE TEMPÊTE",
+  "boss_infernoDragon": "DRAGON INFERNAL",
+  "boss_frostWraith": "SPECTRE DE GIVRE",
+  "hud_slowed": "RALENTI !"
 }

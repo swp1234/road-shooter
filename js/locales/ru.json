@@ -95,5 +95,17 @@
   "tut_recruit": "Собирайте союзников в армию",
   "tut_gold": "Зарабатывайте золото для улучшений",
   "tut_boss": "Победите боссов чтобы пройти этап",
-  "tut_gotit": "ПОНЯТНО!"
+  "tut_gotit": "ПОНЯТНО!",
+  "upgrade_effect_startSquad": "+1 стартовый боец",
+  "upgrade_effect_baseDamage": "+15% урон",
+  "upgrade_effect_baseHP": "+1 HP отряда",
+  "upgrade_effect_moveSpeed": "+5% скорость",
+  "upgrade_effect_magnetRange": "+10% радиус сбора",
+  "upgrade_effect_goldBonus": "+10% золото",
+  "boss_zombieTitan": "ЗОМБИ-ТИТАН",
+  "boss_warMachine": "БОЕВАЯ МАШИНА",
+  "boss_stormColossus": "ШТОРМОВОЙ КОЛОСС",
+  "boss_infernoDragon": "АДСКИЙ ДРАКОН",
+  "boss_frostWraith": "ЛЕДЯНОЙ ПРИЗРАК",
+  "hud_slowed": "ЗАМЕДЛЕН"
 }
