@@ -482,6 +482,27 @@ class Item {
         ctx.stroke();
         break;
       }
+      case 'weapon': {
+        // Hexagon shape with golden glow (WEAPON CRATE)
+        const bgGrad = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
+        bgGrad.addColorStop(0, 'rgba(250,204,21,0.35)');
+        bgGrad.addColorStop(1, 'rgba(120,80,0,0.15)');
+        ctx.fillStyle = bgGrad;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+          const px = x + Math.cos(a) * r;
+          const py = y + Math.sin(a) * r;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        break;
+      }
     }
     ctx.restore();
     ctx.shadowBlur = 0;
@@ -710,6 +731,26 @@ class Item {
         ctx.ellipse(this.x - bombR * 0.3, y + ps * 0.05 - bombR * 0.25, bombR * 0.18, bombR * 0.1, -0.5, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1;
+        break;
+      }
+      case 'weapon': {
+        // Gun silhouette icon with rotating crosshair
+        ctx.fillStyle = '#facc15';
+        ctx.font = `bold ${ps * 0.3}px Outfit`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('GUN', this.x, y + ps * 0.05);
+        ctx.textBaseline = 'alphabetic';
+        const ca = this.orbitAngle * 1.5;
+        ctx.strokeStyle = 'rgba(250,204,21,0.5)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 4; i++) {
+          const a = ca + (i / 4) * Math.PI * 2;
+          ctx.beginPath();
+          ctx.moveTo(this.x + Math.cos(a) * ps * 0.25, y + Math.sin(a) * ps * 0.25);
+          ctx.lineTo(this.x + Math.cos(a) * ps * 0.45, y + Math.sin(a) * ps * 0.45);
+          ctx.stroke();
+        }
         break;
       }
     }

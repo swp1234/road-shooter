@@ -26,6 +26,13 @@ class Game {
     // 3D Renderer
     this.renderer3d = null;
 
+    // Menu background
+    this.menuBg = new Image();
+    this.menuBgReady = false;
+    this.menuBg.onload = () => { this.menuBgReady = true; };
+    this.menuBg.onerror = () => { this.menuBgReady = false; };
+    this.menuBg.src = 'assets/menu-bg.jpg';
+
     // Input
     this.isDragging = false;
     this.dragStartX = 0;

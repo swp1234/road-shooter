@@ -5,7 +5,8 @@ class CombatSystem {
   }
 
   // Squad auto-fire: at enemies if available, else straight forward
-  squadFire(squad, enemies, boss, dmgMul = 1, rapidFire = false, particles = null) {
+  // weapon: optional WEAPONS[id] object for player-selected weapon override
+  squadFire(squad, enemies, boss, dmgMul = 1, rapidFire = false, particles = null, weapon = null) {
     const firers = squad.getFirers();
     const targets = [];
 
@@ -19,13 +20,22 @@ class CombatSystem {
       }
     }
 
-    const speed = CONFIG.BULLET_SPEED;
+    const baseSpeed = CONFIG.BULLET_SPEED;
 
     for (const char of firers) {
+      // Apply weapon overrides if selected
+      const wRange = weapon ? weapon.range : char.config.range;
+      const wDmgMul = weapon ? weapon.dmgMul : 1;
+      const wSpread = weapon ? weapon.spread : (char.config.spread || 0);
+      const wPierce = weapon ? weapon.pierce : !!char.config.pierce;
+      const wAoe = weapon ? weapon.aoe : (char.config.aoe || 0);
+      const wBulletSpeed = weapon ? weapon.bulletSpeed : baseSpeed;
+      const wAccuracy = weapon && weapon.accuracy ? weapon.accuracy : 1;
+
       if (targets.length > 0) {
         // Find nearest target in range (healers get priority)
         let nearest = null;
-        let minDist = char.config.range;
+        let minDist = wRange;
         let nearestHealer = null;
         let minHealerDist = char.config.range;
         for (const t of targets) {
@@ -85,26 +95,35 @@ class CombatSystem {
           const dx = tx - char.x;
           const dy = ty - char.y;
           const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-          const vx = (dx / dist) * speed;
-          const vy = (dy / dist) * speed;
-          const bulletDmg = Math.ceil(char.config.dmg * dmgMul);
+          const vx = (dx / dist) * wBulletSpeed;
+          const vy = (dy / dist) * wBulletSpeed;
+          const bulletDmg = Math.ceil(char.config.dmg * dmgMul * wDmgMul);
 
-          // Shotgunner: fires spread of 5 bullets
-          if (char.config.spread) {
+          // Spread weapon (shotgun): fires multiple bullets
+          if (wSpread > 0) {
             const baseAngle = Math.atan2(dy, dx);
-            const spreadCount = char.config.spread;
-            for (let s = 0; s < spreadCount; s++) {
-              const a = baseAngle + (s - (spreadCount - 1) / 2) * 0.15;
-              this.bulletPool.spawn(char.x, char.y - 3, Math.cos(a) * speed, Math.sin(a) * speed, Math.ceil(bulletDmg * 0.6), false, 0);
+            for (let s = 0; s < wSpread; s++) {
+              const a = baseAngle + (s - (wSpread - 1) / 2) * 0.15;
+              this.bulletPool.spawn(char.x, char.y - 3, Math.cos(a) * wBulletSpeed, Math.sin(a) * wBulletSpeed, Math.ceil(bulletDmg * 0.6), false, 0);
             }
           }
-          // Laser: piercing bullet (marked)
-          else if (char.config.pierce) {
+          // Pierce weapon (sniper/laser)
+          else if (wPierce) {
             this.bulletPool.spawn(char.x, char.y - 3, vx, vy, bulletDmg, false, 0, true);
           }
-          // Normal fire
+          // AOE weapon (rocket)
+          else if (wAoe > 0) {
+            this.bulletPool.spawn(char.x, char.y - 3, vx, vy, bulletDmg, false, wAoe);
+          }
+          // Normal fire (with accuracy jitter for minigun)
           else {
-            this.bulletPool.spawn(char.x, char.y - 3, vx, vy, bulletDmg, false, char.config.aoe || 0);
+            let fvx = vx, fvy = vy;
+            if (wAccuracy < 1) {
+              const jitter = (1 - wAccuracy) * 0.5;
+              fvx += (Math.random() - 0.5) * wBulletSpeed * jitter;
+              fvy += (Math.random() - 0.5) * wBulletSpeed * jitter;
+            }
+            this.bulletPool.spawn(char.x, char.y - 3, fvx, fvy, bulletDmg, false, 0);
           }
           if (Math.random() < 0.15) Sound.shoot();
         } else {
@@ -112,7 +131,7 @@ class CombatSystem {
           char.fire();
           if (particles && Math.random() < 0.3) particles.emitMuzzleFlash(char.x, char.y - 3);
           const spread = (Math.random() - 0.5) * 0.3;
-          this.bulletPool.spawn(char.x, char.y - 3, spread, -speed, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
+          this.bulletPool.spawn(char.x, char.y - 3, spread, -wBulletSpeed, Math.ceil(char.config.dmg * dmgMul * wDmgMul), false, wAoe);
           if (Math.random() < 0.05) Sound.shoot();
         }
       } else {
@@ -120,7 +139,7 @@ class CombatSystem {
         char.fire();
         if (particles && Math.random() < 0.3) particles.emitMuzzleFlash(char.x, char.y - 3);
         const spread = (Math.random() - 0.5) * 0.4;
-        this.bulletPool.spawn(char.x, char.y - 3, spread, -speed, Math.ceil(char.config.dmg * dmgMul), false, char.config.aoe || 0);
+        this.bulletPool.spawn(char.x, char.y - 3, spread, -wBulletSpeed, Math.ceil(char.config.dmg * dmgMul * wDmgMul), false, wAoe);
         if (Math.random() < 0.05) Sound.shoot();
       }
     }

@@ -52,7 +52,9 @@ const CONFIG = {
     shieldBuff:  { value: 5,   color: '#60a5fa', label: 'SHIELD', isBuff: true, buffType: 'shield', weight: 6 },
     rapidFire:   { value: 2,   color: '#eab308', label: 'RAPID',  isBuff: true, buffType: 'fireRate', duration: 8, weight: 7 },
     magnetPulse: { value: 80,  color: '#a855f7', label: 'MAGNET', isBuff: true, buffType: 'magnet', duration: 6, weight: 5 },
-    nuke:        { value: 250, color: '#ff6b35', label: 'NUKE!',  isBuff: true, buffType: 'nuke', weight: 2 }
+    nuke:        { value: 250, color: '#ff6b35', label: 'NUKE!',  isBuff: true, buffType: 'nuke', weight: 2 },
+    // Weapon drops
+    weaponDrop:  { value: 0, color: '#facc15', label: 'WEAPON', isBuff: true, buffType: 'weapon', weight: 4 }
   },
 
   // Gates

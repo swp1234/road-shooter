@@ -38,26 +38,33 @@ class MenuScene {
     const maxStage = (save.progress.maxStage || 0) + 1;
     const unlockEndless = (save.progress.maxStage || 0) >= 3;
 
-    // Background
-    ctx.fillStyle = CONFIG.COLORS.bg;
-    ctx.fillRect(0, 0, cw, ch);
-
-    // Stars
-    for (const s of this.starField) {
-      ctx.fillStyle = `rgba(255,255,255,${0.3 + Math.random() * 0.3})`;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-      ctx.fill();
+    // Background — AI art or fallback
+    if (this.game.menuBgReady) {
+      const img = this.game.menuBg;
+      const imgAspect = img.naturalWidth / img.naturalHeight;
+      const canvasAspect = cw / ch;
+      let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+      if (imgAspect > canvasAspect) {
+        sw = img.naturalHeight * canvasAspect;
+        sx = (img.naturalWidth - sw) / 2;
+      } else {
+        sh = img.naturalWidth / canvasAspect;
+        sy = (img.naturalHeight - sh) / 2;
+      }
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+      // Dark overlay for readability
+      ctx.fillStyle = 'rgba(5,5,16,0.55)';
+      ctx.fillRect(0, 0, cw, ch);
+    } else {
+      ctx.fillStyle = CONFIG.COLORS.bg;
+      ctx.fillRect(0, 0, cw, ch);
+      for (const s of this.starField) {
+        ctx.fillStyle = `rgba(255,255,255,${0.3 + Math.random() * 0.3})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
-
-    // Road preview
-    const roadW = cw * 0.4;
-    const roadL = (cw - roadW) / 2;
-    ctx.fillStyle = CONFIG.COLORS.road;
-    ctx.fillRect(roadL, ch * 0.28, roadW, ch * 0.38);
-    ctx.strokeStyle = '#475569';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(roadL, ch * 0.28, roadW, ch * 0.38);
 
     // Title
     ctx.globalAlpha = this.titleAlpha;

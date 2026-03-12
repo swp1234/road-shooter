@@ -81,6 +81,8 @@ class RunScene {
 
     // Buffs (power-up timers)
     this.buffs = { dmg: 0, shield: 0, fireRate: 0, magnet: 0 };
+    this.currentWeapon = null; // null = default assault, WEAPONS[id] when picked up
+    this.weaponTimer = 0;
 
     // Transition (minimal — no gameplay pause)
     this.transitionText = '';
@@ -154,6 +156,10 @@ class RunScene {
     if (this.buffs.dmg > 0) this.buffs.dmg -= dt;
     if (this.buffs.fireRate > 0) this.buffs.fireRate -= dt;
     if (this.buffs.magnet > 0) this.buffs.magnet -= dt;
+    if (this.weaponTimer > 0) {
+      this.weaponTimer -= dt;
+      if (this.weaponTimer <= 0) this.currentWeapon = null;
+    }
 
     // Quicksand timer
     if (this.quicksandTimer > 0) {
@@ -264,7 +270,7 @@ class RunScene {
     // Always run combat - squad should always be shooting
     const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
     const rapid = this.buffs.fireRate > 0;
-    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid, this.particles);
+    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid, this.particles, this.currentWeapon);
     this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
     const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
     this.kills += hitResult.kills;
@@ -314,7 +320,7 @@ class RunScene {
     // Auto combat with buffs
     const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
     const rapid = this.buffs.fireRate > 0;
-    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid, this.particles);
+    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid, this.particles, this.currentWeapon);
     this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
 
     // Check hits
@@ -406,7 +412,7 @@ class RunScene {
       // Combat with buffs
       const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
       const rapid = this.buffs.fireRate > 0;
-      this.combat.squadFire(this.squad, this.enemies, this.boss, dmg, rapid, this.particles);
+      this.combat.squadFire(this.squad, this.enemies, this.boss, dmg, rapid, this.particles, this.currentWeapon);
       this.combat.enemyFire(this.enemies, this.squad.x, this.squad.y);
 
       const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles, this.bossMul || 1);
@@ -948,6 +954,17 @@ class RunScene {
         this.game.shake(10, 0.5);
         this.particles.emit(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2, '#ff6b35', 25, 8, 0.5, 6);
         break;
+      case 'weapon': {
+        const wId = rollWeaponDrop(this.stage);
+        if (wId && WEAPONS[wId]) {
+          this.currentWeapon = WEAPONS[wId];
+          this.weaponTimer = WEAPONS[wId].duration;
+          this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.4, WEAPONS[wId].name + '!', WEAPONS[wId].glowColor, 24);
+          this.game.shake(3, 0.15);
+          Sound.comboKill(5);
+        }
+        break;
+      }
     }
   }
 
@@ -1348,6 +1365,10 @@ class RunScene {
       x += tw + 4;
       ctx.globalAlpha = 1;
     };
+    // Current weapon indicator
+    if (this.currentWeapon && this.weaponTimer > 0) {
+      draw(this.currentWeapon.name, this.currentWeapon.glowColor, this.weaponTimer);
+    }
     draw('DMG+', '#f43f5e', this.buffs.dmg);
     draw('SHIELD ' + Math.ceil(this.buffs.shield), '#60a5fa', this.buffs.shield);
     draw('RAPID', '#eab308', this.buffs.fireRate);

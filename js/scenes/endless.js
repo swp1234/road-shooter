@@ -24,6 +24,8 @@ class EndlessScene {
 
     // Buffs (power-up timers)
     this.buffs = { dmg: 0, shield: 0, fireRate: 0, magnet: 0 };
+    this.currentWeapon = null;
+    this.weaponTimer = 0;
 
     // Entities
     this.items = [];
@@ -135,6 +137,10 @@ class EndlessScene {
     if (this.buffs.dmg > 0) this.buffs.dmg -= dt;
     if (this.buffs.fireRate > 0) this.buffs.fireRate -= dt;
     if (this.buffs.magnet > 0) this.buffs.magnet -= dt;
+    if (this.weaponTimer > 0) {
+      this.weaponTimer -= dt;
+      if (this.weaponTimer <= 0) this.currentWeapon = null;
+    }
 
     // Spawn items continuously
     this.itemSpawnTimer -= dt;
@@ -216,7 +222,7 @@ class EndlessScene {
     // Combat always runs (regardless of waveCooldown)
     const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
     const rapid = this.buffs.fireRate > 0;
-    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid);
+    this.combat.squadFire(this.squad, this.enemies, null, dmg, rapid, null, this.currentWeapon);
 
     const hitResult = this.combat.checkBulletHits(this.enemies, null, this.particles);
     this.kills += hitResult.kills;
@@ -327,7 +333,7 @@ class EndlessScene {
     // Combat with buffs
     const dmg = this.dmgMul * (this.buffs.dmg > 0 ? 1.3 : 1);
     const rapid = this.buffs.fireRate > 0;
-    this.combat.squadFire(this.squad, this.enemies, this.boss, dmg, rapid);
+    this.combat.squadFire(this.squad, this.enemies, this.boss, dmg, rapid, null, this.currentWeapon);
 
     const hitResult = this.combat.checkBulletHits(this.enemies, this.boss, this.particles, this.stageMul || 1);
     this.kills += hitResult.kills;
@@ -587,6 +593,17 @@ class EndlessScene {
         this.game.shake(10, 0.5);
         this.particles.emit(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT / 2, '#ff6b35', 25, 8, 0.5, 6);
         break;
+      case 'weapon': {
+        const wId = rollWeaponDrop(this.wave);
+        if (wId && WEAPONS[wId]) {
+          this.currentWeapon = WEAPONS[wId];
+          this.weaponTimer = WEAPONS[wId].duration;
+          this.particles.emitText(CONFIG.CANVAS_WIDTH / 2, CONFIG.CANVAS_HEIGHT * 0.4, WEAPONS[wId].name + '!', WEAPONS[wId].glowColor, 24);
+          this.game.shake(3, 0.15);
+          Sound.comboKill(5);
+        }
+        break;
+      }
     }
   }
 
