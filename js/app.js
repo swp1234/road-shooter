@@ -33,6 +33,19 @@ class Game {
     this.menuBg.onerror = () => { this.menuBgReady = false; };
     this.menuBg.src = 'assets/menu-bg.jpg';
 
+    // Character sprites
+    this.charSprites = {};
+    this.charSpritesReady = {};
+    const charTypes = ['rifleman', 'tanker', 'sniper', 'bomber', 'shotgunner', 'laser'];
+    charTypes.forEach(type => {
+      const img = new Image();
+      this.charSpritesReady[type] = false;
+      img.onload = () => { this.charSpritesReady[type] = true; };
+      img.onerror = () => { this.charSpritesReady[type] = false; };
+      img.src = `assets/chars/${type}.png`;
+      this.charSprites[type] = img;
+    });
+
     // Input
     this.isDragging = false;
     this.dragStartX = 0;

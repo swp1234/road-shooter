@@ -57,31 +57,24 @@ class Character {
     const cfg = this.config;
     const s = cfg.size * scale;
     const alpha = this.dying ? this.deathTimer / 0.2 : 1;
-
-    ctx.globalAlpha = alpha;
-
     const isFlash = this.flashTimer > 0;
-    const baseColor = isFlash ? '#ffffff' : cfg.color;
 
-    switch (this.type) {
-      case 'rifleman':
-        this.drawRifleman(ctx, s, baseColor);
-        break;
-      case 'tanker':
-        this.drawTanker(ctx, s, baseColor);
-        break;
-      case 'sniper':
-        this.drawSniper(ctx, s, baseColor);
-        break;
-      case 'bomber':
-        this.drawBomber(ctx, s, baseColor);
-        break;
-      case 'shotgunner':
-        this.drawShotgunner(ctx, s, baseColor);
-        break;
-      case 'laser':
-        this.drawLaser(ctx, s, baseColor);
-        break;
+    // Try sprite rendering first
+    const g = typeof game !== 'undefined' ? game : null;
+    if (g && g.charSpritesReady[this.type] && g.charSprites[this.type]) {
+      this.drawSprite(ctx, s, alpha, isFlash, g.charSprites[this.type]);
+    } else {
+      // Canvas fallback
+      ctx.globalAlpha = alpha;
+      const baseColor = isFlash ? '#ffffff' : cfg.color;
+      switch (this.type) {
+        case 'rifleman': this.drawRifleman(ctx, s, baseColor); break;
+        case 'tanker': this.drawTanker(ctx, s, baseColor); break;
+        case 'sniper': this.drawSniper(ctx, s, baseColor); break;
+        case 'bomber': this.drawBomber(ctx, s, baseColor); break;
+        case 'shotgunner': this.drawShotgunner(ctx, s, baseColor); break;
+        case 'laser': this.drawLaser(ctx, s, baseColor); break;
+      }
     }
 
     // Muzzle flash effect
@@ -99,6 +92,42 @@ class Character {
     }
 
     ctx.globalAlpha = 1;
+  }
+
+  drawSprite(ctx, s, alpha, isFlash, spriteImg) {
+    // Sprite render size based on character config size
+    const renderSize = s * 5;
+    const halfSize = renderSize / 2;
+
+    ctx.globalAlpha = alpha;
+
+    // Draw shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(this.x, this.y + halfSize * 0.6, halfSize * 0.5, halfSize * 0.12, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Flash glow (damage indicator - bright white glow behind sprite)
+    if (isFlash) {
+      ctx.globalAlpha = alpha * 0.6;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, halfSize * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = alpha;
+    }
+
+    // Draw sprite
+    ctx.drawImage(spriteImg, this.x - halfSize, this.y - halfSize, renderSize, renderSize);
+
+    // Death fade effect
+    if (this.dying) {
+      ctx.globalAlpha = alpha * 0.5;
+      ctx.fillStyle = '#ff4444';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, halfSize * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   drawRifleman(ctx, s, color) {
