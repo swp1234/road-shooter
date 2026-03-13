@@ -150,16 +150,51 @@ class Road {
       ctx.closePath();
       ctx.fill();
     }
+
+    // --- Grid pattern (horizontal lines scrolling with road) ---
+    const gridSpacing = 18;
+    const gridScroll = (this.scrollY * 0.4) % gridSpacing;
+    ctx.strokeStyle = 'rgba(0,229,255,0.05)';
+    ctx.lineWidth = 0.5;
+    const roadRange = ch - this.horizonY;
+    const midY = this.horizonY + roadRange * 0.35; // fade zone
+    for (let gy = this.horizonY + gridScroll; gy < ch; gy += gridSpacing) {
+      const depth = (gy - this.horizonY) / roadRange;
+      const alpha = depth * depth * 0.06; // stronger near bottom
+      if (alpha < 0.005) continue;
+      ctx.globalAlpha = alpha;
+      const ge = this.getVisualEdges(gy);
+      ctx.beginPath();
+      ctx.moveTo(ge.left + 2, gy);
+      ctx.lineTo(ge.right - 2, gy);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    // --- Road surface texture (subtle micro-dots, bottom half only) ---
+    const texStartY = this.horizonY + roadRange * 0.5;
+    ctx.fillStyle = 'rgba(200,220,255,0.03)';
+    const texSeed = (this.scrollY * 7) | 0;
+    for (let ti = 0; ti < 60; ti++) {
+      // Deterministic-ish pseudo-random from index + scroll
+      const hash = ((ti * 2654435761 + texSeed) >>> 0) / 4294967296;
+      const hash2 = ((ti * 340573321 + texSeed * 3) >>> 0) / 4294967296;
+      const ty = texStartY + hash * (ch - texStartY);
+      const te = this.getVisualEdges(ty);
+      const tx = te.left + hash2 * te.width;
+      ctx.fillRect(tx, ty, 1.5, 1);
+    }
   }
 
   drawEdgeGlow(ctx, ch) {
     const te = this.getVisualEdges(this.horizonY);
     const be = this.getVisualEdges(ch);
 
-    // Neon edge lines
+    // Neon edge lines with pulsing glow
+    const pulse = Math.sin(Date.now() * 0.002) * 0.5 + 0.5; // 0..1
     ctx.shadowColor = '#00e5ff';
-    ctx.shadowBlur = 12;
-    ctx.strokeStyle = 'rgba(0,229,255,0.5)';
+    ctx.shadowBlur = 8 + pulse * 8; // 8-16 range
+    ctx.strokeStyle = `rgba(0,229,255,${0.45 + pulse * 0.1})`;
     ctx.lineWidth = 1.5;
 
     ctx.beginPath();
@@ -192,9 +227,23 @@ class Road {
     const segs = 25;
     ctx.lineWidth = 1;
 
+    const centerLane = Math.floor(lanes / 2);
     for (let lane = 1; lane < lanes; lane++) {
       const ratio = lane / lanes;
-      ctx.strokeStyle = lane === Math.floor(lanes / 2) ? 'rgba(100,116,139,0.3)' : 'rgba(100,116,139,0.15)';
+      const isCenter = lane === centerLane;
+
+      // Center lane: brighter with cyan tint and subtle glow
+      if (isCenter) {
+        ctx.strokeStyle = 'rgba(0,200,230,0.35)';
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = 'rgba(0,229,255,0.3)';
+        ctx.shadowBlur = 4;
+      } else {
+        ctx.strokeStyle = 'rgba(100,116,139,0.15)';
+        ctx.lineWidth = 1;
+        ctx.shadowBlur = 0;
+      }
+
       ctx.setLineDash([6, 10]);
       ctx.lineDashOffset = -(this.scrollY * 0.5);
       ctx.beginPath();
@@ -208,6 +257,7 @@ class Road {
       }
       ctx.stroke();
     }
+    ctx.shadowBlur = 0;
     ctx.setLineDash([]);
   }
 
