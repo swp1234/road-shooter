@@ -1249,8 +1249,14 @@ class RunScene {
       const bw = 160;
       const bh = 10;
       const hpPct = Math.max(0, this.boss.hp / this.boss.maxHp);
-      ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.fillRect(bx - 2, by - 2, bw + 4, bh + 4);
+      // Glass panel behind boss HP
+      ctx.fillStyle = 'rgba(10, 10, 31, 0.6)';
+      ctx.beginPath();
+      ctx.roundRect(bx - 6, by - 16, bw + 12, bh + 28, 8);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.2)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
       ctx.fillStyle = '#1e293b';
       ctx.fillRect(bx, by, bw, bh);
       const isLowHp = hpPct < 0.3;
@@ -1378,9 +1384,16 @@ class RunScene {
   drawTopBar(ctx) {
     const cw = CONFIG.CANVAS_WIDTH;
 
-    // Top bar background
-    ctx.fillStyle = CONFIG.COLORS.hudBg;
+    // Top bar background (glassmorphism)
+    ctx.fillStyle = 'rgba(10, 10, 31, 0.7)';
     ctx.fillRect(0, 0, cw, 50);
+    // Subtle bottom border glow
+    ctx.strokeStyle = 'rgba(0, 229, 255, 0.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, 50);
+    ctx.lineTo(cw, 50);
+    ctx.stroke();
 
     // Stage
     ctx.fillStyle = '#fff';
@@ -1407,11 +1420,14 @@ class RunScene {
     ctx.fillStyle = segColor;
     ctx.fillRect(0, 48, cw * segProgress, 3);
 
-    // Gold
+    // Gold (with subtle glow)
+    ctx.shadowColor = CONFIG.COLORS.gold;
+    ctx.shadowBlur = 6;
     ctx.fillStyle = CONFIG.COLORS.gold;
     ctx.font = 'bold 14px Outfit';
     ctx.textAlign = 'center';
     ctx.fillText(`${this.gold}`, cw / 2, 20);
+    ctx.shadowBlur = 0;
     ctx.fillStyle = '#94a3b8';
     ctx.font = '10px Outfit';
     ctx.fillText(this.game.i18n('hud_gold') || 'GOLD', cw / 2, 35);
@@ -1434,6 +1450,16 @@ class RunScene {
     if (this.killCombo >= 3) {
       const comboAlpha = Math.min(1, this.killComboTimer / 0.5);
       ctx.globalAlpha = comboAlpha;
+      // Combo glass chip
+      const cmbX = 4;
+      const cmbY = CONFIG.CANVAS_HEIGHT - 38;
+      ctx.fillStyle = `rgba(251, 191, 36, ${0.08 * comboAlpha})`;
+      ctx.beginPath();
+      ctx.roundRect(cmbX, cmbY, 56, 32, 6);
+      ctx.fill();
+      ctx.strokeStyle = `rgba(251, 191, 36, ${0.15 * comboAlpha})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
       const comboColor = this.killCombo >= 25 ? '#ef4444' : this.killCombo >= 10 ? '#f97316' : '#fbbf24';
       const pulse = 1 + Math.sin(Date.now() / 80) * (this.killCombo >= 10 ? 0.1 : 0.05);
       const comboSize = Math.min(22, 12 + this.killCombo / 4);
@@ -1450,6 +1476,16 @@ class RunScene {
     }
 
     // Squad count (bottom-right above bar)
+    // Squad glass chip
+    const sqX = cw - 60;
+    const sqY = CONFIG.CANVAS_HEIGHT - 36;
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
+    ctx.beginPath();
+    ctx.roundRect(sqX, sqY, 54, 30, 6);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
     ctx.fillStyle = '#10b981';
     ctx.font = 'bold 13px Outfit';
     ctx.textAlign = 'right';
