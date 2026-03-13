@@ -157,6 +157,63 @@ class ParticleSystem {
     this.emit(x, y, '#fff', 1, 1.5, 0.05, 0.8);
   }
 
+  // Weapon-specific hit sparks
+  emitWeaponHit(x, y, weaponType) {
+    switch (weaponType) {
+      case 'shotgunner':
+        // Scatter sparks
+        this.emit(x, y, '#dc2626', 4, 5, 0.15, 1.5);
+        this.emit(x, y, '#fca5a5', 2, 3, 0.1, 1);
+        break;
+      case 'laser':
+        // Electric arc flash
+        this.emit(x, y, '#06b6d4', 3, 2, 0.2, 2);
+        this.emit(x, y, '#fff', 2, 1, 0.08, 1.5);
+        break;
+      case 'bomber':
+        // Explosion ring
+        this.emit(x, y, '#f97316', 12, 6, 0.4, 3);
+        this.emit(x, y, '#fbbf24', 6, 4, 0.3, 2);
+        this.emit(x, y, '#fff', 3, 2, 0.15, 1.5);
+        break;
+      case 'sniper':
+        // Precise impact
+        this.emit(x, y, '#8b5cf6', 2, 1.5, 0.12, 2);
+        this.emit(x, y, '#fff', 1, 1, 0.06, 3);
+        break;
+      default:
+        this.emitHitSpark(x, y);
+    }
+  }
+
+  // Nuke explosion
+  emitNukeExplosion(x, y) {
+    for (let ring = 0; ring < 3; ring++) {
+      setTimeout(() => {
+        this.emit(x, y, '#ff6b35', 25, 10 + ring * 5, 0.8, 5);
+        this.emit(x, y, '#fbbf24', 15, 8 + ring * 4, 0.6, 3);
+        this.emit(x, y, '#fff', 8, 5 + ring * 3, 0.3, 2);
+      }, ring * 100);
+    }
+  }
+
+  // Screen shake state
+  startShake(intensity, duration) {
+    this.shakeIntensity = intensity;
+    this.shakeDuration = duration;
+    this.shakeTimer = duration;
+  }
+
+  getShakeOffset() {
+    if (!this.shakeTimer || this.shakeTimer <= 0) return { x: 0, y: 0 };
+    const progress = this.shakeTimer / this.shakeDuration;
+    const amp = this.shakeIntensity * progress;
+    return {
+      x: (Math.random() - 0.5) * amp * 2,
+      y: (Math.random() - 0.5) * amp * 2
+    };
+  }
+
   // Enemy death with color by type
   emitEnemyDeath(x, y, type) {
     const colors = {
@@ -182,6 +239,8 @@ class ParticleSystem {
         this.texts.splice(i, 1);
       }
     }
+    // Screen shake decay
+    if (this.shakeTimer > 0) this.shakeTimer -= dt;
   }
 
   draw(ctx) {

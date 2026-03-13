@@ -1,6 +1,6 @@
 // Road Shooter - Bullet/Projectile System (Enhanced Visuals)
 class Bullet {
-  constructor(x, y, vx, vy, dmg, isEnemy = false, aoe = 0, pierce = false) {
+  constructor(x, y, vx, vy, dmg, isEnemy = false, aoe = 0, pierce = false, weaponType = '') {
     this.x = x;
     this.y = y;
     this.vx = vx;
@@ -9,9 +9,10 @@ class Bullet {
     this.isEnemy = isEnemy;
     this.aoe = aoe;
     this.pierce = pierce;
-    this.pierceHits = 0; // track how many enemies pierced
+    this.pierceHits = 0;
     this.active = true;
     this.size = pierce ? CONFIG.BULLET_SIZE * 1.5 : CONFIG.BULLET_SIZE;
+    this.weaponType = weaponType;
     // Trail
     this.prevX = x;
     this.prevY = y;
@@ -95,7 +96,7 @@ class BulletPool {
     this.maxSize = maxSize;
   }
 
-  spawn(x, y, vx, vy, dmg, isEnemy = false, aoe = 0, pierce = false) {
+  spawn(x, y, vx, vy, dmg, isEnemy = false, aoe = 0, pierce = false, weaponType = '') {
     let bullet;
     if (this.pool.length > 0) {
       bullet = this.pool.pop();
@@ -105,9 +106,10 @@ class BulletPool {
       bullet.aoe = aoe; bullet.pierce = pierce;
       bullet.pierceHits = 0; bullet.active = true;
       bullet.size = pierce ? CONFIG.BULLET_SIZE * 1.5 : CONFIG.BULLET_SIZE;
+      bullet.weaponType = weaponType;
       bullet.prevX = x; bullet.prevY = y;
     } else {
-      bullet = new Bullet(x, y, vx, vy, dmg, isEnemy, aoe, pierce);
+      bullet = new Bullet(x, y, vx, vy, dmg, isEnemy, aoe, pierce, weaponType);
     }
     this.active.push(bullet);
     return bullet;

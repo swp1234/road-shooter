@@ -1102,6 +1102,13 @@ class RunScene {
       return;
     }
 
+    // Screen shake
+    const shake = this.particles.getShakeOffset();
+    if (shake.x || shake.y) {
+      ctx.save();
+      ctx.translate(shake.x, shake.y);
+    }
+
     const cw = CONFIG.CANVAS_WIDTH;
     const ch = CONFIG.CANVAS_HEIGHT;
 
@@ -1181,6 +1188,9 @@ class RunScene {
 
     // Particles (on top, no scaling — they're effects)
     this.particles.draw(ctx);
+
+    // End screen shake before drawing HUD
+    if (shake.x || shake.y) ctx.restore();
 
     // HUD top bar
     this.drawTopBar(ctx);

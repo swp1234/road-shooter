@@ -99,21 +99,24 @@ class CombatSystem {
           const vy = (dy / dist) * wBulletSpeed;
           const bulletDmg = Math.ceil(char.config.dmg * dmgMul * wDmgMul);
 
+          // Determine weapon type for visual effects
+          const wType = weapon ? (weapon.id || '') : (char.type || '');
+
           // Spread weapon (shotgun): fires multiple bullets
           if (wSpread > 0) {
             const baseAngle = Math.atan2(dy, dx);
             for (let s = 0; s < wSpread; s++) {
               const a = baseAngle + (s - (wSpread - 1) / 2) * 0.15;
-              this.bulletPool.spawn(char.x, char.y - 3, Math.cos(a) * wBulletSpeed, Math.sin(a) * wBulletSpeed, Math.ceil(bulletDmg * 0.6), false, 0);
+              this.bulletPool.spawn(char.x, char.y - 3, Math.cos(a) * wBulletSpeed, Math.sin(a) * wBulletSpeed, Math.ceil(bulletDmg * 0.6), false, 0, false, wType);
             }
           }
           // Pierce weapon (sniper/laser)
           else if (wPierce) {
-            this.bulletPool.spawn(char.x, char.y - 3, vx, vy, bulletDmg, false, 0, true);
+            this.bulletPool.spawn(char.x, char.y - 3, vx, vy, bulletDmg, false, 0, true, wType);
           }
           // AOE weapon (rocket)
           else if (wAoe > 0) {
-            this.bulletPool.spawn(char.x, char.y - 3, vx, vy, bulletDmg, false, wAoe);
+            this.bulletPool.spawn(char.x, char.y - 3, vx, vy, bulletDmg, false, wAoe, false, wType);
           }
           // Normal fire (with accuracy jitter for minigun)
           else {
@@ -123,7 +126,7 @@ class CombatSystem {
               fvx += (Math.random() - 0.5) * wBulletSpeed * jitter;
               fvy += (Math.random() - 0.5) * wBulletSpeed * jitter;
             }
-            this.bulletPool.spawn(char.x, char.y - 3, fvx, fvy, bulletDmg, false, 0);
+            this.bulletPool.spawn(char.x, char.y - 3, fvx, fvy, bulletDmg, false, 0, false, wType);
           }
           if (Math.random() < 0.15) Sound.shoot();
         } else {
@@ -195,11 +198,12 @@ class CombatSystem {
         if (dx * dx + dy * dy < boss.size * boss.size) {
           const killed = boss.takeDamage(b.dmg);
           b.active = false;
-          particles.emitHitSpark(b.x, b.y);
+          particles.emitWeaponHit(b.x, b.y, b.weaponType);
           particles.emitDamage(b.x, b.y, b.dmg);
           Sound.bossHit();
           if (killed) {
             particles.emitBossDeath(boss.x, boss.y);
+            particles.startShake(8, 0.5);
             gold += Math.floor(CONFIG.BOSS_GOLD * bossGoldMul);
             Sound.bossDeath();
           }
@@ -222,7 +226,7 @@ class CombatSystem {
           } else {
             b.active = false;
           }
-          particles.emitHitSpark(b.x, b.y);
+          particles.emitWeaponHit(b.x, b.y, b.weaponType);
           particles.emitDamage(b.x, b.y, b.dmg);
           if (killed) {
             kills++;

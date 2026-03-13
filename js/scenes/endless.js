@@ -997,6 +997,13 @@ class EndlessScene {
       return;
     }
 
+    // Screen shake
+    const shake = this.particles.getShakeOffset();
+    if (shake.x || shake.y) {
+      ctx.save();
+      ctx.translate(shake.x, shake.y);
+    }
+
     const cw = CONFIG.CANVAS_WIDTH;
     this.road.draw(ctx);
 
@@ -1057,6 +1064,9 @@ class EndlessScene {
 
     // Particles (no scaling — effects)
     this.particles.draw(ctx);
+
+    // End screen shake before HUD
+    if (shake.x || shake.y) ctx.restore();
 
     this.drawTopBar(ctx);
     this.drawBuffBar(ctx);
