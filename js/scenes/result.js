@@ -25,6 +25,30 @@ class ResultScene {
         color: cleared ? CONFIG.COLORS.primary : CONFIG.COLORS.danger
       });
     }
+
+    // Victory confetti
+    this.confetti = [];
+    if (cleared) {
+      const colors = ['#fbbf24', '#ef4444', '#10b981', '#3b82f6', '#a855f7', '#f97316', '#ec4899'];
+      for (let i = 0; i < 60; i++) {
+        this.confetti.push({
+          x: Math.random() * CONFIG.CANVAS_WIDTH,
+          y: -Math.random() * CONFIG.CANVAS_HEIGHT * 0.5 - 20,
+          vx: (Math.random() - 0.5) * 2,
+          vy: Math.random() * 2 + 1,
+          w: Math.random() * 8 + 4,
+          h: Math.random() * 4 + 2,
+          rot: Math.random() * Math.PI * 2,
+          rotV: (Math.random() - 0.5) * 0.15,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          delay: Math.random() * 1.5
+        });
+      }
+    }
+
+    // Dramatic flash
+    this.flashAlpha = cleared ? 0.6 : 0.4;
+    this.flashColor = cleared ? '#00e5ff' : '#ef4444';
   }
 
   update(dt) {
@@ -47,6 +71,24 @@ class ResultScene {
       if (p.x < -10) p.x = CONFIG.CANVAS_WIDTH + 10;
       if (p.x > CONFIG.CANVAS_WIDTH + 10) p.x = -10;
     }
+
+    // Update confetti
+    for (const c of this.confetti) {
+      if (this.animTimer < c.delay) continue;
+      c.x += c.vx;
+      c.y += c.vy;
+      c.vy += 0.03;
+      c.rot += c.rotV;
+      c.vx *= 0.998;
+      if (c.y > CONFIG.CANVAS_HEIGHT + 20) {
+        c.y = -10;
+        c.x = Math.random() * CONFIG.CANVAS_WIDTH;
+        c.vy = Math.random() * 2 + 1;
+      }
+    }
+
+    // Flash decay
+    if (this.flashAlpha > 0) this.flashAlpha -= dt * 1.5;
 
     if (typeof Achievements !== 'undefined') Achievements.updateToast(dt);
   }
@@ -76,6 +118,14 @@ class ResultScene {
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, cw, ch);
 
+    // Dramatic flash overlay
+    if (this.flashAlpha > 0) {
+      ctx.globalAlpha = Math.max(0, this.flashAlpha);
+      ctx.fillStyle = this.flashColor;
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.globalAlpha = 1;
+    }
+
     // Floating particles
     for (const p of this.bgParticles) {
       ctx.globalAlpha = p.alpha;
@@ -83,6 +133,19 @@ class ResultScene {
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Victory confetti
+    for (const c of this.confetti) {
+      if (this.animTimer < c.delay) continue;
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(c.rot);
+      ctx.globalAlpha = 0.85;
+      ctx.fillStyle = c.color;
+      ctx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+      ctx.restore();
     }
     ctx.globalAlpha = 1;
 
@@ -117,6 +180,30 @@ class ResultScene {
     ctx.font = '13px Outfit';
     ctx.textAlign = 'center';
     ctx.fillText(`${this.game.i18n('hud_stage') || 'Stage'} ${this.result.stage}`, cw / 2, badgeY + 5);
+
+    // NEW BEST badge
+    if (this.result.isNewBest && this.animTimer > 0.8) {
+      const nbY = ch * 0.18 - slideY;
+      const nbScale = 1 + Math.sin(this.animTimer * 3) * 0.05;
+      ctx.save();
+      ctx.translate(cw / 2, nbY);
+      ctx.scale(nbScale, nbScale);
+      ctx.fillStyle = 'rgba(251,191,36,0.2)';
+      ctx.beginPath();
+      ctx.roundRect(-52, -14, 104, 28, 14);
+      ctx.fill();
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = '#fbbf24';
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 13px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText('\u2B50 ' + (this.game.i18n('result_new_best') || 'NEW BEST!') + ' \u2B50', 0, 5);
+      ctx.restore();
+    }
 
     // Stars with animation
     if (cleared && this.counters.stars > 0) {

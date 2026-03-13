@@ -593,6 +593,19 @@ class RunScene {
           Sound.bossDeath();
           Sound.bigKill();
           if (typeof Haptic !== 'undefined') Haptic.success();
+          // Boss explosion ring particles
+          const bx = this.boss.x, by = this.boss.y;
+          const explosionColors = ['#fbbf24', '#ef4444', '#a855f7', '#f97316', '#00e5ff'];
+          for (let i = 0; i < 40; i++) {
+            const angle = (Math.PI * 2 / 40) * i;
+            const speed = 3 + Math.random() * 4;
+            const color = explosionColors[Math.floor(Math.random() * explosionColors.length)];
+            this.particles.pool.push(new Particle(
+              bx, by,
+              Math.cos(angle) * speed, Math.sin(angle) * speed,
+              color, 1.2 + Math.random() * 0.5, 4 + Math.random() * 3
+            ));
+          }
         }
         this.bossDefeated = true;
         // Wait for death animation then end
@@ -1026,6 +1039,9 @@ class RunScene {
       if (survivalRate >= CONFIG.STAR_THRESHOLDS.star3) stars = 3;
     }
 
+    const prevMaxStage = this.game.saveData.progress.maxStage || 0;
+    const isNewBest = cleared && this.stage > prevMaxStage;
+
     const result = {
       stage: this.stage,
       cleared,
@@ -1037,7 +1053,8 @@ class RunScene {
       starCoins: this.bossDefeated ? Math.floor(Math.random() * 3) + 1 : 0,
       stars,
       survivalRate,
-      time: Math.floor(this.totalTimer)
+      time: Math.floor(this.totalTimer),
+      isNewBest
     };
 
     // Save

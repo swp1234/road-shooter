@@ -112,5 +112,6 @@
   "related_skyRunner": "Sky Runner",
   "related_flappyBird": "Flappy Bird",
   "related_pongGame": "Pong Game",
-  "related_zigzagRunner": "Zigzag Runner"
+  "related_zigzagRunner": "Zigzag Runner",
+  "result_new_best": "NEW BEST!"
 }
