@@ -114,9 +114,22 @@ class ParticleSystem {
     if (this.texts.length > 40) this.texts.shift();
   }
 
-  // Bullet hit spark
-  emitHitSpark(x, y) {
-    this.emit(x, y, '#fff', 2, 2, 0.12, 1.5);
+  // Bullet hit spark - weapon-specific colors
+  emitHitSpark(x, y, weaponType) {
+    switch (weaponType) {
+      case 'sniper':
+        this.emit(x, y, '#a78bfa', 4, 3, 0.2, 2.5); break;
+      case 'laser':
+        this.emit(x, y, '#22d3ee', 3, 3, 0.15, 2); break;
+      case 'shotgun':
+        this.emit(x, y, '#f87171', 3, 2, 0.1, 1.5); break;
+      case 'rocket':
+        this.emit(x, y, '#fb923c', 6, 4, 0.4, 3); break;
+      case 'minigun':
+        this.emit(x, y, '#fbbf24', 1, 1.5, 0.08, 1); break;
+      default:
+        this.emit(x, y, '#fff', 2, 2, 0.12, 1.5);
+    }
   }
 
   // Special effects
@@ -182,7 +195,7 @@ class ParticleSystem {
         this.emit(x, y, '#fff', 1, 1, 0.06, 3);
         break;
       default:
-        this.emitHitSpark(x, y);
+        this.emitHitSpark(x, y, weaponType);
     }
   }
 
