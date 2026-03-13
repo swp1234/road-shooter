@@ -245,7 +245,13 @@ class Game {
     dt *= this.slowMo;
 
     this.processKeyboard(dt);
-    if (this.scene) this.scene.update(dt);
+    if (this.scene) {
+      try {
+        this.scene.update(dt);
+      } catch (e) {
+        console.error('Scene update error:', e);
+      }
+    }
 
     // Update screen shake
     if (this.shakeDuration > 0) {

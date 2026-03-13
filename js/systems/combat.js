@@ -64,7 +64,7 @@ class CombatSystem {
           const e = nearest.entity;
           if (e && !nearest.isBoss && e.speed) {
             const rawDist = Math.sqrt((tx - char.x) ** 2 + (ty - char.y) ** 2);
-            const flightTime = rawDist / speed;
+            const flightTime = rawDist / wBulletSpeed;
             if (e.type === 'rusher' || e.type === 'detonator' || e.type === 'tank' || e.type === 'brute') {
               const edx = char.x - tx;
               const edy = char.y - ty;
