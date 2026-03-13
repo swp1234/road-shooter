@@ -107,5 +107,10 @@
   "boss_stormColossus": "ストームコロッサス",
   "boss_infernoDragon": "インフェルノドラゴン",
   "boss_frostWraith": "フロストレイス",
-  "hud_slowed": "減速！"
+  "hud_slowed": "減速！",
+  "related_title": "もっと探索",
+  "related_skyRunner": "スカイランナー",
+  "related_flappyBird": "フラッピーバード",
+  "related_pongGame": "ポンゲーム",
+  "related_zigzagRunner": "ジグザグランナー"
 }

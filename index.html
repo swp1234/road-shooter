@@ -147,17 +147,15 @@
     <!-- i18n -->
     <script src="js/i18n.js"></script>
 
-        <!-- Related Games (SEO Internal Links) -->
-    <section class="related-games" style="margin:20px auto;padding:16px;max-width:480px;background:rgba(255,255,255,0.05);border-radius:12px;">
-      <p style="font-size:13px;color:#aaa;margin:0 0 8px 0;font-weight:600;">More Free Games</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <a href="/flappy-bird/" style="padding:6px 12px;background:rgba(255,255,255,0.08);border-radius:8px;text-decoration:none;color:inherit;font-size:13px;">🐦 Flappy Bird</a>
-        <a href="/sky-runner/" style="padding:6px 12px;background:rgba(255,255,255,0.08);border-radius:8px;text-decoration:none;color:inherit;font-size:13px;">☁️ Sky Runner</a>
-        <a href="/zigzag-runner/" style="padding:6px 12px;background:rgba(255,255,255,0.08);border-radius:8px;text-decoration:none;color:inherit;font-size:13px;">🏃 Zigzag Runner</a>
-        <a href="/snake-game/" style="padding:6px 12px;background:rgba(255,255,255,0.08);border-radius:8px;text-decoration:none;color:inherit;font-size:13px;">🐍 Snake Game</a>
-        <a href="/stack-tower/" style="padding:6px 12px;background:rgba(255,255,255,0.08);border-radius:8px;text-decoration:none;color:inherit;font-size:13px;">🏗️ Stack Tower</a>
+    <div style="max-width:420px;margin:20px auto;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);">
+      <h3 data-i18n="related.title" style="font-size:16px;color:#a0a0b8;margin-bottom:12px;text-align:center;">More to Explore</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <a href="/sky-runner/" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;text-decoration:none;color:#fff;"><span style="font-size:28px;">🚀</span><span data-i18n="related.skyRunner" style="font-size:12px;font-weight:600;color:#a0a0b8;">Sky Runner</span></a>
+        <a href="/flappy-bird/" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;text-decoration:none;color:#fff;"><span style="font-size:28px;">🐦</span><span data-i18n="related.flappyBird" style="font-size:12px;font-weight:600;color:#a0a0b8;">Flappy Bird</span></a>
+        <a href="/pong-game/" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;text-decoration:none;color:#fff;"><span style="font-size:28px;">🏓</span><span data-i18n="related.pongGame" style="font-size:12px;font-weight:600;color:#a0a0b8;">Pong Game</span></a>
+        <a href="/zigzag-runner/" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;text-decoration:none;color:#fff;"><span style="font-size:28px;">🏃</span><span data-i18n="related.zigzagRunner" style="font-size:12px;font-weight:600;color:#a0a0b8;">Zigzag Runner</span></a>
       </div>
-    </section>
+    </div>
     <script src="/portal/js/cross-promo.js" defer></script>
   <script>if("serviceWorker"in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}</script>
 </body>

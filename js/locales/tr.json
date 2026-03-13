@@ -107,5 +107,10 @@
   "boss_stormColossus": "FIRTINA KOLOSU",
   "boss_infernoDragon": "CEHENNEM EJDERHASI",
   "boss_frostWraith": "BUZ HAYALETI",
-  "hud_slowed": "YAVAŞ!"
+  "hud_slowed": "YAVAŞ!",
+  "related_title": "Daha fazla keşfet",
+  "related_skyRunner": "Sky Runner",
+  "related_flappyBird": "Flappy Bird",
+  "related_pongGame": "Pong Oyunu",
+  "related_zigzagRunner": "Zigzag Koşucu"
 }

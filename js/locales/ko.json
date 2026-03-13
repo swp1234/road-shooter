@@ -107,5 +107,10 @@
   "boss_stormColossus": "스톰 콜로서스",
   "boss_infernoDragon": "인페르노 드래곤",
   "boss_frostWraith": "프로스트 레이스",
-  "hud_slowed": "감속!"
+  "hud_slowed": "감속!",
+  "related_title": "더 많은 게임",
+  "related_skyRunner": "스카이 러너",
+  "related_flappyBird": "플래피 버드",
+  "related_pongGame": "퐁 게임",
+  "related_zigzagRunner": "지그재그 러너"
 }

@@ -107,5 +107,10 @@
   "boss_stormColossus": "ШТОРМОВОЙ КОЛОСС",
   "boss_infernoDragon": "АДСКИЙ ДРАКОН",
   "boss_frostWraith": "ЛЕДЯНОЙ ПРИЗРАК",
-  "hud_slowed": "ЗАМЕДЛЕН"
+  "hud_slowed": "ЗАМЕДЛЕН",
+  "related_title": "Ещё игры",
+  "related_skyRunner": "Скай Раннер",
+  "related_flappyBird": "Флэппи Бёрд",
+  "related_pongGame": "Понг",
+  "related_zigzagRunner": "Зигзаг Раннер"
 }

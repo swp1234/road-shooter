@@ -107,5 +107,10 @@
   "boss_stormColossus": "风暴巨像",
   "boss_infernoDragon": "地狱火龙",
   "boss_frostWraith": "冰霜幽灵",
-  "hud_slowed": "减速！"
+  "hud_slowed": "减速！",
+  "related_title": "更多探索",
+  "related_skyRunner": "天空跑者",
+  "related_flappyBird": "飞翔的鸟",
+  "related_pongGame": "乒乓游戏",
+  "related_zigzagRunner": "之字跑者"
 }
