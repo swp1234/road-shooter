@@ -1,4 +1,16 @@
 // Road Shooter - Entry Point & Game Loop
+const ROAD_SHOOTER_LOCALES = ['ko','en','zh','hi','ru','ja','es','pt','id','tr','de','fr'];
+const roadShooterStages = new Set();
+function trackRoadShooterStage(name) {
+  if (roadShooterStages.has(name) || typeof window.gtag !== 'function') return;
+  roadShooterStages.add(name);
+  window.gtag('event', name, {
+    app_name: 'road-shooter',
+    event_category: 'game_stage',
+    transport_type: 'beacon'
+  });
+}
+
 class Game {
   constructor() {
     this.canvas = document.getElementById('gameCanvas');
@@ -21,7 +33,13 @@ class Game {
 
     // i18n
     this.translations = {};
-    this.lang = this.saveData.settings.language || 'ko';
+    const requestedLang = new URLSearchParams(window.location.search).get('lang');
+    const browserLang = (navigator.language || 'en').split('-')[0];
+    this.lang = ROAD_SHOOTER_LOCALES.includes(requestedLang)
+      ? requestedLang
+      : ROAD_SHOOTER_LOCALES.includes(this.saveData.settings.language)
+        ? this.saveData.settings.language
+        : ROAD_SHOOTER_LOCALES.includes(browserLang) ? browserLang : 'en';
 
     // 3D Renderer
     this.renderer3d = null;
@@ -83,9 +101,8 @@ class Game {
         SkinManager.init(this.saveData);
         this.applySkinFilter();
       }
-      // Init ads
-      if (typeof GameAds !== 'undefined') GameAds.init();
       this.showMenu();
+      trackRoadShooterStage('road_shooter_view');
       this.start();
     });
   }
@@ -162,6 +179,9 @@ class Game {
       if (this.scene && this.scene.handleDrag) {
         if (this.isDragging || this.scene instanceof RunScene || this.scene instanceof EndlessScene) {
           this.scene.handleDrag(pos.x, pos.y);
+          if (this.scene instanceof RunScene || this.scene instanceof EndlessScene) {
+            trackRoadShooterStage('road_shooter_progress');
+          }
         }
       }
     };
@@ -325,10 +345,12 @@ class Game {
 
   startRun(stage) {
     if (!stage) stage = (this.saveData.progress.maxStage || 0) + 1;
+    trackRoadShooterStage('road_shooter_start');
     this.scene = new RunScene(this, stage);
   }
 
   showResult(result) {
+    trackRoadShooterStage('road_shooter_complete');
     this.scene = new ResultScene(this, result);
   }
 
@@ -356,10 +378,12 @@ class Game {
   }
 
   startEndless() {
+    trackRoadShooterStage('road_shooter_start');
     this.scene = new EndlessScene(this);
   }
 
   showEndlessResult(result) {
+    trackRoadShooterStage('road_shooter_complete');
     this.scene = new EndlessResultScene(this, result);
   }
 }

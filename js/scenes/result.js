@@ -342,41 +342,11 @@ class ResultScene {
       this.retryBtn = { x: retryX, y: retryY, w: btnW, h: btnH };
       this.menuBtn = { x: menuX, y: retryY, w: btnW, h: btnH };
 
-      // 2x Gold rewarded ad button
-      this.rewardBtn = null;
-      if (typeof GameAds !== 'undefined' && GameAds.isAvailable() && !this.rewardClaimed) {
-        const rwW = cw - 60;
-        const rwH = 38;
-        const rwX = 30;
-        const rwY = retryY + btnH + 12;
-        const pulse = 0.85 + Math.sin(this.animTimer * 4) * 0.15;
-        ctx.globalAlpha = btnFade * pulse;
-        ctx.fillStyle = 'rgba(217,119,6,0.3)';
-        ctx.beginPath();
-        ctx.roundRect(rwX, rwY, rwW, rwH, 10);
-        ctx.fill();
-        ctx.strokeStyle = '#d97706';
-        ctx.lineWidth = 1;
-        ctx.shadowColor = '#d97706';
-        ctx.shadowBlur = 6;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#fbbf24';
-        ctx.font = 'bold 13px Outfit';
-        ctx.textAlign = 'center';
-        ctx.fillText(
-          '\uD83C\uDFA5 ' + (this.game.i18n('ad_2x_gold') || 'Watch Ad for 2x Gold'),
-          cw / 2, rwY + rwH / 2 + 4
-        );
-        ctx.globalAlpha = 1;
-        this.rewardBtn = { x: rwX, y: rwY, w: rwW, h: rwH };
-      }
-
       // Upgrade glass button
       const upgW = 140;
       const upgH = 36;
       const upgX = (cw - upgW) / 2;
-      const upgY = retryY + btnH + (this.rewardBtn ? 58 : 16);
+      const upgY = retryY + btnH + 16;
       ctx.globalAlpha = btnFade;
       ctx.fillStyle = 'rgba(10,10,31,0.8)';
       ctx.beginPath();
@@ -415,26 +385,6 @@ class ResultScene {
       const b = this.menuBtn;
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
         this.game.showMenu();
-        return true;
-      }
-    }
-    if (this.rewardBtn) {
-      const b = this.rewardBtn;
-      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
-        Sound.uiClick();
-        GameAds.showRewarded({
-          onReward: () => {
-            const bonus = this.result.gold;
-            this.game.saveData.currency.gold += bonus;
-            if (this.game.saveData.stats.totalGoldEarned) {
-              this.game.saveData.stats.totalGoldEarned += bonus;
-            }
-            SaveManager.save(this.game.saveData);
-            this.rewardClaimed = true;
-            this.result.gold *= 2;
-          },
-          onSkip: () => {}
-        });
         return true;
       }
     }

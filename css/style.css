@@ -19,23 +19,6 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Hide cross-promo for fullscreen canvas game */
-.cp-section,
-.cp-grid,
-.cp-card,
-[class*="cross-promo"],
-[id*="cross-promo"],
-.cross-promo-sidebar {
-  display: none !important;
-  visibility: hidden !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
-  pointer-events: none !important;
-  position: absolute !important;
-  left: -9999px !important;
-}
-
 /* App Loader */
 #app-loader {
   position: fixed;

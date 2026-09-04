@@ -1,29 +1,12 @@
-const CACHE_NAME = 'road-shooter-v8';
+const CACHE_NAME = 'road-shooter-v9';
+const CACHE_PREFIX = 'road-shooter-';
+const APP_PATH = '/road-shooter/';
 const ASSETS = [
-  '/road-shooter/',
-  '/road-shooter/index.html',
-  '/road-shooter/css/style.css',
-  '/road-shooter/js/app.js',
-  '/road-shooter/js/skins.js',
-  '/road-shooter/js/ranking.js',
-  '/road-shooter/js/achievements.js',
-  '/road-shooter/js/scenes/achieve.js',
-  '/road-shooter/js/scenes/skin.js',
-  '/road-shooter/js/scenes/rank.js',
-  '/road-shooter/js/i18n.js',
-  '/road-shooter/js/locales/ko.json',
-  '/road-shooter/js/locales/en.json',
-  '/road-shooter/js/locales/ja.json',
-  '/road-shooter/js/locales/zh.json',
-  '/road-shooter/js/locales/hi.json',
-  '/road-shooter/js/locales/ru.json',
-  '/road-shooter/js/locales/es.json',
-  '/road-shooter/js/locales/pt.json',
-  '/road-shooter/js/locales/id.json',
-  '/road-shooter/js/locales/tr.json',
-  '/road-shooter/js/locales/de.json',
-  '/road-shooter/js/locales/fr.json',
-  '/road-shooter/manifest.json',
+  './',
+  './index.html',
+  './css/style.css',
+  './js/app.js',
+  './manifest.json',
 ];
 
 self.addEventListener('install', event => {
@@ -36,18 +19,26 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys
+        .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+        .map(key => caches.delete(key)))
     )
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
-  if (!event.request.url.startsWith(self.location.origin)) return;
+  const url = new URL(event.request.url);
+  if (
+    event.request.method !== 'GET'
+    || url.origin !== self.location.origin
+    || !url.pathname.startsWith(APP_PATH)
+  ) return;
+
   event.respondWith(
     caches.match(event.request).then(cached => {
       const fetched = fetch(event.request).then(response => {
-        if (response && response.status === 200) {
+        if (response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         }

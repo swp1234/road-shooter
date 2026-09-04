@@ -1072,13 +1072,9 @@ class RunScene {
       this.game.shake(10, 0.4);
     }
 
-    // Show result after delay (with interstitial ad every 3 games)
+    // Show the result after the end animation.
     setTimeout(() => {
-      if (typeof GameAds !== 'undefined') {
-        GameAds.showInterstitial({ onComplete: () => this.game.showResult(result) });
-      } else {
-        this.game.showResult(result);
-      }
+      this.game.showResult(result);
     }, cleared ? 1500 : 500);
   }
 
